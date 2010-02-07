@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="package" name="BOSS2">
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.5"/>
+    <property name="source" value="1.5"/>
+    <path id="Web App Libraries.libraryclasspath">
+        <pathelement location="WebContent/WEB-INF/lib/activation.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/annotations-api.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/catalina-ant.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/catalina-ha.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/catalina-tribes.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/catalina.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/commons-collections-3.2.1.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/commons-fileupload-1.2.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/commons-lang-2.4.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/el-api.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jasper-el.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jasper-jdt.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jasper.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jsp-api.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/junit-4.4.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/log4j-1.2.15.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/lsimplecaptcha-20071121.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/mail.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/mysql-connector-java-5.1.6-bin.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/ojdbc5.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/servlet-api.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/tomcat-coyote.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/tomcat-dbcp.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/tomcat-i18n-es.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/tomcat-i18n-fr.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/tomcat-i18n-ja.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/velocity-1.5.jar"/>
+        <pathelement location="ImportedClasses"/>
+    </path>
+    <path id="BOSS2.classpath">
+        <pathelement location="build/classes"/>
+        <path refid="Web App Libraries.libraryclasspath"/>
+    </path>
+    <target name="init">
+        <mkdir dir="build/classes"/>
+        <copy includeemptydirs="false" todir="build/classes">
+            <fileset dir="src">
+                <exclude name="**/*.launch"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="clean">
+        <delete dir="build/classes"/>
+		<delete file="BOSS2.war"/>
+    </target>
+    <target depends="clean" name="cleanall"/>
+    <target depends="init" name="build">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="build/classes" source="${source}" target="${target}">
+            <src path="src"/>
+            <classpath refid="BOSS2.classpath"/>
+        </javac>
+    </target>
+	<target depends="build" name="package">
+		<echo message="Packaging war file"/>
+		<war destfile="BOSS2.war" basedir="WebContent">
+			<classes dir="build/classes" />
+		</war>
+	</target>
+</project>
