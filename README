@@ -1,0 +1,58 @@
+BUILDING AND DEPLOYMENT
+=======================
+Simply invoke:
+
+	$ ant
+	 
+at the project's root folder to build and package the webapp's WAR file. Upon the completion of the ant's task, 
+you will find a file called 'BOSS2.war' in the project's root folder. Following the installation guide at
+  
+ 	http://www.dcs.warwick.ac.uk/boss/maintenance.php
+ 
+to deploy BOSS2. Also, note that the source files (.java files) are not included in the war package. 
+ 
+
+SETTING UP ECLIPSE TO DEVELOP BOSS2
+===================================
+Simply create a new Java project in Eclipse from the existing source folder (i.e., the folder where you found
+this file). Note that for consistency purpose, the default output folder should be set to something sensible
+(separate folder from the source, of course). If an ant build was run prior to this step, the build folder
+should already be in place and Eclipse's new project wizard should pick up the folder 'build/classes' as
+the default output folder.  
+
+As you might have guess, this will create a general Java project in Eclipse without the ability
+to run BOSS within Eclipse (given that you are running the adequate Eclipse distribution with Tomcat and
+other web development goodies integrated). To overcome this, one has to convert the general Java project to
+Dynamic Web project. Unfortunately, there are no automatic way to do this. The .project file has to be
+manually edited (by choosing Navigate > Open Resource and the search for .project) to contain the following
+within the <natures> tag
+
+	<nature>org.eclipse.jem.workbench.JavaEMFNature</nature>
+	<nature>org.eclipse.wst.common.modulecore.ModuleCoreNature</nature>
+	<nature>org.eclipse.wst.common.project.facet.core.nature</nature>
+	<nature>org.eclipse.jdt.core.javanature</nature>
+	<nature>org.eclipse.wst.jsdt.core.jsNature</nature>
+
+Having saved the .project file, call up the Properties panel of the project, under Project Facets section,
+select 'Dynamic Web Module' and 'Java' and click OK. More info can be found on
+
+	http://greatwebguy.com/programming/eclipse/converting-a-java-project-to-a-dynamic-web-project-in-eclipse/
+ 
+Now, as the project has been changed to a web project, one can choose 'Run on Server' to run the project on
+Tomcat's server within Eclipse. If there's no server setup previously, the first run will ask for a server
+to be setting up. This step is just as simple as pointing to the folder where Tomcat has been installed in
+the system.
+
+If this project's source was obtained by cloning the git repository of BOSS2 on github, you can also choose
+to make this Eclipse project git-controlled (i.e., versioning control using git from inside Eclipse). This
+way you could track the latest changes of the development as well as pushing your own contribution if you
+managed to obtain the push privilege to the upstream repo. on github. Since you have cloned the repo., 
+the project folder itself is already a git repository; you only need to make Eclipse aware of the project's
+"gitness". This can be achieved by first install the EGit plugin for Eclipse from the software site
+
+	http://download.eclipse.org/egit/updates
+
+Then, right-click on the project, choose Team > Share Project, select Git and basically just follow the
+wizard. More info and screen shots can be found on
+
+	http://github.com/guides/using-the-egit-eclipse-plugin-with-github
