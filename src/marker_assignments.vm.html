@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Marker Assignments</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="Content-Script-Type" content="text/javascript" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<link rel="StyleSheet" href="$context.getStaticPath()/css/tables.css" type="text/css" media="screen"/>
+		<script type="text/javascript" src="$context.getStaticPath()/js/targethack.js"></script>
+	</head>
+	
+	<body>
+		<div class="logodiv">
+			<a href="$context.getPageUrl("system", "home")"><img  class="logo" alt="Small BOSS2 Logo" src="$context.getStaticPath()/img/logo.png"/></a>
+		</div>
+				
+		<div class="usernav">
+			Hello, $greet (<a href="$context.getPageUrl("system", "logout")">Log out</a>)
+		</div>		
+		
+		<div class="textbar"><h1>BOSS 2: Assignments</h1></div>
+
+		<div class="breadcrumbs"><a href="$context.getPageUrl("system", "home")">Home</a> : Marker Assignments</div>
+
+		<div class="control">
+			<h2>Actions...</h2>
+			<ul>
+				<li><a href="$context.getPageUrl("marker", "assignments")?show=open">Mark an assignment</a></li>
+				<li><a href="$context.getPageUrl("system", "logout")">Log out</a></li>
+			</ul>
+
+			<h2>Show...</h2>
+			<ul>
+				<li><a href="$context.getPageUrl("marker", "assignments")?show=closed&amp;sorting=$sorting">Closed assignments</a></li>
+				<li><a href="$context.getPageUrl("marker", "assignments")?show=open&amp;sorting=$sorting">Still open assignments</a></li>
+				<li><a href="$context.getPageUrl("marker", "assignments")?show=all&amp;sorting=$sorting">All assignments</a></li>
+			</ul>			
+		</div>	
+	
+		#if($sorting == "student_count_asc")
+			#set($sorting_desc="by ascending student count")
+			#set($students_sort_type="student_count_desc")
+		#elseif($sorting == "student_count_desc")
+			#set($sorting_desc="by descending student count")
+			#set($students_sort_type="student_count_asc")
+		#else
+			#set($sorting_desc="in no particular order")
+			#set($students_sort_type="student_count_asc")
+		#end
+	
+		<div class="table">
+			<h2 class="nostyle">Assignments</h2>
+			<table class="full">
+				<thead>
+					<tr>
+						<th>Assignment</th>
+						<th><a href="$context.getCurrentPageUrl()?sorting=$students_sort_type">Students available to mark</a></th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+
+				#set($style="odd")				
+				#foreach($assignment in $assignments)
+
+					#set($assignment_url = $context.getPageUrl("student", "assignment") + "?assignment=" + $assignment.getAssignment().getId())
+
+					<tr class="$style">
+						<td>
+							<h3>$assignment.getAssignment().getName()</h3>
+							<p>$assignment.getParentModule().getName()</p>
+						</td>
+						<td>
+							<p>
+								$assignment.getStudentCount()
+							</p>
+						</td>
+						<td>
+							<form method="get" action="$context.getPageUrl("marker", "students")">
+								<p>
+									<input type="hidden" name="assignment" value="$assignment.getAssignment().getId()"/>
+									<input type="submit" value="Mark/moderate this assignment"/>
+								</p>
+							</form>								
+						</td>
+					</tr>
+
+					#if($style == "odd")
+						#set($style = "even")
+					#else
+						#set($style = "odd")
+					#end
+
+				#end
+				</tbody>
+			</table>
+			
+			<p class="footnote">$assignments.size() assignment#if($assignments.size()!=1)s#end, sorted
+			$sorting_desc.  To change sorting, please click the desired header.</p>
+		</div>	
+		
+		<div class="navbar">
+			<h2 class="nostyle">
+				Navigate to:
+			</h2>
+			
+			<ul>
+				<li><a href="$context.getPageUrl("help", "about")" rel="external">About BOSS</a></li>
+				<li><a href="$context.getPageUrl("help", "accessibility")" rel="external">Accessibility</a></li>
+				<li><a href="$helpUrl" rel="external">Help</a></li>
+			</ul>
+		</div>		
+	</body>
+</html>

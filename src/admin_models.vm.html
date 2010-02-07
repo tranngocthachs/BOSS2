@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Admin Models</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="Content-Script-Type" content="text/javascript" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<link rel="StyleSheet" href="$context.getStaticPath()/css/tables.css" type="text/css" media="screen"/>
+		<script type="text/javascript" src="$context.getStaticPath()/js/targethack.js"></script>
+	</head>
+	
+	<body>
+		<div class="logodiv">
+			<a href="$context.getPageUrl("system", "home")"><img  class="logo" alt="Small BOSS2 Logo" src="$context.getStaticPath()/img/logo.png"/></a>
+		</div>
+				
+		<div class="usernav">
+			Hello, $greet (<a href="$context.getPageUrl("system", "logout")">Log out</a>)
+		</div>		
+		
+		<div class="textbar"><h1>BOSS 2: Models</h1></div>
+
+		<div class="breadcrumbs"><a href="$context.getPageUrl("system", "home")">Home</a> : Admin Models</div>
+
+		<div class="control">
+			<h2>Navigate...</h2>
+			<ul>
+				<li><a href="$context.getPageUrl("admin", "models")">Manage curriculum</a></li>
+				<li><a href="$context.getPageUrl("admin", "people")">Manage people</a></li>
+				<li><a href="$context.getPageUrl("admin", "utilities")">Admin utilities</a></li>
+				<li><a href="$context.getPageUrl("system", "logout")">Log out</a></li>
+			</ul>
+			
+			<h2>Actions...</h2>
+			<ul>
+				<li><a href="$context.getPageUrl("admin", "edit_model")?create=true">Create new model</a></li>
+			</ul>	
+		</div>	
+		
+		#if($sorting == "module_count_asc")
+			#set($sorting_desc="by ascending module count")
+			#set($modules_sort_type="module_count_desc")
+		#elseif($sorting == "module_count_desc")
+			#set($sorting_desc="by descending module count")
+			#set($modules_sort_type="module_count_asc")
+		#else
+			#set($sorting_desc="in no particular order")
+			#set($modules_sort_type="module_count_desc")
+		#end
+		
+		<div class="table">
+			<h2 class="nostyle">Models</h2>
+			<table class="full">
+				<thead>
+					<tr>
+						<th>Model</th>
+						<th><a href="$context.getCurrentPageUrl()?sorting=$modules_sort_type">Modules</a></th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+
+				#set($style="odd")				
+				#foreach($model in $models)
+
+					#set($modules_url = $context.getPageUrl("admin", "modules") + "?model=" + $model.getModel().getId())
+					#set($model_url = $context.getPageUrl("admin", "edit_model") + "?model=" + $model.getModel().getId())
+
+					<tr class="$style">
+						<td>
+							<h3><a href="$model_url">$model.getModel().getName()</a></h3>
+							<ul>
+								<li><a href="$modules_url">Manage modules...</a></li>
+							</ul>
+						</td>
+						<td>
+							<p>
+									$model.getModuleCount()
+							</p>
+						</td>
+						<td>
+							<form method="get" action="$context.getPageUrl("admin", "edit_model")">
+								<p>
+									<input type="hidden" name="model" value="$model.getModel().getId()"/>
+									<input type="submit" value="Edit/Delete Model"/>
+								</p>
+							</form>
+						</td>								
+						
+					</tr>
+					
+					#if($style == "odd")
+						#set($style = "even")
+					#else
+						#set($style = "odd")
+					#end
+					
+				#end
+				</tbody>
+			</table>
+			
+			<p class="footnote">$models.size() model#if($models.size()!=1)s#end, sorted
+			$sorting_desc.  To change sorting, please click the desired header.</p>
+		</div>	
+		
+		<div class="navbar">
+			<h2 class="nostyle">
+				Navigate to:
+			</h2>
+			
+			<ul>
+				<li><a href="$context.getPageUrl("help", "about")" rel="external">About BOSS</a></li>
+				<li><a href="$context.getPageUrl("help", "accessibility")" rel="external">Accessibility</a></li>
+				<li><a href="$helpUrl" rel="external">Help</a></li>
+			</ul>
+		</div>		
+	</body>
+</html>

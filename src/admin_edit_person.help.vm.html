@@ -1,0 +1,22 @@
+<h2>All admin pages</h2>
+<p>All admin pages have the same basic layout, which is described <a href="$context.getPageUrl("help", "admin_generic")" rel="external">here</a>.</p>
+
+<h2>Edit Person page</h2>
+<p>This page allows you to edit, delete or create a person.</p>
+
+<h3>Creating/editing the person</h3>
+<p>A person has the following values that must be filled in:</p>
+<ul>
+	<li>'Unique identifier (aka. Username)': a small textual identifier for the person.  No two people may have the same unique identifier.  This doubles up as the username for the user that is used to log in by.</li>
+	<li>'Chosen name': the real name of the user, for example 'John H. Smith'.  Names do not need to be unique.</li>
+	<li>'Email address': the email adddress of the user, used for all communication with the user.</li>
+	<li>'Password': the password of the user.  If you are editing the peson's details you can leave this blank to leave the person's password unchanged.</li>
+	<li>'Administrator': whether the individual has access to the administration section or not.</li>
+</ul>
+
+<h3>Deleting the person</h3>
+<p>If you are not creating a person, under the values for the person there will be a checkbox marked 'Delete this person'. To delete the person rather than edit it, select this checkbox. If you are creating a person this checkbox will not be visible.</p>
+<p><em>NOTE: If the person has submissions or other data in the BOSS2 system, you will not be able to remove the person until the data is removed.</em></p>
+
+<h3>Confirming</h3>
+<p>If you are editing or deleting a person there will be a button labeled 'Perform Edit/Delete'. If you are creating a person the button will be labeled 'Perform Create'. Once you are sure of the values you have selected, click this button to commit the details to the BOSS2 database. If you do not wish to create, edit or delete a person navigate away from the page using the navigation menu, breadcrumbs or browser back button.</p>

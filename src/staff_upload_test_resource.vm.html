@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Resource file for $test.getName()</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="Content-Script-Type" content="text/javascript" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<link rel="StyleSheet" href="$context.getStaticPath()/css/tables.css" type="text/css" media="screen"/>
+		<script type="text/javascript" src="$context.getStaticPath()/js/targethack.js"></script>
+	</head>
+	
+	<body>
+		<div class="logodiv">
+			<a href="$context.getPageUrl("system", "home")"><img  class="logo" alt="Small BOSS2 Logo" src="$context.getStaticPath()/img/logo.png"/></a>
+		</div>
+				
+		<div class="usernav">
+			Hello, $greet (<a href="$context.getPageUrl("system", "logout")">Log out</a>)
+		</div>		
+		
+		<div class="textbar"><h1>BOSS 2: Resource file for $test.getName()</h1></div>
+
+		<div class="breadcrumbs"><a href="$context.getPageUrl("system", "home")">Home</a> : <a href="$context.getPageUrl("staff", "modules")">Staff Modules</a> : <a href="$context.getPageUrl("staff", "assignments")?module=$module.getId()">Assignments for $module.getName()</a> : <a href="$context.getPageUrl("staff", "tests")?assignment=$assignment.getId()">Tests for $assignment.getName()</a> : Upload resource for for $test.getName()</div>
+
+		<div class="control">
+			<h2>Navigate...</h2>
+			<ul>
+				<li><a href="$context.getPageUrl("staff", "modules")">My modules</a></li>
+				<li><a href="$context.getPageUrl("system", "logout")">Log out</a></li>
+			</ul>			
+		</div>	
+
+		<div class="table">
+		<form action="$context.getPageUrl("staff", "perform_upload_test_resource")?test=$test.getId()" method="post" enctype="multipart/form-data">	
+			<h2 class="nostyle">Test Resource Upload</h2>
+			<table class="full">
+				<thead>
+					<tr>
+						<th colspan="2">Values</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr class="odd">
+						<td>
+							<p>Module:</p>
+						</td>
+						<td>
+							<p>$module.getName()</p>
+						</td>
+					</tr>
+
+					<tr class="even">
+						<td>
+							<p>Assignment:</p>
+						</td>
+						<td>
+							<input type="hidden" name="assignment" value="$assignment.getId()"/>
+							<p>$assignment.getName()</p>
+						</td>
+					</tr>					
+
+					<tr class="odd">
+						<td>
+							<p>Test:</p>
+						</td>
+						<td>
+							<input type="hidden" name="test" value="$test.getId()"/>
+							<p>$test.getName()</p>
+						</td>
+					</tr>					
+					
+					<tr class="even">
+						<td>
+							<p><label for="resource">Resource file (must be .zip or .jar):</label></p>
+						</td>
+						<td>
+							<input id="resource" type="file" name="resource"/>
+						</td>
+					</tr>
+
+					<tr class="odd">
+						<td>
+							<p>Perform upload:</p>
+						</td>
+						<td>
+							<p>
+								<input type="submit" value="Perform Upload"/><br/>
+								Note: May take a while.
+							</p>
+						</td>
+					</tr>					
+				</tbody>
+			</table>
+		</form>
+		</div>		
+			
+		<div class="navbar">
+			<h2 class="nostyle">
+				Navigate to:
+			</h2>
+			
+			<ul>
+				<li><a href="$context.getPageUrl("help", "about")" rel="external">About BOSS</a></li>
+				<li><a href="$context.getPageUrl("help", "accessibility")" rel="external">Accessibility</a></li>
+				<li><a href="$helpUrl" rel="external">Help</a></li>
+			</ul>
+		</div>		
+	</body>
+</html>

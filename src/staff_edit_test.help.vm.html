@@ -1,0 +1,40 @@
+<h2>All staff pages</h2>
+<p>All staff pages have the same basic layout, which is described <a href="$context.getPageUrl("help", "staff_generic")" rel="external">here</a>.</p>
+
+<h2>Edit Test page</h2>
+<p>This page allows you to edit, delete or create a test.</p>
+
+<h3>Creating/editing the test</h3>
+<p>A test has the following values that must be filled in:</p>
+<ul>
+	<li>'Name': a custom name for the test.  Names do not need to be unique.</li>
+	<li>'Test': the testing method.  This is explained in the 'Testing method' section.</li>
+	<li>'Command executor' and 'Command to execute': the command execution method.  This is explained in the 'Command execution' section.</li>
+	<li>'Maximum run time in seconds': how long the test is allowed to run before it is assumed to have hung and is terminated.</li>
+	<li>'Allow students': a flag stating whether students are allowed to run the test.  If not, only markers may run the test.</li>
+</ul>
+
+<h3>Testing methods</h3>
+<p>Test outputs are marked using testing methods.  You may select a test method using the 'Testing method' section.  BOSS2 comes with the following testing methods by default:</p>
+<ul>
+	<li>'Random Test': Completely useless test that generates a random mark.</li>
+ 	<li>'Diff Test': A test that generates a mark depending on how well the output of a test matches a given reference output.</li>
+ 	<li>'Regex Test': A test that generates a mark based on a set of special rules that match regular expressions and provide marks.</li>
+</ul>
+<p>If you are unsure, the 'Diff Test' is the best option as at its simplest it will allow you to check if output matches what is expected.</p>
+
+<h3>Command execution</h3>
+<p>Before tests can be marked, some form of output has to be generated from the submission to mark.  Command executors take the provided command to execute and produce output somehow.  BOSS2 comes with the following command executors by default:</p>
+<ul>
+	<li>'Read a file': This test will take one of the submission files uploaded and treat its content as the output to mark.  The command to execute is the name of the file to read (e.g., solution.txt).</li>
+	<li>'Execute a shell command': This test will run the given command when the test is being performed, and the command's output will be the output to mark.  The command is run with the environment variables TEST_RESOURCE_DIRECTORY and SUBMISSION_DIRECTORY set, so that custom scripts can access the submission or uploaded test resource data.  The command to execute is the shell line passed directly to the the command shell.  (E.g., pushd $TEST_RESOURCE_DIR && python test.py $SUBMISSION_DIRECTORY && popd)</li>
+	<li>'Execute Java class': This test will run the given class as a Java program.  The classpath will be the submission directory as well as the test resource (allowing for you to upload a JAR for the test resource to provide a library framework).  The command to execute is the name of the Java class to execute (i.e. ClassName instead of ClassName.class).</li>  
+</ul>
+<p>If you are unsure, the 'Read a file' method is the best option as it just allows you to test a premade answer provided by the student.</p> 
+
+<h3>Deleting the test</h3>
+<p>If you are not creating a test, under the values for the module there will be a checkbox marked 'Delete this test'. To delete the test rather than edit it, select this checkbox. If you are creating a test this checkbox will not be visible.</p>
+
+<h3>Confirming</h3>
+<p>If you are editing or deleting a test there will be a button labeled 'Perform Edit/Delete'. If you are creating a test the button will be labeled 'Perform Create'. Once you are sure of the values you have selected, click this button to commit the details to the BOSS2 database. If you do not wish to create, edit or delete a test navigate away from the page using the navigation menu, breadcrumbs or browser back button.</p>
+<p><em>NOTE: If you create or edit a test after performing the operation you will be taken to a page to fill in the test parameters.  If you deleted the test, you will be taken straight back to the tests list for the current assignment.</em></p>

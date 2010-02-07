@@ -1,0 +1,9 @@
+Dear $person.getChosenName(),
+
+Thank you for your submission to $assignment.getName().  It was successfully received and archived.
+
+Your security code for this submission is: $submission.getSecurityCode().
+
+The time of this submission was $now.
+
+This is an automated email from the BOSS2 Submission System, please do not reply.

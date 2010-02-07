@@ -1,0 +1,47 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Student Login</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="Content-Script-Type" content="text/javascript" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<link rel="StyleSheet" href="$context.getStaticPath()/css/forms.css" type="text/css" media="screen"/>
+		<script type="text/javascript" src="$context.getStaticPath()/js/targethack.js"></script>
+	</head>
+	
+	<body>
+		<div class="logodiv">
+			<a href="$context.getPageUrl("system", "home")"><img  class="logo" alt="Small BOSS2 Logo" src="$context.getStaticPath()/img/logo.png"/></a>
+		</div>
+		
+		<div class="textbar"><h1>BOSS 2: Not an admin</h1></div>
+
+		<div class="breadcrumbs"><a href="$context.getPageUrl("system", "home")">Home</a> : Not an admin</div>	
+
+		<div class="form">
+			<h2>Sorry</h2>
+			<p>You are not an admin.</p>		
+		</div>
+		
+		<div class="extra">
+			<h2>Where can I go?</h2>
+			<ul>
+				<li><a href="$context.getPageUrl("student", "assignments")">Student</a></li>
+				<li><a href="$context.getPageUrl("marker", "assignments")">Marking</a></li>
+				<li><a href="$context.getPageUrl("staff", "modules")">Staff</a></li>
+			</ul>
+		</div>	
+		
+		<div class="navbar">
+			<h2 class="nostyle">
+				Navigate to:
+			</h2>
+			
+			<ul>
+				<li><a href="$context.getPageUrl("help", "about")" rel="external">About BOSS</a></li>
+				<li><a href="$context.getPageUrl("help", "accessibility")" rel="external">Accessibility</a></li>
+				<li><a href="$helpUrl" rel="external">Help</a></li>
+			</ul>
+		</div>		
+	</body>
+</html>

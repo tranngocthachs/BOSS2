@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- In order for BOSS2 to work, this file must be updated with the correct configuration. -->
+<!-- Follow the comments to configure. -->
+
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
+
+  <!-- BOSS servlet configuration -->
+  <servlet>
+
+  	<!--  Do not modify unless you know what you're doing -->  
+    <description>
+		Boss Page-Dispatching Controller Servlet
+	</description>
+    <display-name>PageDispatcherServlet</display-name>
+    <servlet-name>PageDispatcherServlet</servlet-name>
+    <servlet-class>
+		uk.ac.warwick.dcs.boss.frontend.PageDispatcherServlet
+	</servlet-class>		
+  </servlet>
+  
+  <!--  Captcha servlet configuration  -->
+  <servlet>
+    <description>Simple Captcha Servlet</description>
+    <display-name>Captcha</display-name>
+    <servlet-name>Captcha</servlet-name>
+    <servlet-class>nl.captcha.servlet.CaptchaServlet</servlet-class>
+  </servlet>
+  
+  <!-- Servlet mappings -->
+  <servlet-mapping>
+    <servlet-name>Captcha</servlet-name>
+    <url-pattern>/captcha.jpg</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>PageDispatcherServlet</servlet-name>
+    <url-pattern>/PageDispatcherServlet/*</url-pattern>
+  </servlet-mapping>
+  
+  <session-config>
+    <session-timeout>30</session-timeout>
+  </session-config>
+  
+  <welcome-file-list>
+    <welcome-file>PageDispatcherServlet</welcome-file>
+  </welcome-file-list>
+
+</web-app>

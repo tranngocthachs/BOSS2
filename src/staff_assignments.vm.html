@@ -1,0 +1,216 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Staff Assignments</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="Content-Script-Type" content="text/javascript" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<link rel="StyleSheet" href="$context.getStaticPath()/css/tables.css" type="text/css" media="screen"/>
+		<script type="text/javascript" src="$context.getStaticPath()/js/targethack.js"></script>
+	</head>
+	
+	<body>
+		<div class="logodiv">
+			<a href="$context.getPageUrl("system", "home")"><img  class="logo" alt="Small BOSS2 Logo" src="$context.getStaticPath()/img/logo.png"/></a>
+		</div>
+				
+		<div class="usernav">
+			Hello, $greet (<a href="$context.getPageUrl("system", "logout")">Log out</a>)
+		</div>		
+		
+		<div class="textbar"><h1>BOSS 2: Assignments for $module.getName()</h1></div>
+
+		<div class="breadcrumbs"><a href="$context.getPageUrl("system", "home")">Home</a> : <a href="$context.getPageUrl("staff", "modules")">Staff Modules</a> : Assignments for $module.getName()</div>
+
+		<div class="control">
+			<h2>Navigate...</h2>
+			<ul>
+				<li><a href="$context.getPageUrl("staff", "modules")">My modules</a></li>
+				<li><a href="$context.getPageUrl("system", "logout")">Log out</a></li>
+			</ul>
+			
+			<h2>Actions...</h2>
+			<ul>
+				<li><a href="$context.getPageUrl("staff", "edit_assignment")?module=$module.getId()&amp;create=true">Create new assignment</a></li>
+				#if($view == "submission")
+				<li><a href="$context.getPageUrl("staff", "assignments")?module=$module.getId()&amp;view=marking">Switch to marking view...</a></li>
+				#else
+				<li><a href="$context.getPageUrl("staff", "assignments")?module=$module.getId()&amp;view=submission">Switch to submission view...</a></li>
+				#end
+			</ul>			
+		</div>	
+		
+		#set($marking_categories_sort_type="marking_category_count_asc")
+		#set($markers_sort_type="marker_count_asc")
+		#set($tests_sort_type="test_count_asc")
+		#set($results_sort_type="result_count_asc")
+		#if($sorting == "marking_category_count_asc")
+			#set($sorting_desc="by ascending marking category count")
+			#set($marking_categories_sort_type="marking_category_count_desc")
+		#elseif($sorting == "marking_category_count_desc")
+			#set($sorting_desc="by descending marking category count")		
+		#elseif($sorting == "marker_count_asc")
+			#set($sorting_desc="by ascending marker count")
+			#set($markers_sort_type="marker_count_desc")
+		#elseif($sorting == "marker_count_desc")
+			#set($sorting_desc="by descending marker count")
+		#elseif($sorting == "test_count_asc")
+			#set($sorting_desc="by ascending test count")
+			#set($tests_sort_type="test_count_desc")
+		#elseif($sorting == "test_count_desc")
+			#set($sorting_desc="by descending test count")
+		#elseif($sorting == "result_count_asc")
+			#set($sorting_desc="by ascending result count")
+			#set($results_sort_type="result_count_desc")
+		#elseif($sorting == "result_count_desc")
+			#set($sorting_desc="by descending result count")
+		#else
+			#set($sorting_desc="in no particular order")
+		#end
+		
+		<div class="table">
+			<h2 class="nostyle">Assignments</h2>
+			<table class="full">
+				<thead>
+					<tr>
+						<th>Assignment</th>
+
+						#if($view == "submission")
+							<th>Submissions</th>
+							<th><a href="$context.getCurrentPageUrl()?module=$module.getId()&amp;sorting=$tests_sort_type&amp;view=$view">Tests</a></th>
+							<th>Deadline revisions</th>
+						#else
+							<th><a href="$context.getCurrentPageUrl()?module=$module.getId()&amp;sorting=$marking_categories_sort_type&amp;view=$view">Marking categories</a></th>
+							<th><a href="$context.getCurrentPageUrl()?module=$module.getId()&amp;sorting=$markers_sort_type&amp;view=$view">Markers</a></th>
+							<th>Marking assignments</th>
+							<th><a href="$context.getCurrentPageUrl()?module=$module.getId()&amp;sorting=$results_sort_type&amp;view=$view">Results</a></th>
+						#end
+
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+
+				#set($style="odd")				
+				#foreach($assignment in $assignments)
+
+					#set($assignment_url = $context.getPageUrl("staff", "edit_assignment") + "?assignment=" + $assignment.getAssignment().getId())
+
+					#if($view == "submission")
+						#set($files_url = $context.getPageUrl("staff", "assignment_files") + "?assignment=" + $assignment.getAssignment().getId())
+						#set($tests_url = $context.getPageUrl("staff", "tests") + "?assignment=" + $assignment.getAssignment().getId())
+						#set($deadlinerevisions_url = $context.getPageUrl("staff", "deadlinerevisions") + "?assignment=" + $assignment.getAssignment().getId())
+						#set($submissions_url = $context.getPageUrl("staff", "submissions") + "?assignment=" + $assignment.getAssignment().getId())
+					#else
+						#set($marking_categories_url = $context.getPageUrl("staff", "markingcategories") + "?assignment=" + $assignment.getAssignment().getId())
+						#set($markers_url = $context.getPageUrl("staff", "markers") + "?assignment=" + $assignment.getAssignment().getId())
+						#set($markingassignments_url = $context.getPageUrl("staff", "markingassignments") + "?assignment=" + $assignment.getAssignment().getId())
+						#set($results_url = $context.getPageUrl("staff", "results") + "?assignment=" + $assignment.getAssignment().getId())
+					#end
+
+					<tr class="$style">
+						<td>
+							<h3>$assignment.getAssignment().getName()</h3>
+						</td>
+
+						#if($view == "submission")						
+							<td>
+								<p>$assignment.getSubmissionCount() submission#if($assignment.getSubmissionCount() != 1)s#end (<a href="$submissions_url">Manage...</a>)</p>
+							</td>
+							
+							<td>
+								<p>$assignment.getTestCount() test#if($assignment.getTestCount() != 1)s#end (<a href="$tests_url">Manage...</a>)</p>
+							</td>
+													
+							<td>
+								<p>$assignment.getDeadlineRevisionCount() deadline revision#if($assignment.getDeadlineRevisionCount() != 1)s#end (<a href="$deadlinerevisions_url">Manage...</a>)</p>
+							</td>												
+						#else				
+							<td>
+								#if($assignment.getMarkingCategoryCount() != 1)
+									#set($temp = "ies")
+								#else
+									#set($temp = "y")
+								#end
+								<p>$assignment.getMarkingCategoryCount() marking categor$temp (<a href="$marking_categories_url">Manage...</a>)</p>
+							</td>
+									
+							<td>
+								<p>$assignment.getMarkersCount() marker#if($assignment.getMarkersCount() != 1)s#end (<a href="$markers_url">Manage...</a>)</p>
+							</td>
+							
+							<td>
+								<p>$assignment.getMarkingAssignmentCount() marking assignment#if($assignment.getMarkingAssignmentCount() != 1)s#end (<a href="$markingassignments_url">Manage...</a>)</p>
+							</td>
+							
+							<td>
+								<p>$assignment.getResultCount() published result#if($assignment.getResultCount() != 1)s#end (<a href="$results_url">Manage...</a>)</p>
+							</td>
+							
+						#end
+
+						<td>
+
+							<form method="get" action="$context.getPageUrl("staff", "edit_assignment")">
+								<p>
+									<input type="hidden" name="assignment" value="$assignment.getAssignment().getId()"/>
+									<input type="submit" value="Edit/Delete"/>
+								</p>
+							</form>								
+
+							#if($view == "submission")
+								<form method="get" action="$context.getPageUrl("staff", "upload_assignment_resource")">
+									<p>
+										<input type="hidden" name="assignment" value="$assignment.getAssignment().getId()"/>
+										<input type="submit" value="Upload Resource"/>
+									</p>
+								</form>
+								
+								<form method="get" action="$context.getPageUrl("staff", "test_hash")">
+									<p>
+										<input type="hidden" name="assignment" value="$assignment.getAssignment().getId()"/>
+										<input type="submit" value="Verify submission code"/>
+									</p>
+								</form>
+								
+							#end
+							
+							#if($view == "marking")
+							<form method="get" action="$context.getPageUrl("staff", "publish_results")">
+								<p>
+									<input type="hidden" name="assignment" value="$assignment.getAssignment().getId()"/>
+									<input type="submit" value="Publish Results"/>
+								</p>
+							</form>
+							#end																
+							
+						</td>
+					</tr>
+					
+					#if($style == "odd")
+						#set($style = "even")
+					#else
+						#set($style = "odd")
+					#end
+					
+				#end
+				</tbody>
+			</table>
+			
+			<p class="footnote">$assignments.size() assignment#if($assignments.size()!=1)s#end, sorted
+			$sorting_desc.  To change sorting, please click the desired header.</p>
+		</div>	
+		
+		<div class="navbar">
+			<h2 class="nostyle">
+				Navigate to:
+			</h2>
+			
+			<ul>
+				<li><a href="$context.getPageUrl("help", "about")" rel="external">About BOSS</a></li>
+				<li><a href="$context.getPageUrl("help", "accessibility")" rel="external">Accessibility</a></li>
+				<li><a href="$helpUrl" rel="external">Help</a></li>
+			</ul>
+		</div>		
+	</body>
+</html>

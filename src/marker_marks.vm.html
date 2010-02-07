@@ -1,0 +1,179 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Marker Marks</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="Content-Script-Type" content="text/javascript" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<link rel="StyleSheet" href="$context.getStaticPath()/css/tables.css" type="text/css" media="screen"/>
+		<script type="text/javascript" src="$context.getStaticPath()/js/targethack.js"></script>
+	</head>
+	
+	<body>
+		<div class="logodiv">
+			<a href="$context.getPageUrl("system", "home")"><img  class="logo" alt="Small BOSS2 Logo" src="$context.getStaticPath()/img/logo.png"/></a>
+		</div>
+				
+		<div class="usernav">
+			Hello, $greet (<a href="$context.getPageUrl("system", "logout")">Log out</a>)
+		</div>		
+		
+		<div class="textbar"><h1>BOSS 2: Students to mark for $assignment.getName()</h1></div>
+
+		<div class="breadcrumbs"><a href="$context.getPageUrl("system", "home")">Home</a> : <a href="$context.getPageUrl("marker", "assignments")">Marker Assignments</a> : <a href="$context.getPageUrl("marker", "students")?assignment=$assignment.getId()">Students to mark for $assignment.getName()</a> : Marks for selected student</div>
+
+		<div class="control">
+			<h2>Actions...</h2>
+			<ul>
+				<li><a href="$context.getPageUrl("marker", "assignments")?show=open">Mark an assignment</a></li>
+				<li><a href="$context.getPageUrl("system", "logout")">Log out</a></li>
+			</ul>
+			
+			<h2>Actions...</h2>
+			<ul>
+				<li><a href="$context.getPageUrl("marker", "edit_mark")?markingassignment=$markingAssignment.getId()&amp;create=true">Create new mark...</a></li>
+			</ul>			
+		</div>	
+
+		#if($sorting == "mark_asc")
+			#set($sorting_desc="by ascending mark")
+			#set($mark_sort_type="mark_desc")
+			#set($marker_sort_type="marker_id_asc")
+			#set($marking_category_sort_type="marking_category_id_asc")
+			#set($timestamp_sort_type="timestamp_asc")
+		#elseif($sorting == "mark_desc")
+			#set($sorting_desc="by descending mark")
+			#set($mark_sort_type="mark_asc")
+			#set($marker_sort_type="marker_id_asc")
+			#set($marking_category_sort_type="marking_category_id_asc")
+			#set($timestamp_sort_type="timestamp_asc")
+		#elseif($sorting == "marker_id_asc")
+			#set($sorting_desc="by ascending marker identifier")
+			#set($mark_sort_type="mark_asc")
+			#set($marker_sort_type="marker_id_desc")
+			#set($marking_category_sort_type="marking_category_id_asc")
+			#set($timestamp_sort_type="timestamp_asc")
+		#elseif($sorting == "marker_id_desc")
+			#set($sorting_desc="by descending marker identifier")
+			#set($mark_sort_type="mark_asc")
+			#set($marker_sort_type="marker_id_asc")
+			#set($marking_category_sort_type="marking_category_id_asc")
+			#set($timestamp_sort_type="timestamp_asc")
+		#elseif($sorting == "marking_category_id_asc")
+			#set($sorting_desc="by ascending marking category")
+			#set($mark_sort_type="mark_asc")
+			#set($marker_sort_type="marker_id_asc")
+			#set($marking_category_sort_type="marking_category_id_desc")
+			#set($timestamp_sort_type="timestamp_asc")
+		#elseif($sorting == "marking_category_id_desc")
+			#set($sorting_desc="by descending marking category")
+			#set($mark_sort_type="mark_asc")
+			#set($marker_sort_type="marker_id_asc")
+			#set($marking_category_sort_type="marking_category_id_asc")
+			#set($timestamp_sort_type="timestamp_asc")
+		#elseif($sorting == "timestamp_asc")
+			#set($sorting_desc="by ascending timestamp")
+			#set($mark_sort_type="mark_asc")
+			#set($marker_sort_type="marker_id_asc")
+			#set($marking_category_sort_type="marking_category_id_asc")
+			#set($timestamp_sort_type="timestamp_desc")
+		#elseif($sorting == "timestamp_desc")
+			#set($sorting_desc="by descending timestamp")
+			#set($mark_sort_type="mark_asc")
+			#set($marker_sort_type="marker_id_asc")
+			#set($marking_category_sort_type="marking_category_id_asc")
+			#set($timestamp_sort_type="timestamp_asc")		
+		#else
+			#set($sorting_desc="in no particular order")
+			#set($mark_sort_type="mark_asc")
+			#set($marker_sort_type="marker_id_asc")
+			#set($marking_category_sort_type="marking_category_id_asc")
+			#set($timestamp_sort_type="timestamp_asc")
+		#end
+
+		<div class="table">
+			<h2 class="nostyle">Marks</h2>
+			<table class="full">
+				<thead>
+					<tr>
+						<th><a href="$context.getCurrentPageUrl()?markingassignment=$markingAssignment.getId()&amp;sorting=$marker_sort_type">Marker</a></th>
+						<th><a href="$context.getCurrentPageUrl()?markingassignment=$markingAssignment.getId()&amp;sorting=$marking_category_sort_type">Marking Category</a></th>
+						<th><a href="$context.getCurrentPageUrl()?markingassignment=$markingAssignment.getId()&amp;sorting=$timestamp_sort_type">Timestamp</a></th>
+						<th><a href="$context.getCurrentPageUrl()?markingassignment=$markingAssignment.getId()&amp;sorting=$mark_sort_type">Mark</a></th>
+						<th>Comment</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+
+				#set($style="odd")				
+				#foreach($mark in $marks)
+
+					<tr class="$style">
+						<td>
+							<p>
+								<h3>$mark.getMarker().getUniqueIdentifier()</h3>
+								<a href="mailto:$mark.getMarker().getEmailAddress()">$mark.getMarker().getChosenName()</a>
+							</p>
+						</td>
+						<td>
+							<p>
+								$mark.getMarkingCategory().getName()
+							</p>
+						</td>
+						<td>
+							<p>
+								$mark.getMark().getTimestamp()
+							</p>
+						</td>
+						<td>
+							<p>
+								$mark.getMark().getValue() / $mark.getMarkingCategory().getMaximumMark()
+							</p>
+						</td>
+						<td>
+							<p>
+								$mark.getMark().getComment()
+							</p>
+						</td>
+						<td>
+							#if($mark.isEditable())
+								<form method="get" action="$context.getPageUrl("marker", "edit_mark")">
+									<p>
+										<input type="hidden" name="mark" value="$mark.getMark().getId()"/>
+										<input type="submit" value=Edit/Delete Mark/>
+									</p>
+								</form>
+							#else
+								-
+							#end								
+						</td>
+					</tr>
+
+					#if($style == "odd")
+						#set($style = "even")
+					#else
+						#set($style = "odd")
+					#end
+
+				#end
+				</tbody>
+			</table>
+			
+			<p class="footnote">$marks.size() mark#if($marks.size()!=1)s#end, sorted
+			$sorting_desc.  To change sorting, please click the desired header.</p>
+		</div>	
+		
+		<div class="navbar">
+			<h2 class="nostyle">
+				Navigate to:
+			</h2>
+			
+			<ul>
+				<li><a href="$context.getPageUrl("help", "about")" rel="external">About BOSS</a></li>
+				<li><a href="$context.getPageUrl("help", "accessibility")" rel="external">Accessibility</a></li>
+				<li><a href="$helpUrl" rel="external">Help</a></li>
+			</ul>
+		</div>		
+	</body>
+</html>

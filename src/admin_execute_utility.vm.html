@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Admin Execute Utility</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="Content-Script-Type" content="text/javascript" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<link rel="StyleSheet" href="$context.getStaticPath()/css/tables.css" type="text/css" media="screen"/>
+		<script type="text/javascript" src="$context.getStaticPath()/js/targethack.js"></script>		
+	</head>
+	
+	<body>
+		<div class="logodiv">
+			<a href="$context.getPageUrl("system", "home")"><img  class="logo" alt="Small BOSS2 Logo" src="$context.getStaticPath()/img/logo.png"/></a>
+		</div>
+				
+		<div class="usernav">
+			Hello, $greet (<a href="$context.getPageUrl("system", "logout")">Log out</a>)
+		</div>		
+		
+		<div class="textbar"><h1>BOSS 2: Execute $utility.getName()</h1></div>
+
+		<div class="breadcrumbs"><a href="$context.getPageUrl("system", "home")">Home</a> : <a href="$context.getPageUrl("admin", "utilities")">Admin Utilities</a> : Execute $utility.getName()</div>
+
+		<div class="control">
+			<h2>Navigate...</h2>
+			<ul>
+				<li><a href="$context.getPageUrl("admin", "models")">Manage curriculum</a></li>
+				<li><a href="$context.getPageUrl("admin", "people")">Manage people</a></li>
+				<li><a href="$context.getPageUrl("admin", "utilities")">Admin utilities</a></li>
+				<li><a href="$context.getPageUrl("system", "logout")">Log out</a></li>
+			</ul>
+		</div>	
+
+		<div class="table">
+		<form action="$context.getPageUrl("admin", "perform_execute_utility")" method="post" rel="external">
+			<input type="hidden" name="utility" value="$utility.getClassName()"/>	
+			<h2 class="nostyle">Utility Parameters</h2>
+			<table class="full">
+				#set($style = "even")
+				<thead>
+					<tr>
+						<th>Parameter</th>
+						<th>Value</th>
+					</tr>
+				</thead>
+				<tbody>				
+					<tr class="odd">
+						<td>
+							<p>Utility</p>
+						</td>
+						<td>
+							<p>
+								$utility.getName()
+							</p>
+						</td>
+					</tr>
+
+					<tr class="even">
+						<td>
+							<p>Class</p>
+						</td>
+						<td>
+							<p>
+								$utility.getClassName()
+							</p>
+						</td>
+					</tr>				
+
+					<tr class="odd">
+						<td>
+							<p>Description</p>
+						</td>
+						<td>
+							<pre>$utility.getDescription()</pre>
+						</td>
+					</tr>				
+
+					#foreach($utilityParameter in $utility.getParameters())
+						<tr class="$style">
+							<td>
+								<p><label for="$utilityParameter.getName()">$utilityParameter.getName()#if($utilityParameter.isOptional())
+									<em>(optional)</em>
+								#end:</label></p>
+							</td>
+							<td>
+								<p><textarea id="$utilityParameter.getName()" cols="80" rows="5" name="$utilityParameter.getName()"></textarea>
+								<br/>
+								<em>$utilityParameter.getDescription()</em></p>
+							</td>
+						</tr>
+						
+						#if($style == "odd")
+							#set($style = "even")
+						#else
+							#set($style="odd")
+						#end
+					#end
+				
+					<tr class="$style">
+						<td>
+							<p>Perform:</p>
+						</td>
+						<td>
+							<p>
+								<input type="submit" value="Execute Utility"/><br/>
+								Note: <em>will</em> take a while and BOSS2 will be unresponsive during execution.
+							</p>
+						</td>
+					</tr>					
+				</tbody>
+			</table>
+		</form>
+		</div>		
+			
+		<div class="navbar">
+			<h2 class="nostyle">
+				Navigate to:
+			</h2>
+			
+			<ul>
+				<li><a href="$context.getPageUrl("help", "about")" rel="external">About BOSS</a></li>
+				<li><a href="$context.getPageUrl("help", "accessibility")" rel="external">Accessibility</a></li>
+				<li><a href="$helpUrl" rel="external">Help</a></li>
+			</ul>
+		</div>		
+	</body>
+</html>

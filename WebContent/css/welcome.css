@@ -1,0 +1,108 @@
+body {
+	margin-left: 1em;
+	margin-right: 1em;
+	font-family: sans-serif;
+}
+
+.nostyle {
+	display: none;
+}
+
+div.logodiv a {
+	border: none;
+	outline: none;
+	text-decoration: none;
+}
+
+div.logodiv a img {
+	border: none;
+}
+
+div.login {
+	text-align: center;
+	text-transform: lowercase;
+	width: 100%;
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+
+div.login p {
+	text-align: left;
+	position: absolute;
+	left: 50%;
+	float: left;
+}
+
+div.login ul {
+	float: left;
+	position: relative;
+	left: 60%;
+	text-align: left;
+}
+
+div.login ul li {
+	display: inline;
+	padding: 0.2em;
+	margin: 0;
+}
+
+div.login ul li a {
+	text-decoration: none;
+	font-weight: bold;
+}
+
+div.login ul li a:hover {
+	text-decoration: underline;
+}
+
+div.textbar {
+	width: 100%;
+	background-color: #336699;
+	color: #ffffff;
+}
+
+div.textbar h1 {
+	font-size: medium;
+	font-weight: bold;
+	margin: 1px;
+}	
+
+div.navbar {
+	width: 100%;
+	background-color: #336699;
+	color: #ffffff;
+	float: left;
+}
+
+div.navbar p.nostyle {
+	display: none;
+}
+
+div.navbar ul {
+	padding: 0;
+	margin: 0;
+	float: right;
+}
+
+div.navbar ul li {
+	display: inline;
+	padding-left: 0.2em;
+	padding-right: 0.2em;
+	background-color: #036;
+	float: left;
+	border-left: 1px solid #ffffff;
+}
+
+div.navbar ul li:hover {
+	background-color: #336699;
+}
+
+div.navbar ul li a {
+	text-decoration: none;
+	color: #ffffff;
+}
+
+div.navbar ul li a:hover {
+	width: 100%;
+	background-color: #336699;
+}

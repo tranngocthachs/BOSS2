@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Test Results</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="Content-Script-Type" content="text/javascript" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		
+		#if(!$testsComplete)
+			<meta http-equiv="refresh" content="5" />
+		#end
+		
+		<link rel="StyleSheet" href="$context.getStaticPath()/css/tables.css" type="text/css" media="screen"/>
+		<script type="text/javascript" src="$context.getStaticPath()/js/targethack.js"></script>
+	</head>
+	
+	<body>
+		<div class="logodiv">
+			<a href="$context.getPageUrl("system", "home")"><img  class="logo" alt="Small BOSS2 Logo" src="$context.getStaticPath()/img/logo.png"/></a>
+		</div>
+					
+		<div class="textbar"><h1>BOSS 2: Test Results</h1></div>
+
+		<div class="control">
+			<h2>Actions...</h2>
+			<ul>
+				#if($testsComplete)
+				<li><a href="javascript:window.close();">Close window (javascript)</a></li>
+				#else
+				<li><a href="javascript:alert('Please wait for tests to complete first!');">Close window (javascript)</a></li>
+				#end
+			</ul>
+		</div>	
+
+		<div class="table">
+		#if($testsComplete)
+				<h2 class="nostyle">Testing</h2>
+				<table class="full">
+					<thead>
+						<tr>
+							<th>Result</th>
+							<th>Output</th>
+						</tr>
+					</thead>
+					<tbody>
+	
+					#set($style="odd")				
+					#foreach($testResult in $testResults)
+	
+						<tr class="$style">
+							<td>
+								<h3>
+									$testResult.getResult() / $testResult.getMaxMark()
+								</h3>
+							</td>
+							<td>
+								<p>
+									<pre>$testResult.getOutput()</pre>
+								</p>
+							</td>
+						</tr>
+						
+						<tr class="$style">
+							<td colspan="2">
+								<p>
+									$testResult.getComment()
+								</p>
+							</td>
+						</tr>
+						
+						#if($style == "odd")
+							#set($style = "even")
+						#else
+							#set($style = "odd")
+						#end
+	
+					#end						
+					</tbody>
+				</table>
+		#else
+			<p>Tests in progress, please wait...</p>
+		#end
+		</div>
+	
+			
+		<div class="navbar">
+			<h2 class="nostyle">
+				Navigate to:
+			</h2>
+			
+			<ul>
+				<li><a href="$helpUrl" rel="external">Help</a></li>
+			</ul>
+		</div>		
+	</body>
+</html>

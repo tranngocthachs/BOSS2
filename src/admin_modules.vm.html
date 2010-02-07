@@ -1,0 +1,162 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Admin Modules</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="Content-Script-Type" content="text/javascript" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<link rel="StyleSheet" href="$context.getStaticPath()/css/tables.css" type="text/css" media="screen"/>
+		<script type="text/javascript" src="$context.getStaticPath()/js/targethack.js"></script>
+	</head>
+	
+	<body>
+		<div class="logodiv">
+			<a href="$context.getPageUrl("system", "home")"><img  class="logo" alt="Small BOSS2 Logo" src="$context.getStaticPath()/img/logo.png"/></a>
+		</div>
+				
+		<div class="usernav">
+			Hello, $greet (<a href="$context.getPageUrl("system", "logout")">Log out</a>)
+		</div>		
+		
+		<div class="textbar"><h1>BOSS 2: Modules for $model.getName()</h1></div>
+
+		<div class="breadcrumbs"><a href="$context.getPageUrl("system", "home")">Home</a> : <a href="$context.getPageUrl("admin", "models")">Admin Models</a> : Modules for $model.getName()</div>
+
+		<div class="control">
+			<h2>Navigate...</h2>
+			<ul>
+				<li><a href="$context.getPageUrl("admin", "models")">Manage curriculum</a></li>
+				<li><a href="$context.getPageUrl("admin", "people")">Manage people</a></li>
+				<li><a href="$context.getPageUrl("admin", "utilities")">Admin utilities</a></li>
+				<li><a href="$context.getPageUrl("system", "logout")">Log out</a></li>
+			</ul>
+			
+			<h2>Actions...</h2>
+			<ul>
+				<li><a href="$context.getPageUrl("admin", "edit_module")?create=true&amp;model=$model.getId()">Create new module</a></li>
+			</ul>	
+		</div>	
+
+		#set($module_sort_type="module_id_asc")
+		#set($administrators_sort_type="administrator_count_desc")
+		#set($assignments_sort_type="assignment_count_desc")
+		#set($registration_required_sort_type="registration_required_desc")
+
+		#if($sorting == "module_id_asc")
+			#set($sorting_desc="by ascending module code")
+			#set($module_sort_type="module_id_desc")
+		#elseif($sorting == "module_id_desc")
+			#set($sorting_desc="by descending module code")
+
+		#elseif($sorting == "administrator_count_asc")
+			#set($sorting_desc="by ascending administrator count")
+
+		#elseif($sorting == "administrator_count_desc")
+			#set($sorting_desc="by descending administrator count")
+			#set($administrators_sort_type="administrator_count_asc")
+		#elseif($sorting == "assignment_count_asc")
+			#set($sorting_desc="by ascending assignment count")
+
+		#elseif($sorting == "assignment_count_desc")
+			#set($sorting_desc="by descending assignment count")
+			#set($assignments_sort_type="assignment_count_asc")
+		#elseif($sorting == "registration_required_asc")
+			#set($sorting_desc="with public modules first")
+			
+		#elseif($sorting == "registration_required_desc")
+			#set($sorting_desc="with private modules first")
+			#set($registration_required_sort_type="registration_required_asc")
+		#else
+			#set($sorting_desc="in no particular order")
+		#end
+
+		<div class="table">
+			<h2 class="nostyle">Modules</h2>
+			<table class="full">
+				<thead>
+					<tr>
+						<th><a href="$context.getCurrentPageUrl()?model=$model.getId()&amp;sorting=$module_sort_type">Module</a></th>
+						<th><a href="$context.getCurrentPageUrl()?model=$model.getId()&amp;sorting=$assignments_sort_type">Assignments</a></th>
+						<th><a href="$context.getCurrentPageUrl()?model=$model.getId()&amp;sorting=$administrators_sort_type">Administrators</a></th>
+						<th><a href="$context.getCurrentPageUrl()?model=$model.getId()&amp;sorting=$registration_required_sort_type">Requires registration?</a></th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+
+				#set($style="odd")				
+				#foreach($module in $modules)
+
+					#set($module_url = $context.getPageUrl("admin", "edit_module") + "?module=" + $module.getModule().getId())
+
+					<tr class="$style">
+						<td>
+							<h3><a href="$module_url">$module.getModule().getUniqueIdentifier()</a></h3>
+							<p>
+							 	<em>$module.getModule().getName()</em>
+							 </p>
+						</td>
+						<td>
+							<p>
+									$module.getAssignmentCount()
+							</p>
+						</td>
+						<td>
+							<p>
+									$module.getAdministratorCount()
+							</p>
+						</td>
+						<td>
+							<p>
+									#if($module.getModule().isRegistrationRequired())
+										Yes
+									#else
+										No
+									#end
+							</p>
+						</td>
+						<td>
+							<form method="get" action="$context.getPageUrl("admin", "edit_module")">
+								<p>
+									<input type="hidden" name="module" value="$module.getModule().getId()"/>
+									<input type="submit" value="Edit/Delete Module"/>
+								</p>
+							</form>
+							
+							<form method="get" action="$context.getPageUrl("admin", "module_administrators")">
+								<p>
+									<input type="hidden" name="module" value="$module.getModule().getId()"/>
+									<input type="submit" value="Manage Administators"/>
+								</p>
+							</form>
+						</td>								
+						
+					</tr>
+					
+					#if($style == "odd")
+						#set($style = "even")
+					#else
+						#set($style = "odd")
+					#end
+					
+				#end
+				</tbody>
+			</table>
+			
+			<p class="footnote">$modules.size() module#if($modules.size()!=1)s#end, sorted
+			$sorting_desc.  To change sorting, please click the desired header.</p>
+		</div>	
+		
+		<div class="navbar">
+			<h2 class="nostyle">
+				Navigate to:
+			</h2>
+			
+			<ul>
+				<li><a href="$context.getPageUrl("help", "about")" rel="external">About BOSS</a></li>
+				<li><a href="$context.getPageUrl("help", "accessibility")" rel="external">Accessibility</a></li>
+				<li><a href="$helpUrl" rel="external">Help</a></li>
+			</ul>
+		</div>		
+	</body>
+</html>

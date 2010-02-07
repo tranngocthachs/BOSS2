@@ -1,0 +1,105 @@
+.nostyle {
+	display: none;
+}
+
+a {
+	text-decoration: none;
+	color: #00F;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:visited {
+	color: #069;
+}
+
+body {
+	margin-left: 1em;
+	margin-right: 1em;
+	color: #036;
+	font-family: sans-serif;
+}
+
+img.logo {
+	vertical-align: top;
+}
+
+div.logodiv a {
+	border: none;
+	outline: none;
+	text-decoration: none;
+}
+
+div.logodiv a img {
+	border: none;
+}
+
+div.usernav {
+	position: absolute;
+	font-size: 12px;
+	right: 2em;
+	top: 45px;
+}
+
+div.breadcrumbs {
+	font-size: small;
+}
+
+div.help {
+	float: right;
+	width: 75%;
+	padding-left: 1em;
+	margin-top: 1em;
+	margin-bottom: 2em;
+	text-align: left;
+}
+
+div.textbar {
+	width: 100%;
+	background-color: #336699;
+	color: #ffffff;
+}
+
+div.textbar h1 {
+	font-size: medium;
+	font-weight: bold;
+	margin: 1px;
+}	
+
+div.navbar {
+	width: 100%;
+	background-color: #336699;
+	color: #ffffff;
+	float: left;
+}
+
+div.navbar ul {
+	padding: 0;
+	margin: 0;
+	float: right;
+}
+
+div.navbar ul li {
+	display: inline;
+	padding-left: 0.2em;
+	padding-right: 0.2em;
+	background-color: #036;
+	float: left;
+	border-left: 1px solid #ffffff;
+}
+
+div.navbar ul li:hover {
+	background-color: #336699;
+}
+
+div.navbar ul li a {
+	text-decoration: none;
+	color: #ffffff;
+}
+
+div.navbar ul li a:hover {
+	width: 100%;
+	background-color: #336699;
+}

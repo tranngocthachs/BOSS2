@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Module</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="Content-Script-Type" content="text/javascript" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<link rel="StyleSheet" href="$context.getStaticPath()/css/tables.css" type="text/css" media="screen"/>
+		<script type="text/javascript" src="$context.getStaticPath()/js/targethack.js"></script>				
+	</head>
+	
+	#if($create)
+		#set($verb = "Creating")
+		#set($form_verb = "Create")
+	#else
+		#set($verb = "Editing/Deleting")
+		#set($form_verb = "Edit/Delete")
+	#end
+	
+	<body>
+		<div class="logodiv">
+			<a href="$context.getPageUrl("system", "home")"><img  class="logo" alt="Small BOSS2 Logo" src="$context.getStaticPath()/img/logo.png"/></a>
+		</div>
+				
+		<div class="usernav">
+			Hello, $greet (<a href="$context.getPageUrl("system", "logout")">Log out</a>)
+		</div>		
+		
+		<div class="textbar"><h1>BOSS 2: $verb module</h1></div>
+
+		<div class="breadcrumbs"><a href="$context.getPageUrl("system", "home")">Home</a> : <a href="$context.getPageUrl("admin", "model")">Admin models</a> : <a href="$context.getPageUrl("admin", "modules")?model=$model.getId()">Modules for model $model.getName()</a> : $form_verb module</div>
+
+		<div class="control">
+			<h2>Navigate...</h2>
+			<ul>
+				<li><a href="$context.getPageUrl("admin", "models")">Manage curriculum</a></li>
+				<li><a href="$context.getPageUrl("admin", "people")">Manage people</a></li>
+				<li><a href="$context.getPageUrl("admin", "utilities")">Admin utilities</a></li>
+				<li><a href="$context.getPageUrl("system", "logout")">Log out</a></li>
+			</ul>
+		</div>	
+
+		<div class="table">
+		<form action="$context.getPageUrl("admin", "perform_edit_module")" method="post">
+			<input type="hidden" name="model" value="$model.getId()"/>
+			
+			#if($create)
+				<input type="hidden" name="create" value="true"/>
+				<input type="hidden" name="module" value="-1"/>
+			#else
+				<input type="hidden" name="module" value="$module.getId()"/>
+			#end
+
+			<h2 class="nostyle">Module</h2>
+			<table class="full">
+				<thead>
+					<tr>
+						<th colspan="2">Values</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr class="odd">
+						<td>
+							<p><label for="uniq">Unique Identifier:</label></p>
+						</td>
+						<td>
+							<input id="uniq" type="text" size="8" name="uniq" value="$module.getUniqueIdentifier()"/>
+						</td>
+					</tr>
+					
+					<tr class="even">
+						<td>
+							<p><label for="name">Name:</label></p>
+						</td>
+						<td>
+							<input id="name" type="text" size="64" name="name" value="$module.getName()"/>
+						</td>
+					</tr>
+					
+					<tr class="even">
+						<td>
+							<p>Requires registration:</p>
+						</td>
+						<td>
+							<p>
+								<input id="registration_required" type="checkbox" name="registration_required" value="true" #if($module.isRegistrationRequired())checked="true"#end/>
+								<label for="registration_required">Must be a student of the module to submit to assignments</label>
+							</p> 
+						</td>
+					</tr>
+										
+										
+					#if(!$create)
+					<tr class="odd">
+						<td>
+							<p>Delete:</p>
+						</td>
+						<td>
+							#if($hasChildren)
+							<p>
+								<span class="overdue">This module has assignments.  You must remove these assignments to delete the module.</span>
+							</p>
+							#else															
+							<p>
+								<input type="checkbox" name="delete" value="true"/>
+								<label for="delete">Delete this module</label>
+							</p>
+							#end
+						</td>
+					</tr>
+
+					<tr class="even">
+					#else		
+					<tr class="odd">
+					#end
+						<td>
+							<p>Perform:</p>
+						</td>
+						<td>
+							<p>
+								<input type="submit" value="Perform $form_verb"/><br/>
+								Note: May take a while.
+							</p>
+						</td>
+					</tr>					
+				</tbody>
+			</table>
+		</form>
+		</div>		
+			
+		<div class="navbar">
+			<h2 class="nostyle">
+				Navigate to:
+			</h2>
+			
+			<ul>
+				<li><a href="$context.getPageUrl("help", "about")" rel="external">About BOSS</a></li>
+				<li><a href="$context.getPageUrl("help", "accessibility")" rel="external">Accessibility</a></li>
+				<li><a href="$helpUrl" rel="external">Help</a></li>
+			</ul>
+		</div>		
+	</body>
+</html>

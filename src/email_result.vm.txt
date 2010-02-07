@@ -1,0 +1,7 @@
+Dear $result.getStudent().getChosenName(),
+
+Marks are now available for your submission to $result.getAssignment().getName().
+
+You obtained $result.getResult().getResult() %.
+
+This is an automated email from the BOSS2 Submission System, please do not reply.  

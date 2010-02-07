@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Admin People</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="Content-Script-Type" content="text/javascript" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<link rel="StyleSheet" href="$context.getStaticPath()/css/tables.css" type="text/css" media="screen"/>
+		<script type="text/javascript" src="$context.getStaticPath()/js/targethack.js"></script>
+	</head>
+	
+	<body>
+		<div class="logodiv">
+			<a href="$context.getPageUrl("system", "home")"><img  class="logo" alt="Small BOSS2 Logo" src="$context.getStaticPath()/img/logo.png"/></a>
+		</div>
+				
+		<div class="usernav">
+			Hello, $greet (<a href="$context.getPageUrl("system", "logout")">Log out</a>)
+		</div>		
+		
+		<div class="textbar"><h1>BOSS 2: People</h1></div>
+
+		<div class="breadcrumbs"><a href="$context.getPageUrl("system", "home")">Home</a> : Admin People</div>
+
+		<div class="control">
+			<h2>Navigate...</h2>
+			<ul>
+				<li><a href="$context.getPageUrl("admin", "models")">Manage curriculum</a></li>
+				<li><a href="$context.getPageUrl("admin", "people")">Manage people</a></li>
+				<li><a href="$context.getPageUrl("admin", "utilities")">Admin utilities</a></li>
+				<li><a href="$context.getPageUrl("system", "logout")">Log out</a></li>
+			</ul>
+			
+			<h2>Actions...</h2>
+			<ul>
+				<li><a href="$context.getPageUrl("admin", "edit_person")?create=true">Create new person</a></li>
+			</ul>	
+		</div>	
+		
+		#if($sorting == "unique_identifier_asc")
+			#set($sorting_desc="by ascending user identifier")
+			#set($unique_identifier_sort_type="unique_identifier_desc")
+			#set($administrator_sort_type="administrator_asc")
+		#elseif($sorting == "unique_identifier_desc")
+			#set($sorting_desc="by descending  user identifier")
+			#set($unique_identifier_sort_type="unique_identifier_asc")
+			#set($administrator_sort_type="administrator_asc")
+		#elseif($sorting == "administrator_asc")
+			#set($sorting_desc="with normal users first")
+			#set($unique_identifier_sort_type="unique_identifier_asc")
+			#set($administrator_sort_type="administrator_desc")
+		#elseif($sorting == "administrator_desc")
+			#set($sorting_desc="with administrators first")
+			#set($unique_identifier_sort_type="unique_identifier_asc")
+			#set($administrator_sort_type="administrator_asc")
+		#else
+			#set($sorting_desc="in no particular order")
+			#set($unique_identifier_sort_type="unique_identifier_asc")
+			#set($administrator_sort_type="administrator_asc")
+		#end
+		
+					
+		<div class="table">
+			<h2 class="nostyle">People</h2>
+			<table class="full">
+				<thead>
+					<tr>
+						<th><a href="$context.getCurrentPageUrl()?sorting=$unique_identifier_sort_type">Person</a></th>
+						<th><a href="$context.getCurrentPageUrl()?sorting=$administrator_sort_type">Administrator?</a></th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+
+				#set($style="odd")				
+				#foreach($person in $people)
+
+					#set($person_url = $context.getPageUrl("admin", "edit_person") + "?person=" + $person.getId())
+
+					<tr class="$style">
+						<td>
+							<h3><a href="$person_url">$person.getUniqueIdentifier()</a></h3>
+							<p>
+								$person.getChosenName()
+							</p>
+						</td>
+						<td>
+							<p>
+								#if($person.isAdministrator())
+								Yes
+								#else
+								No
+								#end
+							</p>
+						</td>
+						<td>
+							<form method="get" action="$context.getPageUrl("admin", "edit_person")">
+								<p>
+									<input type="hidden" name="person" value="$person.getId()"/>
+									<input type="submit" value="Edit/Delete Person"/>
+								</p>
+							</form>
+						</td>								
+						
+					</tr>
+					
+					#if($style == "odd")
+						#set($style = "even")
+					#else
+						#set($style = "odd")
+					#end
+					
+				#end
+				</tbody>
+			</table>
+			
+			<p class="footnote">$people.size()#if($people.size()!=1) people#else person#end, sorted
+			$sorting_desc.  To change sorting, please click the desired header.</p>
+		</div>	
+		
+		<div class="navbar">
+			<h2 class="nostyle">
+				Navigate to:
+			</h2>
+			
+			<ul>
+				<li><a href="$context.getPageUrl("help", "about")" rel="external">About BOSS</a></li>
+				<li><a href="$context.getPageUrl("help", "accessibility")" rel="external">Accessibility</a></li>
+				<li><a href="$helpUrl" rel="external">Help</a></li>
+			</ul>
+		</div>		
+	</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Test submission for $assignment.getName()</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="Content-Script-Type" content="text/javascript" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<link rel="StyleSheet" href="$context.getStaticPath()/css/tables.css" type="text/css" media="screen"/>
+		<script type="text/javascript" src="$context.getStaticPath()/js/targethack.js"></script>
+	</head>
+	
+	<body>
+		<div class="logodiv">
+			<a href="$context.getPageUrl("system", "home")"><img  class="logo" alt="Small BOSS2 Logo" src="$context.getStaticPath()/img/logo.png"/></a>
+		</div>
+				
+		<div class="usernav">
+			Hello, $greet (<a href="$context.getPageUrl("system", "logout")">Log out</a>)
+		</div>		
+		
+		<div class="textbar"><h1>BOSS 2: Test submission for $assignment.getName()</h1></div>
+
+		<div class="breadcrumbs"><a href="$context.getPageUrl("system", "home")">Home</a> : <a href="$context.getPageUrl("marker", "assignments")">Marker Assignments</a> : <a href="$context.getPageUrl("marker", "students")?assignment=$assignment.getId()">Students to mark for $assignment.getName()</a> : <a href="$context.getPageUrl("marker", "submissions")?markingassignment=$markingAssignment.getId()">Submissions for selected student</a> : Test selected submission</div>
+
+		
+		<div class="control">
+			<h2>Actions...</h2>
+			<ul>
+				<li><a href="$context.getPageUrl("marker", "assignments")?show=open">Mark an assignment</a></li>
+				<li><a href="$context.getPageUrl("system", "logout")">Log out</a></li>
+			</ul>
+		</div>	
+
+		<div class="table">
+		<!-- The id is picked up by the targethack.js referenced above -->
+		<form action="$context.getPageUrl("marker", "perform_test")?submission=$submission.getId()" method="post" id="target_hack">	
+			<h2 class="nostyle">Testing</h2>
+			<table class="full">
+				<thead>
+					<tr>
+						<th colspan="2">Overview</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr class="odd">
+						<td>
+							<p>Module:</p>
+						</td>
+						<td>
+							<p>$module.getName()</p>
+						</td>
+					</tr>
+
+					<tr class="even">
+						<td>
+							<p>Assignment:</p>
+						</td>
+						<td>
+							<p>$assignment.getName()</p>
+						</td>
+					</tr>					
+					
+					<tr class="odd">
+						<td>
+							<p>Submission time:</p>
+						</td>
+						<td>
+							<p>$submission.getSubmissionTime()</p>
+						</td>
+					
+					<tr class="odd">
+						<td>
+							<p>Tests:</p>
+						</td>
+						<td>
+							<p>
+							#if($missingFields)
+							<span class="error">You must select one or more tests.</span><br/>
+							#end
+							
+							
+							#if($tests.isEmpty())
+							<p>There are no tests for this assignment.</p>
+							#else
+								#foreach($test in $tests)
+									<input id="test$test.getId()" name="test$test.getId()" value="true" type="checkbox"/>
+									<label for="test$test.getId()">$test.getName()
+									#if($test.getStudentTest())
+										[Students and markers]
+									#else
+										[Marker only]
+									#end<br/></label>
+								#end
+							#end
+							</p>
+						</td>
+					</tr>
+									
+					<tr class="even">
+						<td>
+							<p>Perform:</p>
+						</td>
+						<td>
+							<p>
+								<input type="submit" value="Perform Selected Tests"/><br/>
+								Note: May take a while.
+							</p>
+						</td>
+					</tr>					
+				</tbody>
+			</table>
+		</form>
+		</div>		
+			
+		<div class="navbar">
+			<h2 class="nostyle">
+				Navigate to:
+			</h2>
+			
+			<ul>
+				<li><a href="$context.getPageUrl("help", "about")" rel="external">About BOSS</a></li>
+				<li><a href="$context.getPageUrl("help", "accessibility")" rel="external">Accessibility</a></li>
+				<li><a href="$helpUrl" rel="external">Help</a></li>
+			</ul>
+		</div>		
+	</body>
+</html>

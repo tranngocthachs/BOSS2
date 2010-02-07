@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Staff Auto Assign Markers</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="Content-Script-Type" content="text/javascript" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<link rel="StyleSheet" href="$context.getStaticPath()/css/tables.css" type="text/css" media="screen"/>
+		<script type="text/javascript" src="$context.getStaticPath()/js/targethack.js"></script>
+	</head>
+	
+	<body>
+		<div class="logodiv">
+			<a href="$context.getPageUrl("system", "home")"><img  class="logo" alt="Small BOSS2 Logo" src="$context.getStaticPath()/img/logo.png"/></a>
+		</div>
+				
+		<div class="usernav">
+			Hello, $greet (<a href="$context.getPageUrl("system", "logout")">Log out</a>)
+		</div>		
+		
+		<div class="textbar"><h1>BOSS 2: Auto assign markers for $assignment.getName()</h1></div>
+
+		<div class="breadcrumbs"><a href="$context.getPageUrl("system", "home")">Home</a> : <a href="$context.getPageUrl("staff", "modules")">Staff Modules</a> : <a href="$context.getPageUrl("staff", "assignments")?module=$module.getId()">Assignments for $module.getName()</a> : Auto assign markers for $assignment.getName()</div>
+
+		<div class="control">
+			<h2>Navigate...</h2>
+			<ul>
+				<li><a href="$context.getPageUrl("staff", "modules")">My modules</a></li>
+				<li><a href="$context.getPageUrl("system", "logout")">Log out</a></li>
+			</ul>			
+		</div>	
+	
+					
+		<div class="table">
+		<form action="$context.getPageUrl("staff", "perform_auto_assign_markers")" method="post">
+			<input type="hidden" name="assignment" value="$assignment.getId()"/>
+			
+			<h2 class="nostyle">Auto assign</h2>
+			<table class="full">
+				<thead>
+					<tr>
+						<th colspan="2">Options</th>
+					</tr>
+				</thead>
+				
+				<tbody>
+				
+					<tr class="odd">
+						<td>
+							<p>Overview:</p>
+						</td>
+						<td>
+							<p>
+								Auto-assigning markers will ignore assignments already in place,
+								but will not duplicate them.
+							</p>
+						</td>
+					</tr>
+				
+					<tr class="even">
+						<td>
+							<p>Module:</p>
+						</td>
+						<td>
+							<p>$module.getName()</p>
+						</td>
+					</tr>
+
+					<tr class="odd">
+						<td>
+							<p>Assignment:</p>
+						</td>
+						<td>
+							<p>$assignment.getName()</p>
+						</td>
+					</tr>					
+				
+				
+					<tr class="even">
+						<td>
+							<p>Methods:</p>
+						</td>
+						<td>
+							#foreach($method in $methods)
+							<p>							
+								<input id="method$method.getId()" name="method" value="$method.getClassName()" type="radio"/>
+								<label for="method$method.getId()">$method.getName()</label><br/>
+								<em>$method.getDescription()</em>
+							</p>
+							#end
+						</td>
+					</tr>
+				
+					<tr class="odd">
+						<td>
+							<p>Perform:</p>
+						</td>
+						<td>
+							<p>
+								<input type="submit" value="Perform Selected"/><br/>
+								Note: May take a while.
+							</p>
+						</td>
+					</tr>					
+				
+				</tbody>
+			</table>
+		</form>
+		</div>	
+		
+		<div class="navbar">
+			<h2 class="nostyle">
+				Navigate to:
+			</h2>
+			
+			<ul>
+				<li><a href="$context.getPageUrl("help", "about")" rel="external">About BOSS</a></li>
+				<li><a href="$context.getPageUrl("help", "accessibility")" rel="external">Accessibility</a></li>
+				<li><a href="$helpUrl" rel="external">Help</a></li>
+			</ul>
+		</div>		
+	</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Student Assignments</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="Content-Script-Type" content="text/javascript" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<link rel="StyleSheet" href="$context.getStaticPath()/css/tables.css" type="text/css" media="screen"/>
+		<script type="text/javascript" src="$context.getStaticPath()/js/targethack.js"></script>
+	</head>
+	
+	<body>
+		<div class="logodiv">
+			<a href="$context.getPageUrl("system", "home")"><img  class="logo" alt="Small BOSS2 Logo" src="$context.getStaticPath()/img/logo.png"/></a>
+		</div>
+				
+		<div class="usernav">
+			Hello, $greet (<a href="$context.getPageUrl("system", "logout")">Log out</a>)
+		</div>		
+		
+		<div class="textbar"><h1>BOSS 2: Assignments #if($moduleSpecified)for $module.getName()#end</h1></div>
+
+		#if($moduleSpecified)
+		<div class="breadcrumbs"><a href="$context.getPageUrl("system", "home")">Home</a> : <a href="$context.getPageUrl("student", "modules")">Student Modules</a> : Assignments for $module.getName()</div>
+		#else
+		<div class="breadcrumbs"><a href="$context.getPageUrl("system", "home")">Home</a> : Student Assignments</div>
+		#end
+
+		<div class="control">
+			<h2>Actions...</h2>
+			<ul>
+				<li><a href="$context.getPageUrl("student", "assignments")?show=open">Submit a solution</a></li>
+				<li><a href="$context.getPageUrl("student", "submissions")?show=open">Previous submissions</a></li>
+				<li><a href="$context.getPageUrl("student", "details")">Show my account</a></li>
+				<li><a href="$context.getPageUrl("system", "logout")">Log out</a></li>
+			</ul>
+
+			<h2>Show...</h2>
+			<ul>
+				<li><a href="$context.getPageUrl("student", "assignments")?sorting=$sorting">Open assignments</a></li>
+				<li><a href="$context.getPageUrl("student", "assignments")?show=closed&amp;sorting=$sorting">Closed assignments</a></li>
+				<li><a href="$context.getPageUrl("student", "assignments")?show=both&amp;sorting=$sorting">Open and closed assignments</a></li>
+				<li><a href="$context.getPageUrl("student", "modules")">Assignments by module...</a></li>
+			</ul>			
+		</div>	
+			
+			#if($sorting == "deadline_asc")
+				#set($sorting_desc="by ascending deadline")
+				#set($deadline_sort_type="deadline_desc")
+				#set($last_submitted_sort_type="last_submitted_asc")
+			#elseif($sorting == "deadline_desc")
+				#set($sorting_desc="by descending deadline")
+				#set($deadline_sort_type="deadline_asc")
+				#set($last_submitted_sort_type="last_submitted_asc")
+			#elseif($sorting == "last_submitted_asc")
+				#set($sorting_desc="by ascending submission date")
+				#set($deadline_sort_type="deadline_asc")
+				#set($last_submitted_sort_type="last_submitted_desc")
+			#elseif($sorting == "last_submitted_desc")
+				#set($sorting_desc="by descending submission date")
+				#set($deadline_sort_type="deadline_asc")
+				#set($last_submitted_sort_type="last_submitted_asc")
+			#end
+	
+		<div class="table">
+			<h2 class="nostyle">Assignments</h2>
+			<table class="full">
+				<thead>
+					<tr>
+						<th>Assignment</th>
+						<th><a href="$context.getPageUrl("student", "assignments")?sorting=$deadline_sort_type&amp;show=$showing">Due&nbsp;date</a></th>
+						<th><a href="$context.getPageUrl("student", "assignments")?sorting=$last_submitted_sort_type&amp;show=$showing">Last&nbsp;submitted</a></th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+
+				#set($style="odd")				
+				#foreach($assignment in $assignments)
+
+					#set($module_url = $context.getPageUrl("student", "module") + "?module=" + $assignment.getParentModule().getId())
+					#set($assignment_url = $context.getPageUrl("student", "assignment") + "?assignment=" + $assignment.getAssignment().getId())
+					#set($submissions_url = $context.getPageUrl("student", "submissions") + "?assignment=" + $assignment.getAssignment().getId())
+
+					<tr class="$style">
+						<td>
+							<h3><a href="$assignment_url">$assignment.getAssignment().getName()</a></h3>
+							<p><a href="$module_url">$assignment.getParentModule().getName()</a></p>
+						</td>
+						<td>
+							<p #if($assignment.isOverdue())class="overdue"#end>
+								$assignment.getAssignment().getDeadline()
+								#if($assignment.hasDeadlineRevision())
+								extended to $assignment.getDeadlineRevision().getNewDeadline()
+								#end
+							</p>
+						</td>
+						<td>
+							#if($assignment.hasSubmitted())
+							<p>
+								$assignment.getLastSubmissionTime()
+							</p>
+							#else
+							<p>
+								Not submitted
+							</p>
+							#end
+						</td>
+						<td>
+							#if(!$assignment.canSubmit())
+								<p>
+									Closed
+								</p>
+							#else
+								<form method="get" action="$context.getPageUrl("student", "submit")">
+									<p>
+										<input type="hidden" name="assignment" value="$assignment.getAssignment().getId()"/>
+										<input type="submit" value="Submit Solution"/>
+									</p>
+								</form>								
+							#end
+							
+							#if($assignment.hasSubmitted())
+							<p>
+								<a href="$context.getPageUrl("student", "assignment_submissions")?assignment=$assignment.getAssignment().getId()">
+									Previous submissions...
+								</a>
+							</p>
+							#end
+							
+						</td>
+					</tr>
+					
+					#if($style == "odd")
+						#set($style = "even")
+					#else
+						#set($style = "odd")
+					#end
+					
+				#end
+				</tbody>
+			</table>
+			
+			<p class="footnote">$assignments.size() assignment#if($assignments.size()!=1)s#end, sorted
+			$sorting_desc.  To change sorting, please click the desired header.</p>
+		</div>	
+		
+		<div class="navbar">
+			<h2 class="nostyle">
+				Navigate to:
+			</h2>
+			
+			<ul>
+				<li><a href="$context.getPageUrl("help", "about")" rel="external">About BOSS</a></li>
+				<li><a href="$context.getPageUrl("help", "accessibility")" rel="external">Accessibility</a></li>
+				<li><a href="$helpUrl" rel="external">Help</a></li>
+			</ul>
+		</div>		
+	</body>
+</html>
