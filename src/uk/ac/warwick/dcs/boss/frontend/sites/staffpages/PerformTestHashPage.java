@@ -23,8 +23,10 @@ import uk.ac.warwick.dcs.boss.model.dao.DAOException;
 import uk.ac.warwick.dcs.boss.model.dao.DAOFactory;
 import uk.ac.warwick.dcs.boss.model.dao.IAssignmentDAO;
 import uk.ac.warwick.dcs.boss.model.dao.IDAOSession;
+import uk.ac.warwick.dcs.boss.model.dao.IModuleDAO;
 import uk.ac.warwick.dcs.boss.model.dao.IStaffInterfaceQueriesDAO;
 import uk.ac.warwick.dcs.boss.model.dao.beans.Assignment;
+import uk.ac.warwick.dcs.boss.model.dao.beans.Module;
 
 public class PerformTestHashPage extends Page {
 
@@ -74,7 +76,10 @@ public class PerformTestHashPage extends Page {
 				throw new DAOException("permission denied (not on module)");
 			}
 			
+			IModuleDAO moduleDao = f.getModuleDAOInstance();
+			Module module = moduleDao.retrievePersistentEntity(assignment.getModuleId());
 			templateContext.put("assignment", assignment);
+			templateContext.put("module", module);
 			fileNames = assignmentDao.fetchRequiredFilenames(assignmentId);
 			
 			f.endTransaction();
