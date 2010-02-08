@@ -60,7 +60,7 @@
     </target>
 	<target depends="build" name="package">
 		<echo message="Packaging war file"/>
-		<war destfile="BOSS2.war" basedir="WebContent">
+		<war destfile="BOSS2.war" basedir="WebContent" webxml="WebContent/WEB-INF/web.xml">
 			<classes dir="build/classes" />
 		</war>
 	</target>
