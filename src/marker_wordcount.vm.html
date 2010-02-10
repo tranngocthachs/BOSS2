@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
-		<title>Test submission for $assignment.getName()</title>
+		<title>Word-count submission for $assignment.getName()</title>
 		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 		<meta http-equiv="Content-Script-Type" content="text/javascript" />
 		<meta http-equiv="Content-Style-Type" content="text/css" />
@@ -18,9 +18,9 @@
 			Hello, $greet (<a href="$context.getPageUrl("system", "logout")">Log out</a>)
 		</div>		
 		
-		<div class="textbar"><h1>BOSS 2: Test submission for $assignment.getName()</h1></div>
+		<div class="textbar"><h1>BOSS 2: Word-count submission for $assignment.getName()</h1></div>
 
-		<div class="breadcrumbs"><a href="$context.getPageUrl("system", "home")">Home</a> : <a href="$context.getPageUrl("marker", "assignments")">Marker Assignments</a> : <a href="$context.getPageUrl("marker", "students")?assignment=$assignment.getId()">Students to mark for $assignment.getName()</a> : <a href="$context.getPageUrl("marker", "submissions")?markingassignment=$markingAssignment.getId()">Submissions for selected student</a> : Test selected submission</div>
+		<div class="breadcrumbs"><a href="$context.getPageUrl("system", "home")">Home</a> : <a href="$context.getPageUrl("marker", "assignments")">Marker Assignments</a> : <a href="$context.getPageUrl("marker", "students")?assignment=$assignment.getId()">Students to mark for $assignment.getName()</a> : <a href="$context.getPageUrl("marker", "submissions")?markingassignment=$markingAssignment.getId()">Submissions for selected student</a> : Word-count selected submission</div>
 
 		
 		<div class="control">
@@ -33,8 +33,8 @@
 
 		<div class="table">
 		<!-- The id is picked up by the targethack.js referenced above -->
-		<form action="$context.getPageUrl("marker", "perform_test")?submission=$submission.getId()" method="post" id="target_hack">	
-			<h2 class="nostyle">Testing</h2>
+		<form action="$context.getPageUrl("marker", "perform_wordcount")?assignment=$assignment.getId()&submission=$submission.getId()" method="post" id="target_hack">	
+			<h2 class="nostyle">Word-counting</h2>
 			<table class="full">
 				<thead>
 					<tr>
@@ -70,9 +70,24 @@
 					
 					<tr class="even">
 						<td>
-							<p>Tests:</p>
+							<p>File submitted:</p>
 						</td>
 						<td>
+							#if($missingFields)
+							<p>
+							<span class="error">You must select at least one file to perform word-count.</span>
+							</p>
+							#end
+							
+							#set($x = 0)
+							#foreach($file in $files)
+							<p>
+								<input id="cb$x" type="checkbox" name="count" value="$file" />
+								<label for="cb$x">$file</label>
+								#set($x = $x + 1)
+							</p>
+							#end
+							<!--
 							<p>
 							#if($missingFields)
 							<span class="error">You must select one or more tests.</span><br/>
@@ -93,6 +108,7 @@
 								#end
 							#end
 							</p>
+							-->
 						</td>
 					</tr>
 									
@@ -102,8 +118,7 @@
 						</td>
 						<td>
 							<p>
-								<input type="submit" value="Perform Selected Tests"/><br/>
-								Note: May take a while.
+								<input type="submit" value="Perform Word-count on Selected Files"/><br/>
 							</p>
 						</td>
 					</tr>					

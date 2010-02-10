@@ -105,6 +105,13 @@
 									<input type="submit" value="Test"/>
 								</p>
 							</form>
+							<form action="$context.getPageUrl("marker", "wordcount")" method="get">
+								<p>
+									<input type="hidden" name="assignment" value="$submission.getAssignment().getId()"/>
+									<input type="hidden" name="submission" value="$submission.getSubmission().getId()"/>
+									<input type="submit" value="Word Count"/>
+								</p>
+							</form>
 							
 						</td>
 					</tr>

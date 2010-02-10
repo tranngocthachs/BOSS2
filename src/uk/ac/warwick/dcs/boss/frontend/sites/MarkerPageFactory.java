@@ -8,10 +8,12 @@ import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.EditMarkPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.MarksPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.PerformEditMarkPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.PerformTestPage;
+import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.PerformWordcountPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.StudentsPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.SubmissionsPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.TestPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.DownloadSubmissionPage;
+import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.WordcountPage;
 
 public class MarkerPageFactory extends PageFactory {
 
@@ -26,6 +28,8 @@ public class MarkerPageFactory extends PageFactory {
 	public static String TEST_PAGE = "test";
 	public static String PERFORM_TEST_PAGE = "perform_test";
 	public static String DOWNLOAD_SUBMISSION_PAGE = "download_submission";
+	public static String WORDCOUNT_PAGE = "wordcount";
+	public static String PERFORM_WORDCOUNT_PAGE = "perform_wordcount";
 	
 	@Override
 	protected Page getPage(String pageName) throws PageLoadException {
@@ -47,6 +51,10 @@ public class MarkerPageFactory extends PageFactory {
 			return new PerformTestPage();
 		} else if (pageName.equals(DOWNLOAD_SUBMISSION_PAGE)) { 
 			return new DownloadSubmissionPage();
+		} else if (pageName.equals(WORDCOUNT_PAGE)) {
+			return new WordcountPage();
+		} else if (pageName.equals(PERFORM_WORDCOUNT_PAGE)) {
+			return new PerformWordcountPage();
 		} else {
 			throw new PageLoadException(404, "Unknown page identifier");
 		}

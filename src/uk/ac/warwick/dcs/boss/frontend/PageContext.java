@@ -266,6 +266,19 @@ public class PageContext {
 			return result.trim();
 		}
 	}
+	/**
+	 * Get a group of values of a parameter passed in the request
+	 * @param parameter is the parameter name
+	 * @return the value, or null if the parameter was not provided
+	 */
+	public String[] getParameterValues(String parameter) {
+		String[] result = request.getParameterValues(parameter); 
+		if (result == null) {
+			return null;
+		}
+		else
+			return result;
+	}
 
 	/**
 	 * Set the content type of the response.
@@ -395,5 +408,9 @@ public class PageContext {
 	 */
 	public String getConfigurationFilePath() {
 		return this.context.getRealPath("WEB-INF/config.properties");
+	}
+	
+	public void getProperty(String prop) {
+		context.getAttribute(prop);
 	}
 }
