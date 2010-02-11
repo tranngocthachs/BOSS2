@@ -74,7 +74,7 @@
 						<td>
 							#foreach($file in $files.keySet())
 							<p>
-								$file : $files.get($file)
+								#if($files.get($file) >= 0) $file : $files.get($file) #else $file : Not support file type #end
 							</p>
 							#end
 							<!--
