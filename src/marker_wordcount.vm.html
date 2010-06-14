@@ -20,7 +20,7 @@
 		
 		<div class="textbar"><h1>BOSS 2: Word-count submission for $assignment.getName()</h1></div>
 
-		<div class="breadcrumbs"><a href="$context.getPageUrl("system", "home")">Home</a> : <a href="$context.getPageUrl("marker", "assignments")">Marker Assignments</a> : <a href="$context.getPageUrl("marker", "students")?assignment=$assignment.getId()">Students to mark for $assignment.getName()</a> : <a href="$context.getPageUrl("marker", "submissions")?markingassignment=$markingAssignment.getId()">Submissions for selected student</a> : Word-count selected submission</div>
+		<div class="breadcrumbs"><a href="$context.getPageUrl("system", "home")">Home</a> : <a href="$context.getPageUrl("marker", "assignments")">Marker Assignments</a> : <a href="$context.getPageUrl("marker", "students")?assignment=$assignment.getId()">Students to mark for $assignment.getName()</a> : <a href="$context.getPageUrl("marker", "submissions")?markingassignment=$markingAssignmentId">Submissions for selected student</a> : Word-count selected submission</div>
 
 		
 		<div class="control">
@@ -118,6 +118,7 @@
 						</td>
 						<td>
 							<p>
+								<input type="hidden" name="markingassignment" value="$markingAssignmentId"/>
 								<input type="submit" value="Perform Word-count on Selected Files"/><br/>
 							</p>
 						</td>

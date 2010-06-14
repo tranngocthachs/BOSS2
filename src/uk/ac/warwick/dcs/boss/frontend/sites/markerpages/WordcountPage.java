@@ -30,7 +30,9 @@ import uk.ac.warwick.dcs.boss.model.dao.IModuleDAO;
 import uk.ac.warwick.dcs.boss.model.dao.IResourceDAO;
 import uk.ac.warwick.dcs.boss.model.dao.ISubmissionDAO;
 import uk.ac.warwick.dcs.boss.model.dao.ITestDAO;
+import uk.ac.warwick.dcs.boss.model.dao.IMarkingAssignmentDAO;
 import uk.ac.warwick.dcs.boss.model.dao.beans.Assignment;
+import uk.ac.warwick.dcs.boss.model.dao.beans.MarkingAssignment;
 import uk.ac.warwick.dcs.boss.model.dao.beans.Module;
 import uk.ac.warwick.dcs.boss.model.dao.beans.Resource;
 import uk.ac.warwick.dcs.boss.model.dao.beans.Submission;
@@ -69,6 +71,13 @@ public class WordcountPage extends Page {
 		}
 		Long assignmentId = Long.valueOf(pageContext.getParameter("assignment"));
 		
+		// Get the marking assignment id
+		String markingAssignmentIdString = pageContext.getParameter("markingassignment");
+		if (markingAssignmentIdString == null) {
+			throw new ServletException("No markingassignment parameter given");
+		}
+		Long markingAssignmentId = Long.valueOf(pageContext.getParameter("markingassignment"));
+
 		// Set the missing elements flag if needed.
 		if (pageContext.getParameter("missing") != null) {
 			templateContext.put("missingFields", true);
@@ -83,6 +92,7 @@ public class WordcountPage extends Page {
 			IAssignmentDAO assignmentDao = f.getAssignmentDAOInstance();
 			ISubmissionDAO submissionDao = f.getSubmissionDAOInstance();
 			IResourceDAO resourceDAO = f.getResourceDAOInstance();
+//			IMarkingAssignmentDAO markingAssignmentDao = f.getMarkingAssignmentDAOInstance();
 			if (!markerInterfaceQueriesDao.isMarkerSubmissionAccessAllowed(pageContext.getSession().getPersonBinding().getId(), submissionId)) {
 				f.abortTransaction();
 				throw new DAOException("permission denied");
@@ -90,6 +100,7 @@ public class WordcountPage extends Page {
 			Submission submission = submissionDao.retrievePersistentEntity(submissionId);
 			Assignment assignment = assignmentDao.retrievePersistentEntity(submission.getAssignmentId());
 			Module module = moduleDao.retrievePersistentEntity(assignment.getModuleId());
+//			MarkingAssignment markingAssignment = markingAssignmentDao.retrievePersistentEntity(markingAssignmentId);
 			Collection<String> reqFiles = assignmentDao.fetchRequiredFilenames(assignmentId);
 			Collection<String> files = new LinkedList<String>();
 //			Resource resource = resourceDAO.retrievePersistentEntity(submission.getResourceId());
@@ -128,6 +139,7 @@ public class WordcountPage extends Page {
 			templateContext.put("module", module);
 			templateContext.put("assignment", assignment);
 			templateContext.put("submission", submission);
+			templateContext.put("markingAssignmentId", markingAssignmentId);
 			templateContext.put("files", files);
 			
 			f.endTransaction();

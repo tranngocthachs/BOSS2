@@ -83,6 +83,13 @@ public class PerformWordcountPage extends Page {
 		}
 		Long assignmentId = Long.valueOf(pageContext.getParameter("assignment"));
 		
+		// Get the marking assignment id
+		String markingAssignmentIdString = pageContext.getParameter("markingassignment");
+		if (markingAssignmentIdString == null) {
+			throw new ServletException("No markingassignment parameter given");
+		}
+		Long markingAssignmentId = Long.valueOf(pageContext.getParameter("markingassignment"));
+
 		String[] files = pageContext.getParameterValues("count");
 		if (files == null) {
 			pageContext.performRedirect(pageContext.getPageUrl(MarkerPageFactory.SITE_NAME, MarkerPageFactory.WORDCOUNT_PAGE) + "?submission=" + submissionId + "&assignment=" + assignmentId + "&missing=true");
@@ -150,6 +157,7 @@ public class PerformWordcountPage extends Page {
 			templateContext.put("assignment", assignment);
 			templateContext.put("submission", submission);
 			templateContext.put("files", wcs);
+			templateContext.put("markingAssignmentId", markingAssignmentId);
 			
 			f.endTransaction();
 			
