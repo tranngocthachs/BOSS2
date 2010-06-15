@@ -43,6 +43,7 @@ import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.PerformPublishResultsPag
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.PerformRemoveAssignmentFilePage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.PerformRemoveMarkerPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.PerformRemoveStudentPage;
+import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.PerformRunSherlockPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.PerformTestHashPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.PerformUploadAssignmentResourcePage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.PerformUploadTestResourcePage;
@@ -54,6 +55,7 @@ import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.TestHashPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.TestsPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.UploadAssignmentResourcePage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.UploadTestResourcePage;
+import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.RunSherlockPage;
 
 public class StaffPageFactory extends PageFactory {
 
@@ -112,6 +114,8 @@ public class StaffPageFactory extends PageFactory {
 	public static String PERFORM_TEST_HASH_PAGE = "perform_test_hash";
 	public static String MULTI_DOWNLOAD_PAGE = "multi_download";
 	public static String PERFORM_MULTI_DOWNLOAD_PAGE = "perform_multi_download";
+	public static String RUN_SHERLOCK_PAGE = "run_sherlock";
+	public static String PERFORM_RUN_SHERLOCK_PAGE = "perform_run_sherlock";
 
 	@Override
 	protected Page getPage(String pageName) throws PageLoadException {
@@ -217,6 +221,10 @@ public class StaffPageFactory extends PageFactory {
 			return new MultiDownloadPage();
 		} else if (pageName.equals(PERFORM_MULTI_DOWNLOAD_PAGE)) {
 			return new PerformMultiDownloadPage();
+		} else if (pageName.equals(RUN_SHERLOCK_PAGE)) {
+			return new RunSherlockPage();
+		} else if (pageName.equals(PERFORM_RUN_SHERLOCK_PAGE)) {
+			return new PerformRunSherlockPage();
 		} else {
 			throw new PageLoadException(404, "page not found");
 		}
