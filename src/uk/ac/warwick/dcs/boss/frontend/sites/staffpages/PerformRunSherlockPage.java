@@ -5,13 +5,15 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 
 import javax.servlet.ServletException;
 
@@ -22,7 +24,6 @@ import org.apache.velocity.VelocityContext;
 import uk.ac.warwick.dcs.boss.frontend.Page;
 import uk.ac.warwick.dcs.boss.frontend.PageContext;
 import uk.ac.warwick.dcs.boss.frontend.PageLoadException;
-import uk.ac.warwick.dcs.boss.frontend.sites.MarkerPageFactory;
 import uk.ac.warwick.dcs.boss.frontend.sites.StaffPageFactory;
 import uk.ac.warwick.dcs.boss.model.FactoryException;
 import uk.ac.warwick.dcs.boss.model.FactoryRegistrar;
@@ -37,8 +38,11 @@ import uk.ac.warwick.dcs.boss.model.dao.ISubmissionDAO;
 import uk.ac.warwick.dcs.boss.model.dao.beans.Assignment;
 import uk.ac.warwick.dcs.boss.model.dao.beans.Module;
 import uk.ac.warwick.dcs.boss.model.dao.beans.Submission;
-import uk.ac.warwick.dcs.boss.model.testing.TestingException;
 import uk.ac.warwick.dcs.boss.model.testing.impl.TemporaryDirectory;
+import uk.ac.warwick.dcs.cobalt.sherlock.DynamicTreeTableModel;
+import uk.ac.warwick.dcs.cobalt.sherlock.MatchTableDataStruct;
+import uk.ac.warwick.dcs.cobalt.sherlock.RunSherlock;
+import uk.ac.warwick.dcs.cobalt.sherlock.Sherlock;
 
 public class PerformRunSherlockPage extends Page {
 	
@@ -155,7 +159,29 @@ public class PerformRunSherlockPage extends Page {
 					}					
 				}
 				// running Sherlock on temp folder
-				System.out.println("Place holder");
+				String[] args = {sherlockTempDir.getAbsolutePath(), "-p", "-d", "-v"};
+				RunSherlock.main(args);
+				
+				// Preparing matching results
+				MatchTableDataStruct mtd = new MatchTableDataStruct(null);
+				boolean hasMatch = mtd.hasMatch();
+				templateContext.put("hasMatch", hasMatch);
+				if (hasMatch) {
+					DynamicTreeTableModel tm = mtd.getModel();
+					Collection<String> thead = new ArrayList<String>(tm.getColumnCount());
+					for (int i = 0; i < tm.getColumnCount(); i++)
+						thead.add(tm.getColumnName(i));
+					templateContext.put("tableHead", thead);
+					List<String> nodeIds = new ArrayList<String>();
+					List<List<String>> rows = new ArrayList<List<String>>();
+					List<String> classes = new ArrayList<String>();
+					Object root = tm.getRoot();
+					walk(tm, root, "node", nodeIds, classes, rows);
+					templateContext.put("ids", nodeIds);
+					templateContext.put("classes", classes);
+					templateContext.put("rows", rows);
+				}
+				
 				// kill temp folder
 				killDirectory(sherlockTempDir);
 
@@ -197,6 +223,31 @@ public class PerformRunSherlockPage extends Page {
 		return( path.delete() );
 	}
 
+	static void walk(DynamicTreeTableModel model, Object o, String currentId,
+				List<String> ids, List<String> classes, List<List<String>> rows) {
+		int  cc;
+		cc = model.getChildCount(o);
+		for( int i=0; i < cc; i++) {
+			Object child = model.getChild(o, i );
+			String childId = currentId + "-" + i;
+			ids.add(childId);
+			List<String> row = indexNode(model, child);
+			rows.add(row);
+			if (!currentId.equals("node"))
+				classes.add("child-of-" + currentId);
+			else
+				classes.add("");
+			if (!model.isLeaf(child))
+				walk(model, child, childId, ids, classes, rows);
+		}
+	}
 	
+	static List<String> indexNode(DynamicTreeTableModel model, Object o) {
+		List<String> row = new ArrayList<String>(model.getColumnCount());
+		for (int i = 0; i < model.getColumnCount(); i++) {
+			row.add(model.getValueAt(o, i).toString());
+		}
+		return row;
+	}
 
 }
