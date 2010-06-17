@@ -1,12 +1,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
-		<title>Download Multiple Submissions</title>
+		<title>Plagiarism Detection with Sherlock</title>
 		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 		<meta http-equiv="Content-Script-Type" content="text/javascript" />
 		<meta http-equiv="Content-Style-Type" content="text/css" />
 		<link rel="StyleSheet" href="$context.getStaticPath()/css/tables.css" type="text/css" media="screen"/>
 		<script type="text/javascript" src="$context.getStaticPath()/js/targethack.js"></script>
+		<link type="text/css" href="$context.getStaticPath()/css/cupertino/jquery-ui-1.8.2.custom.css" rel="stylesheet" />	
+		<script type="text/javascript" src="$context.getStaticPath()/js/jquery-1.4.2.min.js"></script>
+		<script type="text/javascript" src="$context.getStaticPath()/js/jquery-ui-1.8.2.custom.min.js"></script>
+		<script type="text/javascript" src="$context.getStaticPath()/js/jquery-tabs.js"></script>
 	</head>
 	
 	<body>
@@ -52,7 +56,7 @@
 							<td>
 								<p>
 									<select id="files" size="10" name="files">
-									#foreach($file in $files)
+									#foreach( $file in $files )
 										<option value="$file" selected="true">
 											$file
 										</option>
@@ -62,8 +66,123 @@
 							</td>
 						</tr>
 						<tr class="even">
+							<td>Language:</td>
+							<td>
+								<input type="radio" name="language" id="java" value="java" checked="checked"/><label for="java">Java</label><br />
+								<input type="radio" name="language" id="c++" value="c++" /><label for="c++">C++</label>
+							</td>
+						</tr>
+						<tr class="odd">
+							<td>File Types to Use:</td>
+							<td id="choices">
+								#foreach( $fileType in $fileTypes )
+								#set( $idx = $velocityCount - 1 )
+								<input type="checkbox" name="$fileType.getExtension()" 
+									value="true" id="$idx" #if( $fileType.isInUse() ) checked="checked" #end/>
+												<label for="$idx">$fileType.getDescription()</label><br />
+								#end
+							</td>
 						</tr>
 						<tr>
+							<td colspan=2>
+							<div id="tabs">
+								<ul>
+									#foreach( $fileType in $fileTypes )
+									<li><a href="#$fileType.getExtension()">$fileType.getDescription()</a></li>
+									#end
+								</ul>
+								#foreach( $fileType in $fileTypes )
+								#set( $idx = $velocityCount - 1 )
+								<div id="$fileType.getExtension()">
+									#if( $idx == 7 )
+										<table width="35%" align="center">
+											<tr>
+												<td>Similarity Threshold:</td>
+												<td>
+													<input type="text" name="${fileType.getExtension()}-1"
+													size="5" maxlength="2" value="$fileType.getSimThreshold()" />
+												</td>
+											</tr>
+											<tr>
+												<td>Common Threshold:</td>
+												<td>
+													<input type="text" name="${fileType.getExtension()}-2"
+													size="5" maxlength="2" value="$fileType.getCommonThreshold()" />
+												</td>
+											</tr>
+											<tr>
+												<td colspan="2">
+													<input type="checkbox" name="${fileType.getExtension()}-3" value="true" id="${fileType.getExtension()}-3" #if( $fileType.getMemIntensive() ) checked="checked" #end/>
+													<label for="${fileType.getExtension()}-3">Memory Intensive</label>
+												</td>
+											</tr>
+										</table>
+										
+										
+									#else
+										<table width="35%" align="center">
+											<tr>
+												<td>Minimum string length to store:</td>
+												<td>
+													<input type="text" name="${fileType.getExtension()}-1"
+													size="5" maxlength="1" value="$fileType.getMinStringLength()" />
+												</td>
+											</tr>
+											<tr>
+												<td>Minimum run length to store:</td>
+												<td>
+													<input type="text" name="${fileType.getExtension()}-2"
+													size="5" maxlength="1" value="$fileType.getMinRunLength()" />
+												</td>
+											</tr>
+											<tr>
+												<td>Maximum forward jump:</td>
+												<td>
+													<input type="text" name="${fileType.getExtension()}-3"
+													size="5" maxlength="1" value="$fileType.getMaxForwardJump()" />
+												</td>
+											</tr>
+											<tr>
+												<td>Maximum backward jump:</td>
+												<td>
+													<input type="text" name="${fileType.getExtension()}-4"
+													size="5" maxlength="1" value="$fileType.getMaxBackwardJump()" />
+												</td>
+											</tr>
+											<tr>
+												<td>Maximum jump difference:</td>
+												<td>
+													<input type="text" name="${fileType.getExtension()}-5"
+													size="5" maxlength="1" value="$fileType.getMaxJumpDiff()" />			
+												</td>
+											</tr>
+											<tr>
+												<td>Strictness:</td>
+												<td>
+													<input type="text" name="${fileType.getExtension()}-6"
+													size="5" maxlength="1" value="$fileType.getStrictness()" />			
+												</td>
+											</tr>
+											<tr>
+												<td colspan="2">
+													<input type="checkbox" name="${fileType.getExtension()}-7" value="true" id="${fileType.getExtension()}-7" #if( $fileType.getAmalgamate() ) checked="checked" #end/>
+													<label for="${fileType.getExtension()}-7">Amalgamate nearby runs</label>
+												</td>
+											</tr>
+											<tr>
+												<td colspan="2">
+													<input type="checkbox" name="${fileType.getExtension()}-8" value="true" id="${fileType.getExtension()}-8" #if( $fileType.getConcatanate() ) checked="checked" #end/>
+													<label for="${fileType.getExtension()}-8">Concatenate nearby runs</label>
+												</td>
+											</tr>	
+										</table>																	
+									#end
+								</div>
+								#end
+							</div>
+							</td>
+						</tr>
+						<tr class="odd">
 							<td>
 								<p>Perform:</p>
 							</td>

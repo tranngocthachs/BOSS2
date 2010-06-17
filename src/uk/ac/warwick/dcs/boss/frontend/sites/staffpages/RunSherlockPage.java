@@ -21,6 +21,7 @@ import uk.ac.warwick.dcs.boss.model.dao.IModuleDAO;
 import uk.ac.warwick.dcs.boss.model.dao.IStaffInterfaceQueriesDAO;
 import uk.ac.warwick.dcs.boss.model.dao.beans.Assignment;
 import uk.ac.warwick.dcs.boss.model.dao.beans.Module;
+import uk.ac.warwick.dcs.cobalt.sherlock.Settings;
 
 public class RunSherlockPage extends Page {
 	
@@ -78,7 +79,8 @@ public class RunSherlockPage extends Page {
 			templateContext.put("module", module);
 			templateContext.put("assignment", assignment);
 			templateContext.put("files", reqFiles);
-
+			Settings.init();
+			templateContext.put("fileTypes", Settings.getFileTypes());
 			pageContext.renderTemplate(template, templateContext);
 		} catch (DAOException e) {
 			f.abortTransaction();

@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
-		<title>Download Multiple Submissions</title>
+		<title>Sherlock Matching Results</title>
 		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 		<meta http-equiv="Content-Script-Type" content="text/javascript" />
 		<meta http-equiv="Content-Style-Type" content="text/css" />
@@ -52,10 +52,16 @@
 					</thead>
 					<tbody>
 						#foreach($row in $rows)
-							#set( $idx = $velocityCount - 1)
+							#set( $idx = $velocityCount - 1 )
 							<tr id="$ids.get($idx)" class="$classes.get($idx)">
 								#foreach($value in $row)
-								<td>$value</td>
+								<td>
+									#if( $velocityCount == $row.size() )
+										<input type="checkbox" #if( $value == "true" ) checked="checked" #end />
+									#else
+										$value
+									#end
+								</td>
 								#end
 							</tr>
 						#end
