@@ -81,6 +81,8 @@ public class RunSherlockPage extends Page {
 			templateContext.put("files", reqFiles);
 			Settings.init();
 			templateContext.put("fileTypes", Settings.getFileTypes());
+			// putting up the id of sentence parsing profile (required different treatment)
+			templateContext.put("senProfile", Settings.SEN);
 			pageContext.renderTemplate(template, templateContext);
 		} catch (DAOException e) {
 			f.abortTransaction();

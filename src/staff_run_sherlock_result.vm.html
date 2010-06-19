@@ -42,6 +42,7 @@
 				
 		<div class="table">
 			<h2>Plagiarism Checking Result Using Sherlock</h2>
+				#if( $hasMatch )
 				<table class="result">
 					<thead>
 						<tr>
@@ -67,6 +68,9 @@
 						#end
 					</tbody>
 				</table>
+				#else
+				<p>There's no match!</p>
+				#end
 		</div>	
 		
 		<div class="navbar">
