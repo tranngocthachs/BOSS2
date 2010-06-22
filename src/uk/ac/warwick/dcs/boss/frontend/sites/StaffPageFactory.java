@@ -49,6 +49,7 @@ import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.PerformUploadAssignmentR
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.PerformUploadTestResourcePage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.PublishResultsPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.ResultsPage;
+import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.SherlockOneMatchPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.StudentsPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.SubmissionsPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.TestHashPage;
@@ -116,6 +117,7 @@ public class StaffPageFactory extends PageFactory {
 	public static String PERFORM_MULTI_DOWNLOAD_PAGE = "perform_multi_download";
 	public static String RUN_SHERLOCK_PAGE = "run_sherlock";
 	public static String PERFORM_RUN_SHERLOCK_PAGE = "perform_run_sherlock";
+	public static String SHERLOCK_ONE_MATCH_PAGE = "sherlock_one_match";
 
 	@Override
 	protected Page getPage(String pageName) throws PageLoadException {
@@ -225,6 +227,8 @@ public class StaffPageFactory extends PageFactory {
 			return new RunSherlockPage();
 		} else if (pageName.equals(PERFORM_RUN_SHERLOCK_PAGE)) {
 			return new PerformRunSherlockPage();
+		} else if (pageName.equals(SHERLOCK_ONE_MATCH_PAGE)) {
+			return new SherlockOneMatchPage();
 		} else {
 			throw new PageLoadException(404, "page not found");
 		}

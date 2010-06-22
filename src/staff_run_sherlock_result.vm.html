@@ -8,14 +8,29 @@
 		<link rel="StyleSheet" href="$context.getStaticPath()/css/tables.css" type="text/css" media="screen"/>
 		<script type="text/javascript" src="$context.getStaticPath()/js/targethack.js"></script>
 		<link rel="StyleSheet" href="$context.getStaticPath()/css/jquery.treeTable.css" type="text/css" />
+		<link rel="StyleSheet" href="$context.getStaticPath()/css/nyroModal.css" type="text/css" />
 		<script type="text/javascript" src="$context.getStaticPath()/js/jquery-1.4.2.min.js"></script>
 		<script type="text/javascript" src="$context.getStaticPath()/js/jquery.treeTable.min.js"></script>
+		<script type="text/javascript" src="$context.getStaticPath()/js/jquery.nyroModal-1.6.2.pack.js"></script>
 		<script type="text/javascript">
-  
-		$(document).ready(function()  {
-  			$(".result").treeTable();
-		});
-  
+			$(document).ready(function()  {
+	  			$(".result").treeTable();
+	  			initBinding();
+	  			$('a.nyroModal').nyroModal({
+		  			width: '1000', 
+		  			height: '600',
+		  			endShowContent: function() { initBinding(); } 
+			  			});
+			});
+			function initBinding() {
+				$("input:checkbox.ori").click(function () {
+					$("textarea.ori").toggle();
+				});
+
+				$("input:checkbox.tok").click(function () {
+					$("textarea.tok").toggle();
+				});
+			}
 		</script>
 	</head>
 	
@@ -57,7 +72,14 @@
 							<tr id="$ids.get($idx)" class="$classes.get($idx)">
 								#foreach($value in $row)
 								<td>
-									#if( $velocityCount == $row.size() )
+									#if( $velocityCount == 1 )
+										#set( $matchIdx = $matchIndices.get($idx) )
+										#if( $matchIdx.intValue() == -1 )
+											$value
+										#else
+											<a href="$context.getPageUrl("staff", "sherlock_one_match")?assignment=$assignment.getId()&matchIdx=$matchIdx.intValue()" class="nyroModal">$value</a>
+										#end
+									#elseif( $velocityCount == $row.size() )
 										<input type="checkbox" #if( $value == "true" ) checked="checked" #end />
 									#else
 										$value
@@ -68,6 +90,11 @@
 						#end
 					</tbody>
 				</table>
+				<form action="$context.getPageUrl("staff", "perform_run_sherlock")" method="get">
+					<input type="submit" value="Finish"/>
+					<input type="hidden" name="ok" value="ok"/>
+					<input type="hidden" name="assignment" value="$assignment.getId()"/>
+				</form>
 				#else
 				<p>There's no match!</p>
 				#end

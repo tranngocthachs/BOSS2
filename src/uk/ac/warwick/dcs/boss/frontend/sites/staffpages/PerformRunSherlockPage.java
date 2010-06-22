@@ -49,7 +49,9 @@ import uk.ac.warwick.dcs.cobalt.sherlock.DynamicTreeTableModel;
 import uk.ac.warwick.dcs.cobalt.sherlock.FileTypeProfile;
 import uk.ac.warwick.dcs.cobalt.sherlock.GzipFilenameFilter;
 import uk.ac.warwick.dcs.cobalt.sherlock.GzipHandler;
+import uk.ac.warwick.dcs.cobalt.sherlock.Match;
 import uk.ac.warwick.dcs.cobalt.sherlock.MatchTableDataStruct;
+import uk.ac.warwick.dcs.cobalt.sherlock.MatchTreeNodeStruct;
 import uk.ac.warwick.dcs.cobalt.sherlock.Samelines;
 import uk.ac.warwick.dcs.cobalt.sherlock.Settings;
 import uk.ac.warwick.dcs.cobalt.sherlock.SherlockProcess;
@@ -75,7 +77,52 @@ public class PerformRunSherlockPage extends Page implements SherlockProcessCallb
 	protected void handleGet(PageContext pageContext, Template template,
 			VelocityContext templateContext) throws ServletException,
 			IOException {
-		throw new ServletException("Unexpected GET");
+		IDAOSession f;
+		try {
+			DAOFactory df = (DAOFactory)FactoryRegistrar.getFactory(DAOFactory.class);
+			f = df.getInstance();
+		} catch (FactoryException e) {
+			throw new ServletException("dao init error", e);
+		}
+
+		// Get assignmentId
+		String assignmentString = pageContext.getParameter("assignment");
+		if (assignmentString == null) {
+			throw new ServletException("No assignment parameter given");
+		}
+		Long assignmentId = Long
+		.valueOf(pageContext.getParameter("assignment"));
+		
+		if (pageContext.getParameter("ok") != null && pageContext.getParameter("ok").equals("ok")) {
+			templateContext.put("missingFields", true);
+		}
+		else {
+			throw new ServletException("Unexpected GET request");
+		}
+		
+		
+		try {
+			f.beginTransaction();
+
+			IStaffInterfaceQueriesDAO staffInterfaceQueriesDao = f.getStaffInterfaceQueriesDAOInstance();
+			IAssignmentDAO assignmentDao = f.getAssignmentDAOInstance();
+			Assignment assignment = assignmentDao.retrievePersistentEntity(assignmentId);
+
+			if (!staffInterfaceQueriesDao.isStaffModuleAccessAllowed(pageContext.getSession().getPersonBinding().getId(), assignment.getModuleId())) {
+				f.abortTransaction();
+				throw new ServletException("permission denied");
+			}
+			
+			// clean up Sherlock
+			killDirectory(Settings.getSourceDirectory());
+			Settings.setSourceDirectory(null);
+			Settings.setFileList(null);
+			f.endTransaction();
+		} catch (DAOException e) {
+			f.abortTransaction();
+			throw new ServletException("dao exception", e);
+		}
+		pageContext.performRedirect(pageContext.getPageUrl(StaffPageFactory.SITE_NAME, StaffPageFactory.MODULES_PAGE));
 	}
 
 	@Override
@@ -270,15 +317,14 @@ public class PerformRunSherlockPage extends Page implements SherlockProcessCallb
 					List<String> nodeIds = new ArrayList<String>();
 					List<List<String>> rows = new ArrayList<List<String>>();
 					List<String> classes = new ArrayList<String>();
+					List<Integer> matchIndices = new ArrayList<Integer>();
 					Object root = tm.getRoot();
-					walk(tm, root, "node", nodeIds, classes, rows);
+					walk(tm, root, "node", nodeIds, classes, rows, matchIndices);
 					templateContext.put("ids", nodeIds);
 					templateContext.put("classes", classes);
 					templateContext.put("rows", rows);
+					templateContext.put("matchIndices", matchIndices);
 				}
-
-				// kill temp folder
-				killDirectory(sherlockTempDir);
 
 
 			} catch (Exception e) {
@@ -412,25 +458,27 @@ public class PerformRunSherlockPage extends Page implements SherlockProcessCallb
 	}
 
 	private static void walk(DynamicTreeTableModel model, Object o, String currentId,
-			List<String> ids, List<String> classes, List<List<String>> rows) {
+			List<String> ids, List<String> classes, List<List<String>> rows, List<Integer> matchIndices) {
 		int  cc;
 		cc = model.getChildCount(o);
 		for( int i=0; i < cc; i++) {
 			Object child = model.getChild(o, i );
 			String childId = currentId + "-" + i;
 			ids.add(childId);
-			List<String> row = indexNode(model, child);
+			List<String> row = recordNode(model, child);
 			rows.add(row);
+			matchIndices.add(new Integer(((MatchTreeNodeStruct)child).getIndex()));
+			// this is for discarding root node
 			if (!currentId.equals("node"))
 				classes.add("child-of-" + currentId);
 			else
 				classes.add("");
 			if (!model.isLeaf(child))
-				walk(model, child, childId, ids, classes, rows);
+				walk(model, child, childId, ids, classes, rows, matchIndices);
 		}
 	}
 
-	private static List<String> indexNode(DynamicTreeTableModel model, Object o) {
+	private static List<String> recordNode(DynamicTreeTableModel model, Object o) {
 		List<String> row = new ArrayList<String>(model.getColumnCount());
 		for (int i = 0; i < model.getColumnCount(); i++) {
 			row.add(model.getValueAt(o, i).toString());
