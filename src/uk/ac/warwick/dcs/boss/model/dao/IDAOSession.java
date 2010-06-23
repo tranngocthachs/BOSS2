@@ -40,6 +40,7 @@ public interface IDAOSession {
 	abstract public IModuleDAO getModuleDAOInstance() throws DAOException;
 	abstract public IPersonDAO getPersonDAOInstance() throws DAOException;
 	abstract public IAssignmentDAO getAssignmentDAOInstance() throws DAOException;
+	abstract public ISherlockSessionDAO getSherlockSessionDAOInstance() throws DAOException;
 	
 	abstract public IMarkingCategoryDAO getMarkingCategoryDAOInstance() throws DAOException;
 	abstract public IMarkDAO getMarkDAOInstance() throws DAOException;

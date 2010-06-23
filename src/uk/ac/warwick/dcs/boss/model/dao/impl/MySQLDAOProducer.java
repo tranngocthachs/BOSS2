@@ -30,6 +30,7 @@ import uk.ac.warwick.dcs.boss.model.dao.IModuleDAO;
 import uk.ac.warwick.dcs.boss.model.dao.IPersonDAO;
 import uk.ac.warwick.dcs.boss.model.dao.IResourceDAO;
 import uk.ac.warwick.dcs.boss.model.dao.IResultDAO;
+import uk.ac.warwick.dcs.boss.model.dao.ISherlockSessionDAO;
 import uk.ac.warwick.dcs.boss.model.dao.IStaffInterfaceQueriesDAO;
 import uk.ac.warwick.dcs.boss.model.dao.IStudentInterfaceQueriesDAO;
 import uk.ac.warwick.dcs.boss.model.dao.ISubmissionDAO;
@@ -97,6 +98,7 @@ public class MySQLDAOProducer implements IDAOSession {
 				// 1.2 tables
 				executeAndLog(logger, statement, "DROP TABLE IF EXISTS assignment_markers");
 				executeAndLog(logger, statement, "DROP TABLE IF EXISTS assignment_requiredfilenames");
+				executeAndLog(logger, statement, "DROP TABLE IF EXISTS sherlocksession_requiredfilenames");
 				executeAndLog(logger, statement, "DROP TABLE IF EXISTS module_administrators");
 				executeAndLog(logger, statement, "DROP TABLE IF EXISTS module_students");
 				executeAndLog(logger, statement, "DROP TABLE IF EXISTS test_parameters");
@@ -110,6 +112,7 @@ public class MySQLDAOProducer implements IDAOSession {
 				executeAndLog(logger, statement, "DROP TABLE IF EXISTS markingcategory");
 				executeAndLog(logger, statement, "DROP TABLE IF EXISTS submission");
 				executeAndLog(logger, statement, "DROP TABLE IF EXISTS test");
+				executeAndLog(logger, statement, "DROP TABLE IF EXISTS savedsherlocksession");
 				executeAndLog(logger, statement, "DROP TABLE IF EXISTS assignment");
 				executeAndLog(logger, statement, "DROP TABLE IF EXISTS module");
 				executeAndLog(logger, statement, "DROP TABLE IF EXISTS model");
@@ -320,6 +323,19 @@ public class MySQLDAOProducer implements IDAOSession {
 				executeAndLog(logger, statement, "CREATE TABLE IF NOT EXISTS version (version INT NOT NULL)");
 				executeAndLog(logger, statement, "DELETE FROM version");
 				executeAndLog(logger, statement, "INSERT INTO version (version) VALUES (" + STORAGE_VERSION_1_2 + ")");
+				
+				executeAndLog(logger, statement, "CREATE TABLE IF NOT EXISTS savedsherlocksession (" +
+						"  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY," +
+						"  assignment_id INT NOT NULL," +
+						"  resource_id INT NOT NULL," +
+						"  FOREIGN KEY (assignment_id) REFERENCES assignment(id) ON DELETE RESTRICT," +
+						"  FOREIGN KEY (resource_id) REFERENCES resource(id) ON DELETE RESTRICT" +
+				") ENGINE=InnoDB");
+				executeAndLog(logger, statement, "CREATE TABLE IF NOT EXISTS sherlocksession_requiredfilenames (" +
+						"  sherlocksession_id INT NOT NULL, " +
+						"  filename VARCHAR(64) NOT NULL, " +
+						"  FOREIGN KEY (sherlocksession_id) REFERENCES savedsherlocksession(id) ON DELETE RESTRICT " +
+				") ENGINE=InnoDB");
 				
 				statement.close();
 			} catch (SQLException e) {
@@ -549,6 +565,14 @@ public class MySQLDAOProducer implements IDAOSession {
 		return new MySQLLocalisationDAO(connection);
 	}	
 	
+	@Override
+	public ISherlockSessionDAO getSherlockSessionDAOInstance() throws DAOException {
+		if (!transactionLock.isHeldByCurrentThread()) {
+			throw new DAOException("no transaction in process");
+		}
+		return new MySQLSherlockSessionDAO(connection);
+	}
+
 	protected void assureConnectivity() throws DAOException {
 		if (!transactionLock.isHeldByCurrentThread()) {
 			throw new DAOException("no transaction in process");

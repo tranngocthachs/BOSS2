@@ -26,6 +26,7 @@ import uk.ac.warwick.dcs.boss.model.dao.beans.queries.StaffDeadlineRevisionsQuer
 import uk.ac.warwick.dcs.boss.model.dao.beans.queries.StaffMarkingAssignmentQueryResult;
 import uk.ac.warwick.dcs.boss.model.dao.beans.queries.StaffModulesQueryResult;
 import uk.ac.warwick.dcs.boss.model.dao.beans.queries.StaffResultsQueryResult;
+import uk.ac.warwick.dcs.boss.model.dao.beans.queries.StaffSherlockSessionsQueryResult;
 import uk.ac.warwick.dcs.boss.model.dao.beans.queries.StaffSubmissionsQueryResult;
 
 public class MySQLStaffInterfaceQueriesDAO implements IStaffInterfaceQueriesDAO {
@@ -589,6 +590,13 @@ public class MySQLStaffInterfaceQueriesDAO implements IStaffInterfaceQueriesDAO 
 			throw new DAOException("sql error", e);
 		}
 
+	}
+
+	@Override
+	public Collection<StaffSherlockSessionsQueryResult> performStaffSherlockSessionsQuery(
+			Long assignmentId) throws DAOException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
