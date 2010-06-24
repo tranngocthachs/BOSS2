@@ -25,7 +25,7 @@ public class SherlockSession extends Entity {
 	/**
 	 * @param resourceId the resourceId to set
 	 */
-	public void setResourceId(Long submissionId) {
-		this.resourceId = submissionId;
+	public void setResourceId(Long resourceId) {
+		this.resourceId = resourceId;
 	}
 }

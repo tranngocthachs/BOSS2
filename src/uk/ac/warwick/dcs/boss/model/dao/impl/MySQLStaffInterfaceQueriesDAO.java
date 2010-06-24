@@ -20,6 +20,7 @@ import uk.ac.warwick.dcs.boss.model.dao.beans.Model;
 import uk.ac.warwick.dcs.boss.model.dao.beans.Module;
 import uk.ac.warwick.dcs.boss.model.dao.beans.Person;
 import uk.ac.warwick.dcs.boss.model.dao.beans.Result;
+import uk.ac.warwick.dcs.boss.model.dao.beans.SherlockSession;
 import uk.ac.warwick.dcs.boss.model.dao.beans.Submission;
 import uk.ac.warwick.dcs.boss.model.dao.beans.queries.StaffAssignmentsQueryResult;
 import uk.ac.warwick.dcs.boss.model.dao.beans.queries.StaffDeadlineRevisionsQueryResult;
@@ -595,8 +596,37 @@ public class MySQLStaffInterfaceQueriesDAO implements IStaffInterfaceQueriesDAO 
 	@Override
 	public Collection<StaffSherlockSessionsQueryResult> performStaffSherlockSessionsQuery(
 			Long assignmentId) throws DAOException {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			// Construct the statement.
+			String statementString = "SELECT sherlocksession.*"
+				+ " FROM sherlocksession"
+				+ " WHERE sherlocksession.assignment_id=?";
+			PreparedStatement statementObject = connection.prepareStatement(statementString);
+			statementObject.setObject(1, assignmentId);
+
+			// Execute the statement.
+			Logger.getLogger("mysql").log(Level.TRACE, "Executing: " + statementObject.toString());
+			ResultSet rs = statementObject.executeQuery();
+			MySQLSherlockSessionDAO sherlockSessionDAO = new MySQLSherlockSessionDAO(connection);
+			// Bundle the results into a thingy
+			LinkedList<StaffSherlockSessionsQueryResult> output = new LinkedList<StaffSherlockSessionsQueryResult>();
+
+			while (rs.next()) {			
+				SherlockSession sherlockSession = sherlockSessionDAO.createInstanceFromDatabaseValues("sherlocksession", rs);
+				sherlockSession.setId(rs.getLong("sherlocksession.id"));
+				StaffSherlockSessionsQueryResult n = new StaffSherlockSessionsQueryResult();
+				n.setSherlockSession(sherlockSession);
+				output.add(n);
+			}
+
+			rs.close();
+			statementObject.close();
+			
+			// Done		
+			return output;
+		} catch (SQLException e) {
+			throw new DAOException("SQL error", e);
+		}
 	}
 
 }

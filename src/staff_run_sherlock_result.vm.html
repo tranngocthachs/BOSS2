@@ -58,42 +58,45 @@
 		<div class="table">
 			<h2>Plagiarism Checking Result Using Sherlock</h2>
 				#if( $hasMatch )
-				<table class="result">
-					<thead>
-						<tr>
-							#foreach($head in $tableHead)
-							<th>$head</th>
-							#end
-						</tr>
-					</thead>
-					<tbody>
-						#foreach($row in $rows)
-							#set( $idx = $velocityCount - 1 )
-							<tr id="$ids.get($idx)" class="$classes.get($idx)">
-								#foreach($value in $row)
-								<td>
-									#if( $velocityCount == 1 )
-										#set( $matchIdx = $matchIndices.get($idx) )
-										#if( $matchIdx.intValue() == -1 )
-											$value
-										#else
-											<a href="$context.getPageUrl("staff", "sherlock_one_match")?assignment=$assignment.getId()&matchIdx=$matchIdx.intValue()" class="nyroModal">$value</a>
-										#end
-									#elseif( $velocityCount == $row.size() )
-										<input type="checkbox" #if( $value == "true" ) checked="checked" #end />
-									#else
-										$value
-									#end
-								</td>
+				<form action="$context.getPageUrl("staff", "save_sherlock_session")" method="post">
+					<table class="result">
+						<thead>
+							<tr>
+								#foreach($head in $tableHead)
+								<th>$head</th>
 								#end
 							</tr>
-						#end
-					</tbody>
-				</table>
-				<form action="$context.getPageUrl("staff", "perform_run_sherlock")" method="get">
-					<input type="submit" value="Finish"/>
+						</thead>
+						<tbody>
+							#foreach($row in $rows)
+								#set( $idx = $velocityCount - 1 )
+								#set( $matchIdx = $matchIndices.get($idx) )
+								<tr id="$ids.get($idx)" class="$classes.get($idx)">
+									#foreach($value in $row)
+									<td>
+										#if( $velocityCount == 1 )
+											#if( $matchIdx.intValue() == -1 )
+												$value
+											#else
+												<a href="$context.getPageUrl("staff", "sherlock_one_match")?assignment=$assignment.getId()&matchIdx=$matchIdx.intValue()" class="nyroModal">$value</a>
+											#end
+										#elseif( $velocityCount == $row.size() )
+											<input type="checkbox" name="marked" value="$matchIdx.intValue()" #if( $value == "true" ) checked="checked" #end />
+										#else
+											$value
+										#end
+									</td>
+									#end
+								</tr>
+							#end
+						</tbody>
+					</table>
+					<input type="submit" value="Save"/>
 					<input type="hidden" name="ok" value="ok"/>
 					<input type="hidden" name="assignment" value="$assignment.getId()"/>
+					#foreach($file in $files)
+					<input type="hidden" name="files" value="$file"/>
+					#end
 				</form>
 				#else
 				<p>There's no match!</p>

@@ -112,7 +112,7 @@ public class MySQLDAOProducer implements IDAOSession {
 				executeAndLog(logger, statement, "DROP TABLE IF EXISTS markingcategory");
 				executeAndLog(logger, statement, "DROP TABLE IF EXISTS submission");
 				executeAndLog(logger, statement, "DROP TABLE IF EXISTS test");
-				executeAndLog(logger, statement, "DROP TABLE IF EXISTS savedsherlocksession");
+				executeAndLog(logger, statement, "DROP TABLE IF EXISTS sherlocksession");
 				executeAndLog(logger, statement, "DROP TABLE IF EXISTS assignment");
 				executeAndLog(logger, statement, "DROP TABLE IF EXISTS module");
 				executeAndLog(logger, statement, "DROP TABLE IF EXISTS model");
@@ -324,7 +324,7 @@ public class MySQLDAOProducer implements IDAOSession {
 				executeAndLog(logger, statement, "DELETE FROM version");
 				executeAndLog(logger, statement, "INSERT INTO version (version) VALUES (" + STORAGE_VERSION_1_2 + ")");
 				
-				executeAndLog(logger, statement, "CREATE TABLE IF NOT EXISTS savedsherlocksession (" +
+				executeAndLog(logger, statement, "CREATE TABLE IF NOT EXISTS sherlocksession (" +
 						"  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY," +
 						"  assignment_id INT NOT NULL," +
 						"  resource_id INT NOT NULL," +
@@ -334,7 +334,7 @@ public class MySQLDAOProducer implements IDAOSession {
 				executeAndLog(logger, statement, "CREATE TABLE IF NOT EXISTS sherlocksession_requiredfilenames (" +
 						"  sherlocksession_id INT NOT NULL, " +
 						"  filename VARCHAR(64) NOT NULL, " +
-						"  FOREIGN KEY (sherlocksession_id) REFERENCES savedsherlocksession(id) ON DELETE RESTRICT " +
+						"  FOREIGN KEY (sherlocksession_id) REFERENCES sherlocksession(id) ON DELETE RESTRICT " +
 				") ENGINE=InnoDB");
 				
 				statement.close();

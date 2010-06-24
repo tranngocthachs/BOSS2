@@ -11,10 +11,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -77,52 +75,7 @@ public class PerformRunSherlockPage extends Page implements SherlockProcessCallb
 	protected void handleGet(PageContext pageContext, Template template,
 			VelocityContext templateContext) throws ServletException,
 			IOException {
-		IDAOSession f;
-		try {
-			DAOFactory df = (DAOFactory)FactoryRegistrar.getFactory(DAOFactory.class);
-			f = df.getInstance();
-		} catch (FactoryException e) {
-			throw new ServletException("dao init error", e);
-		}
-
-		// Get assignmentId
-		String assignmentString = pageContext.getParameter("assignment");
-		if (assignmentString == null) {
-			throw new ServletException("No assignment parameter given");
-		}
-		Long assignmentId = Long
-		.valueOf(pageContext.getParameter("assignment"));
-		
-		if (pageContext.getParameter("ok") != null && pageContext.getParameter("ok").equals("ok")) {
-			templateContext.put("missingFields", true);
-		}
-		else {
-			throw new ServletException("Unexpected GET request");
-		}
-		
-		
-		try {
-			f.beginTransaction();
-
-			IStaffInterfaceQueriesDAO staffInterfaceQueriesDao = f.getStaffInterfaceQueriesDAOInstance();
-			IAssignmentDAO assignmentDao = f.getAssignmentDAOInstance();
-			Assignment assignment = assignmentDao.retrievePersistentEntity(assignmentId);
-
-			if (!staffInterfaceQueriesDao.isStaffModuleAccessAllowed(pageContext.getSession().getPersonBinding().getId(), assignment.getModuleId())) {
-				f.abortTransaction();
-				throw new ServletException("permission denied");
-			}
-			
-			// clean up Sherlock
-			killDirectory(Settings.getSourceDirectory());
-			Settings.setSourceDirectory(null);
-			Settings.setFileList(null);
-			f.endTransaction();
-		} catch (DAOException e) {
-			f.abortTransaction();
-			throw new ServletException("dao exception", e);
-		}
-		pageContext.performRedirect(pageContext.getPageUrl(StaffPageFactory.SITE_NAME, StaffPageFactory.MODULES_PAGE));
+		throw new ServletException("Unexpected GET request");
 	}
 
 	@Override
@@ -439,22 +392,6 @@ public class PerformRunSherlockPage extends Page implements SherlockProcessCallb
 		String msg = spe.getMessage() + "\n" + spe.getOriginalException().toString();
 
 		Settings.message("Error:\n" + msg);
-	}
-
-	public static boolean killDirectory(File path) {
-		if( path.exists() ) {
-			File[] files = path.listFiles();
-			for(int i=0; i<files.length; i++) {
-				if(files[i].isDirectory()) {
-					killDirectory(files[i]);
-				}
-				else {
-					files[i].delete();
-				}
-			}
-		}
-
-		return( path.delete() );
 	}
 
 	private static void walk(DynamicTreeTableModel model, Object o, String currentId,

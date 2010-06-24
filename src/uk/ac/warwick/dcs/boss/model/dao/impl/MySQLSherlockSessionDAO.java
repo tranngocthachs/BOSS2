@@ -1,16 +1,17 @@
 package uk.ac.warwick.dcs.boss.model.dao.impl;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Vector;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
 import uk.ac.warwick.dcs.boss.model.dao.DAOException;
-import uk.ac.warwick.dcs.boss.model.dao.IMarkDAO;
 import uk.ac.warwick.dcs.boss.model.dao.ISherlockSessionDAO;
-import uk.ac.warwick.dcs.boss.model.dao.beans.Mark;
-import uk.ac.warwick.dcs.boss.model.dao.beans.MarkingAssignment;
 import uk.ac.warwick.dcs.boss.model.dao.beans.SherlockSession;
 
 public class MySQLSherlockSessionDAO extends MySQLEntityDAO<SherlockSession> implements ISherlockSessionDAO {
@@ -57,8 +58,63 @@ public class MySQLSherlockSessionDAO extends MySQLEntityDAO<SherlockSession> imp
 
 	@Override
 	public String getTableName() {
-		// TODO Auto-generated method stub
-		return null;
+		return "sherlocksession";
+	}
+
+
+	@Override
+	public void addRequiredFilenames(Long sherlockSessionId, Collection<String> fileNames)
+		throws DAOException {
+		try {
+			PreparedStatement statement = getConnection().prepareStatement(
+					"DELETE FROM sherlocksession_requiredfilenames "
+					+ "WHERE sherlocksession_id=?");
+			statement.setLong(1, sherlockSessionId);
+
+			Logger.getLogger("mysql").log(Level.TRACE, "Executing: " + statement.toString());
+			statement.executeUpdate();
+			statement.close();
+
+			statement = getConnection().prepareStatement(
+					"INSERT INTO sherlocksession_requiredfilenames (sherlocksession_id, filename)"
+					+ "VALUES (?, ?)");
+			for (String fileName : fileNames) {
+				statement.setLong(1, sherlockSessionId);
+				statement.setString(2, fileName);
+				Logger.getLogger("mysql").log(Level.TRACE, "Executing: " + statement.toString());
+				statement.executeUpdate();
+			}
+			statement.close();
+		} catch (SQLException e) {
+			throw new DAOException("SQL error", e);
+		}
+		
+	}
+
+
+	@Override
+	public Collection<String> fetchRequiredFilenames(Long sherlockSessionId)
+			throws DAOException {
+		try {
+			PreparedStatement statement = getConnection().prepareStatement(
+					"SELECT filename FROM sherlocksession_requiredfilenames"
+					+ " WHERE sherlocksession_id=?");
+			statement.setLong(1, sherlockSessionId);
+
+			Logger.getLogger("mysql").log(Level.TRACE, "Executing: " + statement.toString());
+
+			ResultSet rs = statement.executeQuery();
+			Vector<String> result = new Vector<String>();
+			while (rs.next()) {
+				result.add(rs.getString("filename"));
+			}
+
+			rs.close();
+			statement.close();
+			return result;
+		} catch (SQLException e) {
+			throw new DAOException("SQL error", e);
+		}
 	}
 	
 
