@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
-		<title>Save Sherlock Session</title>
+		<title>Plagiarism Detection with Sherlock</title>
 		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 		<meta http-equiv="Content-Script-Type" content="text/javascript" />
 		<meta http-equiv="Content-Style-Type" content="text/css" />
@@ -31,12 +31,47 @@
 		</div>	
 				
 		<div class="table">
-			#if( $discarded )
-			<h2>Sherlock session discarded!</h2>
-			#else
-			<h2>Success!</h2>
-			<p>Your Sherlock session was saved at $now.</p>
-			#end
+			<h3>Previous Sherlock Sessions</h3>
+			<form action="$context.getPageUrl("staff", "perform_run_sherlock")?assignment=$assignment.getId()" method="post">
+				<table class="full">
+					<thead>
+						<tr>
+							<th>Id</th>
+							<th>Last saved</th>
+							<th>File(s) involved</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						#set( $style="odd" )
+						#foreach( $id in $ids )
+							#set( $idx = $velocityCount - 1 )
+							<tr class="$style">
+								<td>$id</td>
+								<td>$dates.get($idx)</td>
+								<td>
+									#set( $files = $filesCol.get($idx) )
+									#foreach( $file in $files )
+									${file}<br />
+									#end
+								</td>
+								<td>
+									<input type="submit" name="do" value="Rerun"/><br/>
+									<input type="submit" name="do" value="View Result"/><br/>
+									<input type="submit" name="do" value="Delete"/>
+								</td>
+							</tr>
+							#if( $style == "odd" )
+								#set( $style = "even" )
+							#else
+								#set( $style = "odd" )
+							#end
+						#end
+					</tbody>
+				</table>
+				<h3>Start New Session</h3>
+				<div align="center"><input type="submit" name="do" value="New Session"/></div>						
+			</form>
 		</div>	
 		
 		<div class="navbar">

@@ -3,12 +3,12 @@ package uk.ac.warwick.dcs.boss.model.dao;
 import java.util.Collection;
 
 import uk.ac.warwick.dcs.boss.model.dao.beans.Mark;
+import uk.ac.warwick.dcs.boss.model.dao.beans.SherlockSession;
 import uk.ac.warwick.dcs.boss.model.dao.beans.queries.StaffAssignmentsQueryResult;
 import uk.ac.warwick.dcs.boss.model.dao.beans.queries.StaffDeadlineRevisionsQueryResult;
 import uk.ac.warwick.dcs.boss.model.dao.beans.queries.StaffMarkingAssignmentQueryResult;
 import uk.ac.warwick.dcs.boss.model.dao.beans.queries.StaffModulesQueryResult;
 import uk.ac.warwick.dcs.boss.model.dao.beans.queries.StaffResultsQueryResult;
-import uk.ac.warwick.dcs.boss.model.dao.beans.queries.StaffSherlockSessionsQueryResult;
 import uk.ac.warwick.dcs.boss.model.dao.beans.queries.StaffSubmissionsQueryResult;
 
 /**
@@ -156,7 +156,7 @@ public interface IStaffInterfaceQueriesDAO {
 	 */
 	public abstract Collection<StaffResultsQueryResult> performStaffResultsQuery(StaffResultsQuerySortingType sortingType, Long assignmentId) throws DAOException;
 	
-	public abstract Collection<StaffSherlockSessionsQueryResult> performStaffSherlockSessionsQuery(Long assignmentId) throws DAOException;
+	public abstract Collection<SherlockSession> performStaffSherlockSessionsQuery(Long assignmentId) throws DAOException;
 	/**
 	 * Check whether a given person is allowed to administrate the given module.
 	 * 

@@ -89,10 +89,12 @@
 									#end
 								</tr>
 							#end
+							<tr>
+								<td colspan="2"><div align="center"><input type="submit" name="do" value="Save"/></div></td>
+								<td colspan="2"><div align="center"><input type="submit" name="do" value="Discard"/></div></td>
+							</tr>
 						</tbody>
 					</table>
-					<input type="submit" value="Save"/>
-					<input type="hidden" name="ok" value="ok"/>
 					<input type="hidden" name="assignment" value="$assignment.getId()"/>
 					#foreach($file in $files)
 					<input type="hidden" name="files" value="$file"/>

@@ -27,7 +27,6 @@ import uk.ac.warwick.dcs.boss.model.dao.beans.queries.StaffDeadlineRevisionsQuer
 import uk.ac.warwick.dcs.boss.model.dao.beans.queries.StaffMarkingAssignmentQueryResult;
 import uk.ac.warwick.dcs.boss.model.dao.beans.queries.StaffModulesQueryResult;
 import uk.ac.warwick.dcs.boss.model.dao.beans.queries.StaffResultsQueryResult;
-import uk.ac.warwick.dcs.boss.model.dao.beans.queries.StaffSherlockSessionsQueryResult;
 import uk.ac.warwick.dcs.boss.model.dao.beans.queries.StaffSubmissionsQueryResult;
 
 public class MySQLStaffInterfaceQueriesDAO implements IStaffInterfaceQueriesDAO {
@@ -594,7 +593,7 @@ public class MySQLStaffInterfaceQueriesDAO implements IStaffInterfaceQueriesDAO 
 	}
 
 	@Override
-	public Collection<StaffSherlockSessionsQueryResult> performStaffSherlockSessionsQuery(
+	public Collection<SherlockSession> performStaffSherlockSessionsQuery(
 			Long assignmentId) throws DAOException {
 		try {
 			// Construct the statement.
@@ -609,14 +608,12 @@ public class MySQLStaffInterfaceQueriesDAO implements IStaffInterfaceQueriesDAO 
 			ResultSet rs = statementObject.executeQuery();
 			MySQLSherlockSessionDAO sherlockSessionDAO = new MySQLSherlockSessionDAO(connection);
 			// Bundle the results into a thingy
-			LinkedList<StaffSherlockSessionsQueryResult> output = new LinkedList<StaffSherlockSessionsQueryResult>();
+			LinkedList<SherlockSession> output = new LinkedList<SherlockSession>();
 
 			while (rs.next()) {			
 				SherlockSession sherlockSession = sherlockSessionDAO.createInstanceFromDatabaseValues("sherlocksession", rs);
 				sherlockSession.setId(rs.getLong("sherlocksession.id"));
-				StaffSherlockSessionsQueryResult n = new StaffSherlockSessionsQueryResult();
-				n.setSherlockSession(sherlockSession);
-				output.add(n);
+				output.add(sherlockSession);
 			}
 
 			rs.close();

@@ -19,6 +19,7 @@ import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.EmailResultsPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.FindMarkerPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.FindModeratorPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.FindStudentPage;
+import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.InitSherlockPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.MarkersPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.MarkingAssignmentsPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.MarkingCategoriesPage;
@@ -119,7 +120,8 @@ public class StaffPageFactory extends PageFactory {
 	public static String RUN_SHERLOCK_PAGE = "run_sherlock";
 	public static String PERFORM_RUN_SHERLOCK_PAGE = "perform_run_sherlock";
 	public static String SHERLOCK_ONE_MATCH_PAGE = "sherlock_one_match";
-	public static String SAVE_SHERLOCK_SESSION = "save_sherlock_session";
+	public static String SAVE_SHERLOCK_SESSION_PAGE = "save_sherlock_session";
+	public static String INIT_SHERLOCK_PAGE = "init_sherlock";
 
 	@Override
 	protected Page getPage(String pageName) throws PageLoadException {
@@ -231,8 +233,10 @@ public class StaffPageFactory extends PageFactory {
 			return new PerformRunSherlockPage();
 		} else if (pageName.equals(SHERLOCK_ONE_MATCH_PAGE)) {
 			return new SherlockOneMatchPage();
-		} else if (pageName.equals(SAVE_SHERLOCK_SESSION)) {
+		} else if (pageName.equals(SAVE_SHERLOCK_SESSION_PAGE)) {
 			return new SaveSherlockSessionPage();
+		} else if (pageName.equals(INIT_SHERLOCK_PAGE)) {
+			return new InitSherlockPage();
 		} else {
 			throw new PageLoadException(404, "page not found");
 		}

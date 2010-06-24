@@ -79,28 +79,6 @@ public class SaveSherlockSessionPage extends Page {
 		}
 		Collection<String> files = Arrays.asList(fileStrings);
 
-		if (pageContext.getParameter("ok") == null || !pageContext.getParameter("ok").equals("ok")) {
-			throw new ServletException("Unexpected POST request");
-		}
-
-		String[] marked = pageContext.getParameterValues("marked");
-		if (marked != null && marked.length > 0) {
-			// saving all the marking into file
-			Marking marking = new Marking();
-			Match[] matches = MatchTableDataStruct.loadMatches();
-			marking.setMatches(matches);
-			for (int i = 0; i < marked.length; i++) {
-				try {
-					int index = Integer.parseInt(marked[i].trim());
-					if (index != -1)
-						marking.add(index);
-				} catch (NumberFormatException e) {
-					throw new ServletException("Unexpected POST request");
-				}
-			}
-			File markingFile = new File(Settings.getSourceDirectory(), "marking.txt");
-			marking.save(markingFile);
-		}
 		try {
 			try {
 				f.beginTransaction();
@@ -124,92 +102,117 @@ public class SaveSherlockSessionPage extends Page {
 				throw new ServletException("dao exception", e);
 			}
 
-			// Preparing saving Sherlock session
+			if (pageContext.getParameter("do") == null || pageContext.getParameter("do").equals("Discard")) {
+				templateContext.put("discarded", true);
+			} 
+			else if (pageContext.getParameter("do").equals("Save")) {
+				// Preparing saving Sherlock session
+				// saving marking if there's some
+				String[] marked = pageContext.getParameterValues("marked");
+				if (marked != null && marked.length > 0) {
+					// saving all the marking into file
+					Marking marking = new Marking();
+					Match[] matches = MatchTableDataStruct.loadMatches();
+					marking.setMatches(matches);
+					for (int i = 0; i < marked.length; i++) {
+						try {
+							int index = Integer.parseInt(marked[i]);
+							if (index != -1)
+								marking.add(index);
+						} catch (NumberFormatException e) {
+							throw new ServletException("Unexpected POST request");
+						}
+					}
+					File markingFile = new File(Settings.getSourceDirectory(), "marking.txt");
+					marking.save(markingFile);
+				}
 
-			// Create resource.
-			Long resourceId = null;
-			Resource resource = new Resource();
-			resource.setTimestamp(new Date());
-			resource.setFilename("sherlocksession-" + assignmentId + "-" + resource.getTimestamp().getTime() + ".zip");
-			resource.setMimeType("application/zip");
+				// Create resource.
+				Long resourceId = null;
+				Resource resource = new Resource();
+				resource.setTimestamp(new Date());
+				templateContext.put("now", resource.getTimestamp());
+				resource.setFilename("sherlocksession-" + assignmentId + "-" + resource.getTimestamp().getTime() + ".zip");
+				resource.setMimeType("application/zip");
 
-			try {
-				f.beginTransaction();
-				IResourceDAO resourceDao = f.getResourceDAOInstance();
-				resourceId = resourceDao.createPersistentCopy(resource);
-				f.endTransaction();
-			} catch (DAOException e) {
-				f.abortTransaction();
-				throw new ServletException("dao exception", e);
-			}
+				try {
+					f.beginTransaction();
+					IResourceDAO resourceDao = f.getResourceDAOInstance();
+					resourceId = resourceDao.createPersistentCopy(resource);
+					f.endTransaction();
+				} catch (DAOException e) {
+					f.abortTransaction();
+					throw new ServletException("dao exception", e);
+				}
 
-			// Begin zipping up and storing the sherlock working folder
-			OutputStream resourceStream = null;
-			ZipOutputStream resourceZipStream = null;
-
-			try {
-				f.beginTransaction();
-
-				IResourceDAO resourceDao = f.getResourceDAOInstance();
-				resourceStream = resourceDao.openOutputStream(resourceId);
-				resourceZipStream = new ZipOutputStream(resourceStream);
-				zip(Settings.getSourceDirectory(), Settings.getSourceDirectory(), resourceZipStream);
-				
-				// test code
-				File zipFile = new File(System.getProperty("user.home")+File.separator+"temp.zip");
-				ZipOutputStream zos = new ZipOutputStream( new FileOutputStream( zipFile ) );
-				zip( Settings.getSourceDirectory(), Settings.getSourceDirectory(), zos );
-				zos.close();
-				// end test code
-				resourceZipStream.flush();
-				resourceStream.flush();
-
-				resourceZipStream.close();
-				resourceStream.close();
-				f.endTransaction();
-			} catch (Exception e) {
-				resourceStream.close();
-				f.abortTransaction();
+				// Begin zipping up and storing the sherlock working folder
+				OutputStream resourceStream = null;
+				ZipOutputStream resourceZipStream = null;
 
 				try {
 					f.beginTransaction();
 
 					IResourceDAO resourceDao = f.getResourceDAOInstance();
-					resourceDao.deletePersistentEntity(resourceId);
+					resourceStream = resourceDao.openOutputStream(resourceId);
+					resourceZipStream = new ZipOutputStream(resourceStream);
+					zip(Settings.getSourceDirectory(), Settings.getSourceDirectory(), resourceZipStream);
 
+					// test code
+					File zipFile = new File(System.getProperty("user.home")+File.separator+"temp.zip");
+					ZipOutputStream zos = new ZipOutputStream( new FileOutputStream( zipFile ) );
+					zip( Settings.getSourceDirectory(), Settings.getSourceDirectory(), zos );
+					zos.close();
+					// end test code
+					resourceZipStream.flush();
+					resourceStream.flush();
+
+					resourceZipStream.close();
+					resourceStream.close();
 					f.endTransaction();
-				} catch (DAOException e2) {
-					throw new ServletException("error storing the Sherlock working folder - additional error cleaning stale resource " + resourceId, e);
+				} catch (Exception e) {
+					resourceStream.close();
+					f.abortTransaction();
+
+					try {
+						f.beginTransaction();
+
+						IResourceDAO resourceDao = f.getResourceDAOInstance();
+						resourceDao.deletePersistentEntity(resourceId);
+
+						f.endTransaction();
+					} catch (DAOException e2) {
+						throw new ServletException("error storing the Sherlock working folder - additional error cleaning stale resource " + resourceId, e);
+					}
+
+					throw new ServletException("error saving Sherlock session", e);
 				}
 
-				throw new ServletException("error saving Sherlock session", e);
-			}
-
-			// Creating and storing a SherlockSession 
-			SherlockSession sherlockSession = new SherlockSession();
-			sherlockSession.setAssignmentId(assignmentId);
-			sherlockSession.setResourceId(resourceId);
-			try {
-				f.beginTransaction();
-				ISherlockSessionDAO sherlockSessionDao = f.getSherlockSessionDAOInstance();
-				Long sherlockSessionId = sherlockSessionDao.createPersistentCopy(sherlockSession); 
-				sherlockSession.setId(sherlockSessionId);
-				sherlockSessionDao.addRequiredFilenames(sherlockSessionId, files);
-				f.endTransaction();
-			} catch (DAOException e) {
-				f.abortTransaction();
+				// Creating and storing a SherlockSession 
+				SherlockSession sherlockSession = new SherlockSession();
+				sherlockSession.setAssignmentId(assignmentId);
+				sherlockSession.setResourceId(resourceId);
 				try {
 					f.beginTransaction();
-
-					IResourceDAO resourceDao = f.getResourceDAOInstance();
-					resourceDao.deletePersistentEntity(resourceId);
-
+					ISherlockSessionDAO sherlockSessionDao = f.getSherlockSessionDAOInstance();
+					Long sherlockSessionId = sherlockSessionDao.createPersistentCopy(sherlockSession); 
+					sherlockSession.setId(sherlockSessionId);
+					sherlockSessionDao.addRequiredFilenames(sherlockSessionId, files);
 					f.endTransaction();
-				} catch (DAOException e2) {
-					throw new ServletException("dao error occured - additional error cleaning stale resource " + resourceId, e);
-				}
+				} catch (DAOException e) {
+					f.abortTransaction();
+					try {
+						f.beginTransaction();
 
-				throw new ServletException("dao error occured", e);
+						IResourceDAO resourceDao = f.getResourceDAOInstance();
+						resourceDao.deletePersistentEntity(resourceId);
+
+						f.endTransaction();
+					} catch (DAOException e2) {
+						throw new ServletException("dao error occured - additional error cleaning stale resource " + resourceId, e);
+					}
+
+					throw new ServletException("dao error occured", e);
+				}
 			}
 		} finally {
 			killDirectory(Settings.getSourceDirectory());
