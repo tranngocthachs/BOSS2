@@ -47,7 +47,6 @@ import uk.ac.warwick.dcs.cobalt.sherlock.DynamicTreeTableModel;
 import uk.ac.warwick.dcs.cobalt.sherlock.FileTypeProfile;
 import uk.ac.warwick.dcs.cobalt.sherlock.GzipFilenameFilter;
 import uk.ac.warwick.dcs.cobalt.sherlock.GzipHandler;
-import uk.ac.warwick.dcs.cobalt.sherlock.Match;
 import uk.ac.warwick.dcs.cobalt.sherlock.MatchTableDataStruct;
 import uk.ac.warwick.dcs.cobalt.sherlock.MatchTreeNodeStruct;
 import uk.ac.warwick.dcs.cobalt.sherlock.Samelines;
@@ -205,15 +204,16 @@ public class PerformRunSherlockPage extends Page implements SherlockProcessCallb
 			try {
 				// Begin extraction
 				IResourceDAO resourceDao = f.getResourceDAOInstance();
-				File sherlockTempDir;
-				try {
-					InputStream is = new FileInputStream(new File(pageContext.getConfigurationFilePath()));
-					Properties prop = new Properties();
-					prop.load(is);
-					sherlockTempDir = TemporaryDirectory.createTempDir("sherlock", new File(prop.getProperty("testing.temp_dir")));
-				} catch (IOException e) {
-					throw new IOException("couldn't create sherlock temp dir", e);
-				}
+				File sherlockTempDir = Settings.getSourceDirectory();
+//				File sherlockTempDir;
+//				try {
+//					InputStream is = new FileInputStream(new File(pageContext.getConfigurationFilePath()));
+//					Properties prop = new Properties();
+//					prop.load(is);
+//					sherlockTempDir = TemporaryDirectory.createTempDir("sherlock", new File(prop.getProperty("testing.temp_dir")));
+//				} catch (IOException e) {
+//					throw new IOException("couldn't create sherlock temp dir", e);
+//				}
 
 				for (Submission submission : submissionsToProcess) {
 					InputStream resourceStream = resourceDao.openInputStream(submission.getResourceId());
@@ -305,16 +305,16 @@ public class PerformRunSherlockPage extends Page implements SherlockProcessCallb
 		// Tell Settings where to send debug messages.
 		Settings.setRunningGUI(false);
 
-		if (!srcDir.isDirectory()) {
-			throw new ServletException("Source folder is not valid. Maybe " +
-					"someone tampers with the testing folder", new IllegalStateException());
-		}
-		// If ok, put these details into Settings.
-		else {
-			Settings.setSourceDirectory(srcDir);
-
-		}
-		Settings.init();
+//		if (!srcDir.isDirectory()) {
+//			throw new ServletException("Source folder is not valid. Maybe " +
+//					"someone tampers with the testing folder", new IllegalStateException());
+//		}
+//		// If ok, put these details into Settings.
+//		else {
+//			Settings.setSourceDirectory(srcDir);
+//
+//		}
+//		Settings.init();
 		// Setting parameters
 		FileTypeProfile[] fileTypes = Settings.getFileTypes();
 		for (int i = 0; i < fileTypes.length; i++) {

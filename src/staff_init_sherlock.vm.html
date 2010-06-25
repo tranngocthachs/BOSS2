@@ -32,7 +32,9 @@
 				
 		<div class="table">
 			<h3>Previous Sherlock Sessions</h3>
-			<form action="$context.getPageUrl("staff", "perform_run_sherlock")?assignment=$assignment.getId()" method="post">
+				#if( $noPrevious )
+					<p>No saved session on this assignment</p>
+				#else
 				<table class="full">
 					<thead>
 						<tr>
@@ -56,9 +58,17 @@
 									#end
 								</td>
 								<td>
-									<input type="submit" name="do" value="Rerun"/><br/>
-									<input type="submit" name="do" value="View Result"/><br/>
-									<input type="submit" name="do" value="Delete"/>
+									<form action="$context.getPageUrl("staff", "run_sherlock")" method="get">
+										<input type="submit" name="do" value="Rerun"/><br/>
+										<input type="submit" name="do" value="View Result"/><br/>
+										<input type="hidden" name="assignment" value="$assignment.getId()"/>
+										<input type="hidden" name="session" value="$id"/>
+									</form>
+									<form action="$context.getPageUrl("staff", "run_sherlock")" method="post">
+										<input type="submit" name="do" value="Delete"/>
+										<input type="hidden" name="assignment" value="$assignment.getId()"/>
+										<input type="hidden" name="session" value="$id"/>
+									</form>
 								</td>
 							</tr>
 							#if( $style == "odd" )
@@ -69,9 +79,14 @@
 						#end
 					</tbody>
 				</table>
+				#end
 				<h3>Start New Session</h3>
-				<div align="center"><input type="submit" name="do" value="New Session"/></div>						
-			</form>
+				<form action="$context.getPageUrl("staff", "run_sherlock")" method="get">
+				<div align="center">
+					<input type="submit" name="do" value="New Session"/>
+					<input type="hidden" name="assignment" value="$assignment.getId()"/>
+				</div>
+				</form>
 		</div>	
 		
 		<div class="navbar">

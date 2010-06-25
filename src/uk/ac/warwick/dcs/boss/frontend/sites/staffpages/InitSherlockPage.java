@@ -81,25 +81,25 @@ public class InitSherlockPage extends Page {
 			
 			
 			Collection<SherlockSession> sherlockSessions = staffInterfaceQueriesDao.performStaffSherlockSessionsQuery(assignmentId);
+			
 			if (sherlockSessions.size() == 0) {
-				pageContext.performRedirect(pageContext.getPageUrl(StaffPageFactory.SITE_NAME, StaffPageFactory.RUN_SHERLOCK_PAGE) + "?assignment=" + assignmentId);
-				return;
+				templateContext.put("noPrevious", true);
 			}
-			List<Integer> ids = new LinkedList<Integer>();
-			List<Date> dates = new LinkedList<Date>();
-			List<Collection<String>> filesCol = new LinkedList<Collection<String>>();
-			for (SherlockSession sherlockSession : sherlockSessions) {
-				ids.add(new Integer(sherlockSession.getId().intValue()));
-				Long resourceId = sherlockSession.getResourceId();
-				dates.add(f.getResourceDAOInstance().retrievePersistentEntity(resourceId).getTimestamp());
-				filesCol.add(f.getSherlockSessionDAOInstance().fetchRequiredFilenames(sherlockSession.getId()));
+			else {
+				List<Integer> ids = new LinkedList<Integer>();
+				List<Date> dates = new LinkedList<Date>();
+				List<Collection<String>> filesCol = new LinkedList<Collection<String>>();
+				for (SherlockSession sherlockSession : sherlockSessions) {
+					ids.add(new Integer(sherlockSession.getId().intValue()));
+					Long resourceId = sherlockSession.getResourceId();
+					dates.add(f.getResourceDAOInstance().retrievePersistentEntity(resourceId).getTimestamp());
+					filesCol.add(f.getSherlockSessionDAOInstance().fetchRequiredFilenames(sherlockSession.getId()));
+				}
+				templateContext.put("ids", ids);
+				templateContext.put("dates", dates);
+				templateContext.put("filesCol", filesCol);
 			}
 			f.endTransaction();
-		
-			templateContext.put("ids", ids);
-			templateContext.put("dates", dates);
-			templateContext.put("filesCol", filesCol);
-			
 			pageContext.renderTemplate(template, templateContext);
 		} catch (DAOException e) {
 			f.abortTransaction();

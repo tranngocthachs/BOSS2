@@ -196,7 +196,7 @@ public class SaveSherlockSessionPage extends Page {
 					ISherlockSessionDAO sherlockSessionDao = f.getSherlockSessionDAOInstance();
 					Long sherlockSessionId = sherlockSessionDao.createPersistentCopy(sherlockSession); 
 					sherlockSession.setId(sherlockSessionId);
-					sherlockSessionDao.addRequiredFilenames(sherlockSessionId, files);
+					sherlockSessionDao.setRequiredFilenames(sherlockSessionId, files);
 					f.endTransaction();
 				} catch (DAOException e) {
 					f.abortTransaction();

@@ -63,7 +63,7 @@ public class MySQLSherlockSessionDAO extends MySQLEntityDAO<SherlockSession> imp
 
 
 	@Override
-	public void addRequiredFilenames(Long sherlockSessionId, Collection<String> fileNames)
+	public void setRequiredFilenames(Long sherlockSessionId, Collection<String> fileNames)
 		throws DAOException {
 		try {
 			PreparedStatement statement = getConnection().prepareStatement(
@@ -115,6 +115,26 @@ public class MySQLSherlockSessionDAO extends MySQLEntityDAO<SherlockSession> imp
 		} catch (SQLException e) {
 			throw new DAOException("SQL error", e);
 		}
+	}
+
+
+	@Override
+	public void removeRequiredFilenames(Long sherlockSessionId)
+			throws DAOException {
+		try {
+			PreparedStatement statement = getConnection().prepareStatement(
+					"DELETE FROM sherlocksession_requiredfilenames "
+					+ "WHERE sherlocksession_id=?");
+			statement.setLong(1, sherlockSessionId);
+
+			Logger.getLogger("mysql").log(Level.TRACE, "Executing: " + statement.toString());
+			statement.executeUpdate();
+			statement.close();
+		} catch (SQLException e) {
+			throw new DAOException("SQL error", e);
+		}
+
+		
 	}
 	
 
