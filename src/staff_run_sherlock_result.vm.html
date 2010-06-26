@@ -90,7 +90,18 @@
 								</tr>
 							#end
 							<tr>
-								<td colspan="2"><div align="center"><input type="submit" name="do" value="Save"/></div></td>
+								<td colspan="1">
+									<div align="center">
+										<input type="submit" name="do" value="Save"/>
+										#if( $rerun && $session )
+										<input type="hidden" name="session" value="$session"/>
+										#end
+									</div>
+								</td>
+								#if( $rerun )
+								<td colspan="2"><div align="center"><input type="submit" name="do" value="Save (As New Session)"/></div>
+								</td>
+								#end
 								<td colspan="2"><div align="center"><input type="submit" name="do" value="Discard"/></div></td>
 							</tr>
 						</tbody>

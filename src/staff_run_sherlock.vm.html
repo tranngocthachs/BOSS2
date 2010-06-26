@@ -55,7 +55,7 @@
 							</td>
 							<td>
 								<p>
-									<select id="files" size="10" name="files">
+									<select id="files" size="10" multiple="multiple" name="files" #if( $rerun ) disabled="disabled" #end>
 									#foreach( $file in $files )
 										<option value="$file" selected="true">
 											$file
@@ -68,8 +68,8 @@
 						<tr class="even">
 							<td>Language:</td>
 							<td>
-								<input type="radio" name="language" id="java" value="java" checked="checked"/><label for="java">Java</label><br />
-								<input type="radio" name="language" id="c++" value="c++" /><label for="c++">C++</label>
+								<input type="radio" name="language" id="java" value="java" #if( $java ) checked="checked" #end/><label for="java">Java</label><br />
+								<input type="radio" name="language" id="c++" value="c++" #if( !$java ) checked="checked" #end/><label for="c++">C++</label>
 							</td>
 						</tr>
 						<tr class="odd">
@@ -189,6 +189,13 @@
 							<td>
 								<p>
 									<input type="submit" value="Run Sherlock"/><br/>
+									#if( $newSession )
+										#set( $do = "newSession" )
+									#elseif( $rerun )
+										#set( $do = "rerun" )
+										<input type="hidden" name="session" value="$session">
+									#end
+									<input type="hidden" name="do" value="$do"/>
 									Note: May take a while.
 								</p>
 							</td>

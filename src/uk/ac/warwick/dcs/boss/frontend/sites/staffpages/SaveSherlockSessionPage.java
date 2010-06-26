@@ -1,10 +1,14 @@
 package uk.ac.warwick.dcs.boss.frontend.sites.staffpages;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Writer;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -105,7 +109,7 @@ public class SaveSherlockSessionPage extends Page {
 			if (pageContext.getParameter("do") == null || pageContext.getParameter("do").equals("Discard")) {
 				templateContext.put("discarded", true);
 			} 
-			else if (pageContext.getParameter("do").equals("Save")) {
+			else if (pageContext.getParameter("do").equals("Save") || pageContext.getParameter("do").equals("Save (As New Session)")) {
 				// Preparing saving Sherlock session
 				// saving marking if there's some
 				String[] marked = pageContext.getParameterValues("marked");
@@ -123,10 +127,35 @@ public class SaveSherlockSessionPage extends Page {
 							throw new ServletException("Unexpected POST request");
 						}
 					}
-					File markingFile = new File(Settings.getSourceDirectory(), "marking.txt");
+					File markingFile = new File(Settings.getSourceDirectory(), "sherlockMarking.txt");
+					if (markingFile.exists())
+						markingFile.delete();
 					marking.save(markingFile);
 				}
-
+				// saving the file list (i.e., Settings.getFileList()) as relative paths
+				// with respect to the source folder into a text file
+				File fileListFile = new File(Settings.getSourceDirectory(), "sherlockFileList.txt");
+				if (fileListFile.exists())
+					fileListFile.delete();
+				Writer out = null;
+				try {
+					out = new BufferedWriter(new FileWriter(fileListFile));
+					File[] fileList = Settings.getFileList();
+					URI sourceDirURI = Settings.getSourceDirectory().toURI();
+					for (int i = 0; i < fileList.length; i++) {
+						out.write(sourceDirURI.relativize(fileList[i].toURI()).getPath());
+						if (i < fileList.length-1)
+							out.write("\n");
+					}
+				}
+				catch (IOException e) {
+					throw new ServletException("Error saving file list");
+				}
+				finally {
+					if (out != null)
+						out.close();
+				}
+	            
 				// Create resource.
 				Long resourceId = null;
 				Resource resource = new Resource();
@@ -186,33 +215,54 @@ public class SaveSherlockSessionPage extends Page {
 
 					throw new ServletException("error saving Sherlock session", e);
 				}
-
-				// Creating and storing a SherlockSession 
-				SherlockSession sherlockSession = new SherlockSession();
-				sherlockSession.setAssignmentId(assignmentId);
-				sherlockSession.setResourceId(resourceId);
-				try {
-					f.beginTransaction();
-					ISherlockSessionDAO sherlockSessionDao = f.getSherlockSessionDAOInstance();
-					Long sherlockSessionId = sherlockSessionDao.createPersistentCopy(sherlockSession); 
-					sherlockSession.setId(sherlockSessionId);
-					sherlockSessionDao.setRequiredFilenames(sherlockSessionId, files);
-					f.endTransaction();
-				} catch (DAOException e) {
-					f.abortTransaction();
+				
+				if (pageContext.getParameter("session") != null && pageContext.getParameter("do") != null && pageContext.getParameter("do").equals("Save")) {
+					// overwrite the old session
+					Long sessionId = Long.valueOf(pageContext.getParameter("session"));
 					try {
 						f.beginTransaction();
-
-						IResourceDAO resourceDao = f.getResourceDAOInstance();
-						resourceDao.deletePersistentEntity(resourceId);
-
+						ISherlockSessionDAO sherlockSessionDao = f.getSherlockSessionDAOInstance();
+						SherlockSession sherlockSession = sherlockSessionDao.retrievePersistentEntity(sessionId);
+						Long oldResourceId = sherlockSession.getResourceId();
+						sherlockSession.setResourceId(resourceId);
+						sherlockSessionDao.updatePersistentEntity(sherlockSession);
+						f.getResourceDAOInstance().deletePersistentEntity(oldResourceId);
 						f.endTransaction();
-					} catch (DAOException e2) {
-						throw new ServletException("dao error occured - additional error cleaning stale resource " + resourceId, e);
+					} catch (DAOException e) {
+						f.abortTransaction();
+						throw new ServletException("dao error");
 					}
-
-					throw new ServletException("dao error occured", e);
 				}
+				else { // save as a new session
+					// Creating and storing a SherlockSession 
+					SherlockSession sherlockSession = new SherlockSession();
+					sherlockSession.setAssignmentId(assignmentId);
+					sherlockSession.setResourceId(resourceId);
+					try {
+						f.beginTransaction();
+						ISherlockSessionDAO sherlockSessionDao = f.getSherlockSessionDAOInstance();
+						Long sherlockSessionId = sherlockSessionDao.createPersistentCopy(sherlockSession); 
+						sherlockSession.setId(sherlockSessionId);
+						sherlockSessionDao.setRequiredFilenames(sherlockSessionId, files);
+						f.endTransaction();
+					} catch (DAOException e) {
+						f.abortTransaction();
+						try {
+							f.beginTransaction();
+
+							IResourceDAO resourceDao = f.getResourceDAOInstance();
+							resourceDao.deletePersistentEntity(resourceId);
+
+							f.endTransaction();
+						} catch (DAOException e2) {
+							throw new ServletException("dao error occured - additional error cleaning stale resource " + resourceId, e);
+						}
+
+						throw new ServletException("dao error occured", e);
+					}
+				}
+				
+				
 			}
 		} finally {
 			killDirectory(Settings.getSourceDirectory());
