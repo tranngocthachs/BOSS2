@@ -1,14 +1,11 @@
 package uk.ac.warwick.dcs.boss.frontend.sites.staffpages;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -16,7 +13,6 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
@@ -48,6 +44,7 @@ import uk.ac.warwick.dcs.cobalt.sherlock.DynamicTreeTableModel;
 import uk.ac.warwick.dcs.cobalt.sherlock.FileTypeProfile;
 import uk.ac.warwick.dcs.cobalt.sherlock.GzipFilenameFilter;
 import uk.ac.warwick.dcs.cobalt.sherlock.GzipHandler;
+import uk.ac.warwick.dcs.cobalt.sherlock.Marking;
 import uk.ac.warwick.dcs.cobalt.sherlock.MatchTableDataStruct;
 import uk.ac.warwick.dcs.cobalt.sherlock.MatchTreeNodeStruct;
 import uk.ac.warwick.dcs.cobalt.sherlock.Samelines;
@@ -75,7 +72,106 @@ SherlockProcessCallback {
 	protected void handleGet(PageContext pageContext, Template template,
 			VelocityContext templateContext) throws ServletException,
 			IOException {
-		throw new ServletException("Unexpected GET request");
+		IDAOSession f;
+		try {
+			DAOFactory df = (DAOFactory) FactoryRegistrar
+			.getFactory(DAOFactory.class);
+			f = df.getInstance();
+		} catch (FactoryException e) {
+			throw new ServletException("dao init error", e);
+		}
+
+		// Get assignmentId
+		String assignmentString = pageContext.getParameter("assignment");
+		if (assignmentString == null) {
+			throw new ServletException("No assignment parameter given");
+		}
+		Long assignmentId = Long
+		.valueOf(pageContext.getParameter("assignment"));
+
+		String doString = pageContext.getParameter("do");
+		if (doString == null || !doString.equals("View Result"))
+			throw new ServletException("Unexpected GET request");
+		
+		// Get session Id
+		String sessionString = pageContext.getParameter("session");
+		if (sessionString == null) {
+			throw new ServletException("No session parameter given");
+		}
+		Long sessionId = Long
+		.valueOf(pageContext.getParameter("session"));
+		
+		
+		// Housekeeping stuff for the page
+		try {
+			f.beginTransaction();
+
+			IStaffInterfaceQueriesDAO staffInterfaceQueriesDao = f
+			.getStaffInterfaceQueriesDAOInstance();
+			IAssignmentDAO assignmentDao = f.getAssignmentDAOInstance();
+			Assignment assignment = assignmentDao
+			.retrievePersistentEntity(assignmentId);
+
+			if (!staffInterfaceQueriesDao.isStaffModuleAccessAllowed(
+					pageContext.getSession().getPersonBinding().getId(),
+					assignment.getModuleId())) {
+				f.abortTransaction();
+				throw new ServletException("permission denied");
+			}
+
+			IModuleDAO moduleDao = f.getModuleDAOInstance();
+			Module module = moduleDao.retrievePersistentEntity(assignment
+					.getModuleId());
+			Collection<String> selectedFiles = f.getSherlockSessionDAOInstance().fetchRequiredFilenames(sessionId);
+			templateContext.put("greet", pageContext.getSession()
+					.getPersonBinding().getChosenName());
+			templateContext.put("module", module);
+			templateContext.put("assignment", assignment);
+			templateContext.put("files", selectedFiles);
+
+			f.endTransaction();
+		} catch (DAOException e) {
+			f.abortTransaction();
+			throw new ServletException("dao exception");
+		}
+		
+		// loading the matching result and setting up the template context
+		// Preparing matching results
+		// loading saved marking [suspicious] items
+		Marking marking = null;
+		File savedMarkingFile = new File(Settings.getSourceDirectory(), "sherlockMarking.txt");
+		if (savedMarkingFile.exists()) {
+			marking = new Marking();
+			marking.setMatches(MatchTableDataStruct.loadMatches());
+			marking.load(savedMarkingFile);
+			marking.generate();
+		}
+		MatchTableDataStruct mtd = new MatchTableDataStruct(marking);
+		boolean hasMatch = mtd.hasMatch();
+		templateContext.put("hasMatch", hasMatch);
+		if (hasMatch) {
+			DynamicTreeTableModel tm = mtd.getModel();
+			Collection<String> thead = new ArrayList<String>(tm
+					.getColumnCount());
+			for (int i = 0; i < tm.getColumnCount(); i++)
+				thead.add(tm.getColumnName(i));
+			templateContext.put("tableHead", thead);
+			List<String> nodeIds = new ArrayList<String>();
+			List<List<String>> rows = new ArrayList<List<String>>();
+			List<String> classes = new ArrayList<String>();
+			List<Integer> matchIndices = new ArrayList<Integer>();
+			Object root = tm.getRoot();
+			walk(tm, root, "node", nodeIds, classes, rows, matchIndices);
+			templateContext.put("ids", nodeIds);
+			templateContext.put("classes", classes);
+			templateContext.put("rows", rows);
+			templateContext.put("matchIndices", matchIndices);
+		}
+		
+		templateContext.put("viewResult", true);
+		templateContext.put("session", sessionId);
+
+		pageContext.renderTemplate(template, templateContext);
 	}
 
 	@Override
@@ -126,7 +222,7 @@ SherlockProcessCallback {
 				pageContext.performRedirect(pageContext.getPageUrl(
 						StaffPageFactory.SITE_NAME,
 						StaffPageFactory.RUN_SHERLOCK_PAGE)
-						+ "?assignment=" + assignmentId + "&missing=true");
+						+ "?assignment=" + assignmentId + "&missing=true&do=New+Session");
 				return;
 			}
 			selectedFiles = Arrays.asList(files);
@@ -213,10 +309,15 @@ SherlockProcessCallback {
 		if (numFTSelected == 0)
 			validSettings = false;
 		if (!validSettings) {
-			pageContext.performRedirect(pageContext.getPageUrl(
+			String url = pageContext.getPageUrl(
 					StaffPageFactory.SITE_NAME,
 					StaffPageFactory.RUN_SHERLOCK_PAGE)
-					+ "?assignment=" + assignmentId + "&missing=true");
+					+ "?assignment=" + assignmentId + "&missing=true&do=";
+			if (newSession)
+				url += "New+Session";
+			else if (rerun)
+				url += ("Rerun&session=" + sherlockSessionId);
+			pageContext.performRedirect(url);
 			return;
 		}
 
@@ -325,28 +426,10 @@ SherlockProcessCallback {
 			}
 		}
 
-		if (rerun) {
-			List<File> fileList = new LinkedList<File>();
-			BufferedReader in = null;
-			try {
-				in = new BufferedReader(new FileReader(new File(Settings.getSourceDirectory(), "sherlockFileList.txt")));
-				String l;
-				while ((l = in.readLine()) != null) {
-					fileList.add(new File(Settings.getSourceDirectory(), l.trim()));
-				}
-			}
-			catch (IOException e) {
-				throw new ServletException("IO error while reading file list");
-			}
-			finally {
-				if (in != null)
-					in.close();
-			}
-			Settings.setFileList(fileList.toArray(new File[0]));
-		}
 		
 		// running Sherlock on temp folder
 		if (rerun)
+			// no need for preprocessing/renaming the file if it's a rerun because it should have been done the first time around
 			runSherlock(sherlockTempDir, pageContext, false);
 		else
 			runSherlock(sherlockTempDir, pageContext, true);
