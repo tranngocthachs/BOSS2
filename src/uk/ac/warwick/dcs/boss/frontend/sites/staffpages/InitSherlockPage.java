@@ -14,7 +14,6 @@ import org.apache.velocity.VelocityContext;
 import uk.ac.warwick.dcs.boss.frontend.Page;
 import uk.ac.warwick.dcs.boss.frontend.PageContext;
 import uk.ac.warwick.dcs.boss.frontend.PageLoadException;
-import uk.ac.warwick.dcs.boss.frontend.sites.StaffPageFactory;
 import uk.ac.warwick.dcs.boss.model.FactoryException;
 import uk.ac.warwick.dcs.boss.model.FactoryRegistrar;
 import uk.ac.warwick.dcs.boss.model.dao.DAOException;
@@ -54,11 +53,6 @@ public class InitSherlockPage extends Page {
 		Long assignmentId = Long
 				.valueOf(pageContext.getParameter("assignment"));
 		
-		// Set the missing elements flag if needed.
-		if (pageContext.getParameter("missing") != null) {
-			templateContext.put("missingFields", true);
-		}
-
 		// Render page
 		try {
 			f.beginTransaction();
