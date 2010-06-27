@@ -185,13 +185,7 @@ public class SaveSherlockSessionPage extends Page {
 					resourceStream = resourceDao.openOutputStream(resourceId);
 					resourceZipStream = new ZipOutputStream(resourceStream);
 					zip(Settings.getSourceDirectory(), Settings.getSourceDirectory(), resourceZipStream);
-
-					// test code
-					File zipFile = new File(System.getProperty("user.home")+File.separator+"temp.zip");
-					ZipOutputStream zos = new ZipOutputStream( new FileOutputStream( zipFile ) );
-					zip( Settings.getSourceDirectory(), Settings.getSourceDirectory(), zos );
-					zos.close();
-					// end test code
+					
 					resourceZipStream.flush();
 					resourceStream.flush();
 
