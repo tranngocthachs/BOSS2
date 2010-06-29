@@ -30,7 +30,7 @@
         <pathelement location="WebContent/WEB-INF/lib/tomcat-i18n-es.jar"/>
         <pathelement location="WebContent/WEB-INF/lib/tomcat-i18n-fr.jar"/>
         <pathelement location="WebContent/WEB-INF/lib/tomcat-i18n-ja.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/velocity-1.5.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/velocity-1.6.4.jar"/>
         <pathelement location="ImportedClasses"/>
     </path>
     <path id="BOSS2.classpath">
