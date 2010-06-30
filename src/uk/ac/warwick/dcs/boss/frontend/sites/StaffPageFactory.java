@@ -1,5 +1,8 @@
 package uk.ac.warwick.dcs.boss.frontend.sites;
 
+import java.util.Iterator;
+import java.util.ServiceLoader;
+
 import uk.ac.warwick.dcs.boss.frontend.Page;
 import uk.ac.warwick.dcs.boss.frontend.PageFactory;
 import uk.ac.warwick.dcs.boss.frontend.PageLoadException;
@@ -54,6 +57,8 @@ import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.TestHashPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.TestsPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.UploadAssignmentResourcePage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.UploadTestResourcePage;
+import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.spi.StaffPluginPageProvider;
+import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.spi.StudentPluginPageProvider;
 
 public class StaffPageFactory extends PageFactory {
 
@@ -218,6 +223,13 @@ public class StaffPageFactory extends PageFactory {
 		} else if (pageName.equals(PERFORM_MULTI_DOWNLOAD_PAGE)) {
 			return new PerformMultiDownloadPage();
 		} else {
+			Iterator<StaffPluginPageProvider> staffPluginPagesIter = ServiceLoader.load(StaffPluginPageProvider.class).iterator();
+			while (staffPluginPagesIter.hasNext()) {
+				StaffPluginPageProvider provider = staffPluginPagesIter.next();
+				if (provider.getName().equals(pageName))
+					return provider;
+			}
+			
 			throw new PageLoadException(404, "page not found");
 		}
 	}

@@ -128,13 +128,6 @@ public class PageDispatcherServlet extends HttpServlet {
 
 		logger.log(Level.INFO, "  help");
 		PageFactory.registerFactory(HelpPageFactory.SITE_NAME, new HelpPageFactory());
-		
-		logger.log(Level.INFO, "  plugin");
-		Iterator<PluginPageFactoryInterface> iter = ServiceLoader.load(PluginPageFactoryInterface.class).iterator();
-		while (iter.hasNext()) {
-			PluginPageFactoryInterface ppf = iter.next();
-			PageFactory.registerFactory(ppf.getSiteName(), ppf);
-		}
 	}
 	
 	/**

@@ -1,9 +1,13 @@
 package uk.ac.warwick.dcs.boss.frontend.sites;
 
+import java.util.Iterator;
+import java.util.ServiceLoader;
+
 import uk.ac.warwick.dcs.boss.frontend.Page;
 import uk.ac.warwick.dcs.boss.frontend.PageFactory;
 import uk.ac.warwick.dcs.boss.frontend.PageLoadException;
 import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.AssignmentsPage;
+import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.DownloadSubmissionPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.EditMarkPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.MarksPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.PerformEditMarkPage;
@@ -11,7 +15,7 @@ import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.PerformTestPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.StudentsPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.SubmissionsPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.TestPage;
-import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.DownloadSubmissionPage;
+import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.spi.MarkerPluginPageProvider;
 
 public class MarkerPageFactory extends PageFactory {
 
@@ -48,6 +52,13 @@ public class MarkerPageFactory extends PageFactory {
 		} else if (pageName.equals(DOWNLOAD_SUBMISSION_PAGE)) { 
 			return new DownloadSubmissionPage();
 		} else {
+			Iterator<MarkerPluginPageProvider> markerPluginPagesIter = ServiceLoader.load(MarkerPluginPageProvider.class).iterator();
+			while (markerPluginPagesIter.hasNext()) {
+				MarkerPluginPageProvider provider = markerPluginPagesIter.next();
+				if (provider.getName().equals(pageName))
+					return provider;
+			}
+			
 			throw new PageLoadException(404, "Unknown page identifier");
 		}
 	}

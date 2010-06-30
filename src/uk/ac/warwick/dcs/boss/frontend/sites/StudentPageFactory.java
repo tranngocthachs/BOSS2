@@ -1,18 +1,21 @@
 package uk.ac.warwick.dcs.boss.frontend.sites;
 
+import java.util.Iterator;
+import java.util.ServiceLoader;
+
 import uk.ac.warwick.dcs.boss.frontend.Page;
 import uk.ac.warwick.dcs.boss.frontend.PageFactory;
 import uk.ac.warwick.dcs.boss.frontend.PageLoadException;
-import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.DownloadSubmissionPage;
-import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.DownloadAssignmentResourcePage;
-import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.ModulesPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.ActivatePage;
 import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.AssignmentPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.AssignmentSubmissionsPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.AssignmentsPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.DeletePage;
 import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.DetailsPage;
+import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.DownloadAssignmentResourcePage;
+import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.DownloadSubmissionPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.ModulePage;
+import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.ModulesPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.PerformActivatePage;
 import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.PerformChangePasswordPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.PerformDeletePage;
@@ -21,6 +24,7 @@ import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.PerformTestPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.SubmissionsPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.SubmitPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.TestPage;
+import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.spi.StudentPluginPageProvider;
 
 public class StudentPageFactory extends PageFactory {
 
@@ -84,6 +88,13 @@ public class StudentPageFactory extends PageFactory {
 		} else if (pageName.equals(PERFORM_CHANGE_PASSWORD_PAGE)) {
 			return new PerformChangePasswordPage();
 		} else {
+			Iterator<StudentPluginPageProvider> studentPluginPagesIter = ServiceLoader.load(StudentPluginPageProvider.class).iterator();
+			while (studentPluginPagesIter.hasNext()) {
+				StudentPluginPageProvider provider = studentPluginPagesIter.next();
+				if (provider.getName().equals(pageName))
+					return provider;
+			}
+			
 			throw new PageLoadException(404, "page not found");
 		}
 	}

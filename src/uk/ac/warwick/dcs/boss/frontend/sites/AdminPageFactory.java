@@ -1,5 +1,8 @@
 package uk.ac.warwick.dcs.boss.frontend.sites;
 
+import java.util.Iterator;
+import java.util.ServiceLoader;
+
 import uk.ac.warwick.dcs.boss.frontend.Page;
 import uk.ac.warwick.dcs.boss.frontend.PageFactory;
 import uk.ac.warwick.dcs.boss.frontend.PageLoadException;
@@ -20,6 +23,7 @@ import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PerformExecuteUtilityPag
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PerformFindModuleAdministratorPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PerformRemoveModuleAdministratorPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.UtilitiesPage;
+import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.spi.AdminPluginPageProvider;
 
 public class AdminPageFactory extends PageFactory {
 
@@ -81,6 +85,13 @@ public class AdminPageFactory extends PageFactory {
 		} else if (pageName.equals(PERFORM_EXECUTE_UTILITY_PAGE)) {
 			return new PerformExecuteUtilityPage();
 		} else {
+			Iterator<AdminPluginPageProvider> adminPluginPagesIter = ServiceLoader.load(AdminPluginPageProvider.class).iterator();
+			while (adminPluginPagesIter.hasNext()) {
+				AdminPluginPageProvider provider = adminPluginPagesIter.next();
+				if (provider.getName().equals(pageName))
+					return provider;
+			}
+			
 			throw new PageLoadException(404, "page not found");
 		}
 	}
