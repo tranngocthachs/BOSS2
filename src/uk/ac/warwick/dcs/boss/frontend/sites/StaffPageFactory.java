@@ -3,6 +3,8 @@ package uk.ac.warwick.dcs.boss.frontend.sites;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
+import org.openide.util.Lookup;
+
 import uk.ac.warwick.dcs.boss.frontend.Page;
 import uk.ac.warwick.dcs.boss.frontend.PageFactory;
 import uk.ac.warwick.dcs.boss.frontend.PageLoadException;
@@ -223,7 +225,7 @@ public class StaffPageFactory extends PageFactory {
 		} else if (pageName.equals(PERFORM_MULTI_DOWNLOAD_PAGE)) {
 			return new PerformMultiDownloadPage();
 		} else {
-			Iterator<StaffPluginPageProvider> staffPluginPagesIter = ServiceLoader.load(StaffPluginPageProvider.class).iterator();
+			Iterator<? extends StaffPluginPageProvider> staffPluginPagesIter = Lookup.getDefault().lookupAll(StaffPluginPageProvider.class).iterator();
 			while (staffPluginPagesIter.hasNext()) {
 				StaffPluginPageProvider provider = staffPluginPagesIter.next();
 				if (provider.getName().equals(pageName))

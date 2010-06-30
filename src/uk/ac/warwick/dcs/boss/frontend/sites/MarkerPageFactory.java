@@ -3,6 +3,8 @@ package uk.ac.warwick.dcs.boss.frontend.sites;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
+import org.openide.util.Lookup;
+
 import uk.ac.warwick.dcs.boss.frontend.Page;
 import uk.ac.warwick.dcs.boss.frontend.PageFactory;
 import uk.ac.warwick.dcs.boss.frontend.PageLoadException;
@@ -52,7 +54,7 @@ public class MarkerPageFactory extends PageFactory {
 		} else if (pageName.equals(DOWNLOAD_SUBMISSION_PAGE)) { 
 			return new DownloadSubmissionPage();
 		} else {
-			Iterator<MarkerPluginPageProvider> markerPluginPagesIter = ServiceLoader.load(MarkerPluginPageProvider.class).iterator();
+			Iterator<? extends MarkerPluginPageProvider> markerPluginPagesIter = Lookup.getDefault().lookupAll(MarkerPluginPageProvider.class).iterator();
 			while (markerPluginPagesIter.hasNext()) {
 				MarkerPluginPageProvider provider = markerPluginPagesIter.next();
 				if (provider.getName().equals(pageName))

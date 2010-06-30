@@ -3,6 +3,8 @@ package uk.ac.warwick.dcs.boss.frontend.sites;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
+import org.openide.util.Lookup;
+
 import uk.ac.warwick.dcs.boss.frontend.Page;
 import uk.ac.warwick.dcs.boss.frontend.PageFactory;
 import uk.ac.warwick.dcs.boss.frontend.PageLoadException;
@@ -85,7 +87,7 @@ public class AdminPageFactory extends PageFactory {
 		} else if (pageName.equals(PERFORM_EXECUTE_UTILITY_PAGE)) {
 			return new PerformExecuteUtilityPage();
 		} else {
-			Iterator<AdminPluginPageProvider> adminPluginPagesIter = ServiceLoader.load(AdminPluginPageProvider.class).iterator();
+			Iterator<? extends AdminPluginPageProvider> adminPluginPagesIter = Lookup.getDefault().lookupAll(AdminPluginPageProvider.class).iterator();
 			while (adminPluginPagesIter.hasNext()) {
 				AdminPluginPageProvider provider = adminPluginPagesIter.next();
 				if (provider.getName().equals(pageName))

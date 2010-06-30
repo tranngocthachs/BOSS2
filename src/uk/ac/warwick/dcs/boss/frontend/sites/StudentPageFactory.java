@@ -1,7 +1,8 @@
 package uk.ac.warwick.dcs.boss.frontend.sites;
 
 import java.util.Iterator;
-import java.util.ServiceLoader;
+
+import org.openide.util.Lookup;
 
 import uk.ac.warwick.dcs.boss.frontend.Page;
 import uk.ac.warwick.dcs.boss.frontend.PageFactory;
@@ -88,7 +89,7 @@ public class StudentPageFactory extends PageFactory {
 		} else if (pageName.equals(PERFORM_CHANGE_PASSWORD_PAGE)) {
 			return new PerformChangePasswordPage();
 		} else {
-			Iterator<StudentPluginPageProvider> studentPluginPagesIter = ServiceLoader.load(StudentPluginPageProvider.class).iterator();
+			Iterator<? extends StudentPluginPageProvider> studentPluginPagesIter = Lookup.getDefault().lookupAll(StudentPluginPageProvider.class).iterator();
 			while (studentPluginPagesIter.hasNext()) {
 				StudentPluginPageProvider provider = studentPluginPagesIter.next();
 				if (provider.getName().equals(pageName))
