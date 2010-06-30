@@ -5,11 +5,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Collection;
 
 import javax.servlet.ServletException;
-import javax.swing.JOptionPane;
-import javax.swing.JTextArea;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
@@ -117,7 +114,6 @@ public class SherlockOneMatchPage extends Page {
 		    String[] rightOrigin = getMatchedCode(inputFile, start, end);
 		    
 		    // Left tokenised file.
-		    int fileType = match.getFileType();
 		    inputFile = new File(Settings.getSourceDirectory(), match.getFile1());
 		    start = match.getRun().getStartCoordinates().getLineNoInFile1();
 		    end = match.getRun().getEndCoordinates().getLineNoInFile1();
