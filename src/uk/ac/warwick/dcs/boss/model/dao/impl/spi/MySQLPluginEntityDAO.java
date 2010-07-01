@@ -1,4 +1,4 @@
-package uk.ac.warwick.dcs.boss.model.dao.impl;
+package uk.ac.warwick.dcs.boss.model.dao.impl.spi;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,22 +13,24 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import uk.ac.warwick.dcs.boss.model.dao.DAOException;
-import uk.ac.warwick.dcs.boss.model.dao.IEntityDAO;
-import uk.ac.warwick.dcs.boss.model.dao.beans.Entity;
+import uk.ac.warwick.dcs.boss.model.dao.beans.spi.PluginEntity;
+import uk.ac.warwick.dcs.boss.model.dao.spi.IPluginEntityDAO;
 
 /**
  * This DAO uses subclassing for specific operations
  * @author davidbyard
  *
  */
-public abstract class MySQLEntityDAO<E extends Entity> implements IEntityDAO<E> {
+public abstract class MySQLPluginEntityDAO<E extends PluginEntity> implements IPluginEntityDAO<E> {
 	
 	protected Connection connection;
 		
-	public MySQLEntityDAO(Connection connection) throws DAOException {
+	public MySQLPluginEntityDAO(Connection connection) throws DAOException {
 		this.setConnection(connection);
 	}
-	
+	public MySQLPluginEntityDAO() {
+		
+	}
 	public Long createPersistentCopy(E entity)
 			throws DAOException {		
 		// Build the dynamic parts of the query.	
@@ -109,7 +111,7 @@ public abstract class MySQLEntityDAO<E extends Entity> implements IEntityDAO<E> 
 			// Execute the statement.
 			Logger.getLogger("mysql").log(Level.TRACE, "Executing: " + statementObject.toString());
 			ResultSet rs = statementObject.executeQuery();
-			Vector<E> result = new Vector<E>();
+			Collection<E> result = new Vector<E>();
 			while (rs.next()) {
 				E e = createInstanceFromDatabaseValues(getTableName(), rs);				
 				e.setId(rs.getLong("id"));
@@ -332,11 +334,11 @@ public abstract class MySQLEntityDAO<E extends Entity> implements IEntityDAO<E> 
 		}
 	}
 
-	protected void setConnection(Connection connection) {
+	public void setConnection(Connection connection) {
 		this.connection = connection;
 	}
 
-	protected Connection getConnection() {
+	public Connection getConnection() {
 		return connection;
 	} 
 
@@ -418,7 +420,6 @@ public abstract class MySQLEntityDAO<E extends Entity> implements IEntityDAO<E> 
 			throw new DAOException("SQL error", e);
 		}
 	}
-
 	
 	/**
 	 * Get the name of the table that this DAO deals with
@@ -451,4 +452,7 @@ public abstract class MySQLEntityDAO<E extends Entity> implements IEntityDAO<E> 
 	 * @return sorting string (e.g., x DESC, y ASC)
 	 */
 	abstract public String getMySQLSortingString();
+	
+	abstract public boolean tableCreated();
+	abstract public void createTable() throws DAOException;
 }

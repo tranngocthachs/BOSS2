@@ -5,7 +5,7 @@ package uk.ac.warwick.dcs.boss.model.dao.beans;
  * @author davidbyard
  *
  */
-public class Entity {
+public abstract class Entity {
 	/**
 	 * Unique identifier.
 	 */

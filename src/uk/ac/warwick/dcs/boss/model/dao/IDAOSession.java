@@ -1,5 +1,8 @@
 package uk.ac.warwick.dcs.boss.model.dao;
 
+import uk.ac.warwick.dcs.boss.model.dao.beans.spi.PluginEntity;
+import uk.ac.warwick.dcs.boss.model.dao.spi.IPluginEntityDAO;
+
 public interface IDAOSession {
 
 	// Transactions
@@ -51,6 +54,8 @@ public interface IDAOSession {
 	abstract public IMarkerInterfaceQueriesDAO getMarkerInterfaceQueriesDAOInstance() throws DAOException;
 	abstract public IStaffInterfaceQueriesDAO getStaffInterfaceQueriesDAOInstance() throws DAOException;
 	abstract public IAdminInterfaceQueriesDAO getAdminInterfaceQueriesDAOInstance() throws DAOException;
+	
+	abstract public IPluginEntityDAO<? extends PluginEntity> getAdditionalDAOInstance(Class<? extends PluginEntity> clazz) throws DAOException;
 	
 	// i18n
 	/**
