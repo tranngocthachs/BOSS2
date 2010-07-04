@@ -13,9 +13,13 @@ import uk.ac.warwick.dcs.boss.frontend.PageLoadException;
 
 public abstract class StudentPluginPageProvider extends Page {
 
-	public StudentPluginPageProvider(String pageTemplate,
+	private StudentPluginPageProvider(String pageTemplate,
 			AccessLevel accessLevel) throws PageLoadException {
 		super(pageTemplate, accessLevel);
+	}
+	
+	public StudentPluginPageProvider(String pageTemplate) throws PageLoadException {
+		super(pageTemplate, AccessLevel.USER);
 	}
 	
 	public StudentPluginPageProvider() throws PageLoadException {

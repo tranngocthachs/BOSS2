@@ -13,9 +13,13 @@ import uk.ac.warwick.dcs.boss.frontend.PageLoadException;
 
 public abstract class MarkerPluginPageProvider extends Page {
 
-	public MarkerPluginPageProvider(String pageTemplate,
+	private MarkerPluginPageProvider(String pageTemplate,
 			AccessLevel accessLevel) throws PageLoadException {
 		super(pageTemplate, accessLevel);
+	}
+	
+	public MarkerPluginPageProvider(String pageTemplate) throws PageLoadException {
+		super(pageTemplate, AccessLevel.USER);
 	}
 	
 	public MarkerPluginPageProvider() throws PageLoadException {

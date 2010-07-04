@@ -13,9 +13,13 @@ import uk.ac.warwick.dcs.boss.frontend.PageLoadException;
 
 public abstract class AdminPluginPageProvider extends Page {
 
-	public AdminPluginPageProvider(String pageTemplate,
+	private AdminPluginPageProvider(String pageTemplate,
 			AccessLevel accessLevel) throws PageLoadException {
 		super(pageTemplate, accessLevel);
+	}
+	
+	public AdminPluginPageProvider(String pageTemplate) throws PageLoadException {
+		super(pageTemplate, AccessLevel.ADMIN);
 	}
 	
 	public AdminPluginPageProvider() throws PageLoadException {
