@@ -23,6 +23,7 @@ import uk.ac.warwick.dcs.boss.model.dao.IAdminInterfaceQueriesDAO;
 import uk.ac.warwick.dcs.boss.model.dao.IAssignmentDAO;
 import uk.ac.warwick.dcs.boss.model.dao.IDAOSession;
 import uk.ac.warwick.dcs.boss.model.dao.IDeadlineRevisionDAO;
+import uk.ac.warwick.dcs.boss.model.dao.IEntityDAO;
 import uk.ac.warwick.dcs.boss.model.dao.ILocalisationDAO;
 import uk.ac.warwick.dcs.boss.model.dao.IMarkDAO;
 import uk.ac.warwick.dcs.boss.model.dao.IMarkingAssignmentDAO;
@@ -38,7 +39,6 @@ import uk.ac.warwick.dcs.boss.model.dao.ISubmissionDAO;
 import uk.ac.warwick.dcs.boss.model.dao.ITestDAO;
 import uk.ac.warwick.dcs.boss.model.dao.beans.spi.PluginEntity;
 import uk.ac.warwick.dcs.boss.model.dao.impl.spi.MySQLPluginEntityDAO;
-import uk.ac.warwick.dcs.boss.model.dao.spi.IPluginEntityDAO;
 
 public class MySQLDAOProducer implements IDAOSession {
 	
@@ -619,22 +619,21 @@ public class MySQLDAOProducer implements IDAOSession {
 	}
 
 	@Override
-	public IPluginEntityDAO<? extends PluginEntity> getAdditionalDAOInstance(
+	public IEntityDAO<? extends PluginEntity> getAdditionalDAOInstance(
 			Class<? extends PluginEntity> clazz) throws DAOException {
 		Collection<? extends PluginEntity> availablePluginEntities = Lookup.getDefault().lookupAll(PluginEntity.class);
 		Iterator<? extends PluginEntity> iter = availablePluginEntities.iterator();
 		while (iter.hasNext()) {
 			PluginEntity pluginEntity = iter.next();
 			if (pluginEntity.getClass().equals(clazz)) {
-				Class<? extends IPluginEntityDAO<? extends PluginEntity>> associatedDaoClass = pluginEntity.getAssiociatedDAO();
-				Iterator<? extends IPluginEntityDAO> ite = Lookup.getDefault().lookupAll(IPluginEntityDAO.class).iterator();
+				Class<? extends IEntityDAO<? extends PluginEntity>> associatedDaoClass = pluginEntity.getAssiociatedDAO();
+				Iterator<? extends MySQLPluginEntityDAO> ite = Lookup.getDefault().lookupAll(MySQLPluginEntityDAO.class).iterator();
 				while (ite.hasNext()) {
-					IPluginEntityDAO pluginEntityDao = ite.next();
-					if (pluginEntityDao.getClass().equals(associatedDaoClass)) {
-						MySQLPluginEntityDAO mySQLPluginEntityDao = (MySQLPluginEntityDAO)pluginEntityDao; 
-						mySQLPluginEntityDao.setConnection(connection);
-						if (!mySQLPluginEntityDao.tableCreated())
-							mySQLPluginEntityDao.createTable();
+					MySQLPluginEntityDAO pluginEntityDao = ite.next();
+					if (pluginEntityDao.getClass().equals(associatedDaoClass)) { 
+						pluginEntityDao.setConnection(connection);
+						if (!pluginEntityDao.tableCreated())
+							pluginEntityDao.createTable();
 						return pluginEntityDao;
 					}
 				}

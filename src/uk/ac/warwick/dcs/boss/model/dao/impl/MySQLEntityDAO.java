@@ -29,6 +29,10 @@ public abstract class MySQLEntityDAO<E extends Entity> implements IEntityDAO<E> 
 		this.setConnection(connection);
 	}
 	
+	public MySQLEntityDAO() {
+		connection = null;
+	}
+	
 	public Long createPersistentCopy(E entity)
 			throws DAOException {		
 		// Build the dynamic parts of the query.	
@@ -332,11 +336,11 @@ public abstract class MySQLEntityDAO<E extends Entity> implements IEntityDAO<E> 
 		}
 	}
 
-	protected void setConnection(Connection connection) {
+	public void setConnection(Connection connection) {
 		this.connection = connection;
 	}
 
-	protected Connection getConnection() {
+	public Connection getConnection() {
 		return connection;
 	} 
 
