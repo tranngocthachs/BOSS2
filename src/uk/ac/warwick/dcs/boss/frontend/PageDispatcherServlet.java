@@ -3,10 +3,7 @@ package uk.ac.warwick.dcs.boss.frontend;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.Properties;
-import java.util.ServiceLoader;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -35,9 +32,6 @@ import uk.ac.warwick.dcs.boss.model.testing.TestRunnerFactory;
 import uk.ac.warwick.dcs.boss.model.testing.executors.TestExecutorFactory;
 import uk.ac.warwick.dcs.boss.model.testing.tests.TestMethodFactory;
 import uk.ac.warwick.dcs.boss.model.utilities.AdminUtilityFactory;
-
-import org.openide.util.Lookup;
-import org.openide.util.lookup.*;
 /**
  * The BOSS2 web app!
  * @author davidbyard
@@ -47,6 +41,7 @@ public class PageDispatcherServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 	private static Logger logger = null;
+	public static String realPath = null; 
 
 	/**
 	 * Load configuration.
@@ -202,6 +197,7 @@ public class PageDispatcherServlet extends HttpServlet {
 			
 			loadPageFactories();
 		}
+		realPath = this.getServletContext().getRealPath(".");
 	}	
 	
 	/**
