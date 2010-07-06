@@ -31,6 +31,7 @@ import uk.ac.warwick.dcs.boss.model.dao.IMarkingCategoryDAO;
 import uk.ac.warwick.dcs.boss.model.dao.IModelDAO;
 import uk.ac.warwick.dcs.boss.model.dao.IModuleDAO;
 import uk.ac.warwick.dcs.boss.model.dao.IPersonDAO;
+import uk.ac.warwick.dcs.boss.model.dao.IPluginMetadataDAO;
 import uk.ac.warwick.dcs.boss.model.dao.IResourceDAO;
 import uk.ac.warwick.dcs.boss.model.dao.IResultDAO;
 import uk.ac.warwick.dcs.boss.model.dao.IStaffInterfaceQueriesDAO;
@@ -640,6 +641,16 @@ public class MySQLDAOProducer implements IDAOSession {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public IPluginMetadataDAO getPluginMetadataDAOInstance()
+			throws DAOException {
+		if (!transactionLock.isHeldByCurrentThread()) {
+			throw new DAOException("no transaction in process");
+		}
+		
+		return new MySQLPluginMetadataDAO(connection);
 	}
 
 	

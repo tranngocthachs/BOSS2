@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
-		<title>Admin Models</title>
+		<title>Manage Plugins</title>
 		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 		<meta http-equiv="Content-Script-Type" content="text/javascript" />
 		<meta http-equiv="Content-Style-Type" content="text/css" />
@@ -18,9 +18,9 @@
 			Hello, $greet (<a href="$context.getPageUrl("system", "logout")">Log out</a>)
 		</div>		
 		
-		<div class="textbar"><h1>BOSS 2: Models</h1></div>
+		<div class="textbar"><h1>BOSS 2: Plugins</h1></div>
 
-		<div class="breadcrumbs"><a href="$context.getPageUrl("system", "home")">Home</a> : Admin Models</div>
+		<div class="breadcrumbs"><a href="$context.getPageUrl("system", "home")">Home</a> : Manage Plugins</div>
 
 		<div class="control">
 			<h2>Navigate...</h2>
@@ -30,60 +30,47 @@
 				<li><a href="$context.getPageUrl("admin", "utilities")">Admin utilities</a></li>
 				<li><a href="$context.getPageUrl("admin", "plugins")">Manage plugins</a></li>
 				<li><a href="$context.getPageUrl("system", "logout")">Log out</a></li>
-			</ul>
-			
-			<h2>Actions...</h2>
-			<ul>
-				<li><a href="$context.getPageUrl("admin", "edit_model")?create=true">Create new model</a></li>
 			</ul>	
 		</div>	
-		
-		#if($sorting == "module_count_asc")
-			#set($sorting_desc="by ascending module count")
-			#set($modules_sort_type="module_count_desc")
-		#elseif($sorting == "module_count_desc")
-			#set($sorting_desc="by descending module count")
-			#set($modules_sort_type="module_count_asc")
-		#else
-			#set($sorting_desc="in no particular order")
-			#set($modules_sort_type="module_count_desc")
-		#end
-		
+				
 		<div class="table">
-			<h2 class="nostyle">Models</h2>
-			<table class="full">
+			<h2>Installed Plugins</h2>
+			#if( $plugins.size() > 0 )
+				<table class="full">
 				<thead>
 					<tr>
-						<th>Model</th>
-						<th><a href="$context.getCurrentPageUrl()?sorting=$modules_sort_type">Modules</a></th>
+						<th>Plugin</th>
+						<th>Version</th>
+						<th>Description</th>
+						<th>Author</th>
 						<th>Actions</th>
 					</tr>
 				</thead>
 				<tbody>
 
 				#set($style="odd")				
-				#foreach($model in $models)
+				#foreach($plugin in $plugins)
 
-					#set($modules_url = $context.getPageUrl("admin", "modules") + "?model=" + $model.getModel().getId())
-					#set($model_url = $context.getPageUrl("admin", "edit_model") + "?model=" + $model.getModel().getId())
+					#set($plugin_url = $context.getPageUrl("admin", "edit_plugin") + "?plugin=" + $plugin.getId())
 
 					<tr class="$style">
 						<td>
-							<h3><a href="$model_url">$model.getModel().getName()</a></h3>
-							<ul>
-								<li><a href="$modules_url">Manage modules...</a></li>
-							</ul>
+							$plugin.getName()
 						</td>
 						<td>
-							<p>
-									$model.getModuleCount()
-							</p>
+							$plugin.getVersion()
 						</td>
 						<td>
-							<form method="get" action="$context.getPageUrl("admin", "edit_model")">
+							$plugin.getDescription()
+						</td>
+						<td>
+							<a href="mailto:$plugin.getEmail()">$plugin.getAuthor()</a>
+						</td>
+						<td>
+							<form method="post" action="$context.getPageUrl("admin", "perform_edit_plugin")">
 								<p>
-									<input type="hidden" name="model" value="$model.getModel().getId()"/>
-									<input type="submit" value="Edit/Delete Model"/>
+									<input type="hidden" name="plugin" value="$plugin.getId()"/>
+									<input type="submit" name="do" value="Delete"/><br />
 								</p>
 							</form>
 						</td>								
@@ -99,9 +86,15 @@
 				#end
 				</tbody>
 			</table>
-			
-			<p class="footnote">$models.size() model#if($models.size()!=1)s#end, sorted
-			$sorting_desc.  To change sorting, please click the desired header.</p>
+			#else
+				<p>No Plugin Installed</p>
+			#end
+
+			<h2>Upload and Install new Plugin</h2>
+			<form method="post" action="$context.getPageUrl("admin", "perform_edit_plugin")" enctype="multipart/form-data">
+				<input type="file" name="file"/><br />
+				<input type="submit" name="do" value="Install"/>
+			</form>
 		</div>	
 		
 		<div class="navbar">

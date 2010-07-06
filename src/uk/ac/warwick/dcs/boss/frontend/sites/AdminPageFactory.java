@@ -21,9 +21,11 @@ import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PerformAddModuleAdminist
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PerformEditModelPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PerformEditModulePage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PerformEditPersonPage;
+import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PerformEditPluginPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PerformExecuteUtilityPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PerformFindModuleAdministratorPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PerformRemoveModuleAdministratorPage;
+import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PluginsPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.UtilitiesPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.spi.AdminPluginPageProvider;
 
@@ -49,6 +51,9 @@ public class AdminPageFactory extends PageFactory {
 	public static String UTILITIES_PAGE = "utilities";
 	public static String EXECUTE_UTILITY_PAGE = "execute_utility";
 	public static String PERFORM_EXECUTE_UTILITY_PAGE = "perform_execute_utility";
+	
+	public static String PLUGINS_PAGE = "plugins";
+	public static String PERFORM_EDIT_PLUGIN_PAGE = "perform_edit_plugin";
 	
 	@Override
 	protected Page getPage(String pageName) throws PageLoadException {
@@ -86,6 +91,10 @@ public class AdminPageFactory extends PageFactory {
 			return new ExecuteUtilityPage();
 		} else if (pageName.equals(PERFORM_EXECUTE_UTILITY_PAGE)) {
 			return new PerformExecuteUtilityPage();
+		} else if (pageName.equals(PLUGINS_PAGE)) {
+			return new PluginsPage();
+		} else if (pageName.equals(PERFORM_EDIT_PLUGIN_PAGE)) {
+			return new PerformEditPluginPage();
 		} else {
 			Iterator<? extends AdminPluginPageProvider> adminPluginPagesIter = Lookup.getDefault().lookupAll(AdminPluginPageProvider.class).iterator();
 			while (adminPluginPagesIter.hasNext()) {

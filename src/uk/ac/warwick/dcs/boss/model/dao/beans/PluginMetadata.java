@@ -1,13 +1,13 @@
 package uk.ac.warwick.dcs.boss.model.dao.beans;
 
-import java.util.jar.JarFile;
 
 public class PluginMetadata extends Entity {
 
 	private String pluginId;
+	private String name;
 	private String author;
 	private String email;
-	private int version;
+	private String version;
 	private String description;
 	/**
 	 * @return the pluginId
@@ -20,6 +20,18 @@ public class PluginMetadata extends Entity {
 	 */
 	public void setPluginId(String pluginId) {
 		this.pluginId = pluginId;
+	}
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
+	}
+	/**
+	 * @param name the name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
 	}
 	/**
 	 * @return the author
@@ -48,13 +60,13 @@ public class PluginMetadata extends Entity {
 	/**
 	 * @return the version
 	 */
-	public int getVersion() {
+	public String getVersion() {
 		return version;
 	}
 	/**
 	 * @param version the version to set
 	 */
-	public void setVersion(int version) {
+	public void setVersion(String version) {
 		this.version = version;
 	}
 	/**

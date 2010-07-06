@@ -29,6 +29,7 @@
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/tomcat-i18n-ja.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/velocity-1.6.4.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/org-openide-util-lookup.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/commons-io-1.4.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>

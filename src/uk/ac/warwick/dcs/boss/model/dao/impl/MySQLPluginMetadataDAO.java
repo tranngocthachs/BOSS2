@@ -17,10 +17,10 @@ import uk.ac.warwick.dcs.boss.model.dao.DAOException;
 import uk.ac.warwick.dcs.boss.model.dao.IPluginMetadataDAO;
 import uk.ac.warwick.dcs.boss.model.dao.beans.PluginMetadata;
 
-public class MySQLPluginMetadata extends MySQLEntityDAO<PluginMetadata>
+public class MySQLPluginMetadataDAO extends MySQLEntityDAO<PluginMetadata>
 		implements IPluginMetadataDAO {
 
-	public MySQLPluginMetadata(Connection connection) throws DAOException {
+	public MySQLPluginMetadataDAO(Connection connection) throws DAOException {
 		super(connection);
 	}
 
@@ -33,6 +33,7 @@ public class MySQLPluginMetadata extends MySQLEntityDAO<PluginMetadata>
 	public Collection<String> getDatabaseFieldNames() {
 		LinkedList<String> fieldNames = new LinkedList<String>();
 		fieldNames.add("plugin_id");
+		fieldNames.add("name");
 		fieldNames.add("author");
 		fieldNames.add("email");
 		fieldNames.add("version");
@@ -44,6 +45,7 @@ public class MySQLPluginMetadata extends MySQLEntityDAO<PluginMetadata>
 	public Collection<Object> getDatabaseValues(PluginMetadata entity) {
 		Vector<Object> output = new Vector<Object>();
 		output.add(entity.getPluginId());
+		output.add(entity.getName());
 		output.add(entity.getAuthor());
 		output.add(entity.getEmail());
 		output.add(entity.getVersion());
@@ -57,13 +59,14 @@ public class MySQLPluginMetadata extends MySQLEntityDAO<PluginMetadata>
 		PluginMetadata pluginMetadata = new PluginMetadata();
 		pluginMetadata.setPluginId(databaseValues.getString(tableName
 				+ ".plugin_id"));
+		pluginMetadata.setName(databaseValues.getString(tableName + ".name"));
 		pluginMetadata.setAuthor(databaseValues
 				.getString(tableName + ".author"));
 		pluginMetadata.setEmail(databaseValues.getString(tableName + ".email"));
-		pluginMetadata
-				.setVersion(databaseValues.getInt(tableName + ".version"));
-		pluginMetadata.setDescription(databaseValues.getString(tableName)
-				+ ".description");
+		pluginMetadata.setVersion(databaseValues.getString(tableName
+				+ ".version"));
+		pluginMetadata.setDescription(databaseValues.getString(tableName
+				+ ".description"));
 		return pluginMetadata;
 
 	}
@@ -77,7 +80,7 @@ public class MySQLPluginMetadata extends MySQLEntityDAO<PluginMetadata>
 	public File getMainJarFile(Long id) throws DAOException {
 		PluginMetadata pluginMetadata = retrievePersistentEntity(id);
 		return new File(PageDispatcherServlet.realPath, "WEB-INF"
-				+ File.separator + "lib" + File.separator
+				+ File.separator + "lib" + File.separator + "plugin_"
 				+ pluginMetadata.getPluginId() + ".jar");
 	}
 
@@ -102,8 +105,8 @@ public class MySQLPluginMetadata extends MySQLEntityDAO<PluginMetadata>
 					String fileName = rs.getString(1);
 					libJarFiles.add(new File(PageDispatcherServlet.realPath,
 							"WEB-INF" + File.separator + "lib" + File.separator
-									+ pluginMetadata.getPluginId() + "_"
-									+ fileName));
+									+ "plugin_" + pluginMetadata.getPluginId()
+									+ "_" + fileName));
 				}
 			}
 			rs.close();
@@ -120,29 +123,29 @@ public class MySQLPluginMetadata extends MySQLEntityDAO<PluginMetadata>
 			throws DAOException {
 		try {
 			PreparedStatement statement = getConnection().prepareStatement(
-					"DELETE FROM plugin_libfilenames "
-					+ "WHERE plugin_id=?");
+					"DELETE FROM plugin_libfilenames " + "WHERE plugin_id=?");
 			statement.setLong(1, id);
 
-			Logger.getLogger("mysql").log(Level.TRACE, "Executing: " + statement.toString());
+			Logger.getLogger("mysql").log(Level.TRACE,
+					"Executing: " + statement.toString());
 			statement.executeUpdate();
 			statement.close();
 
 			statement = getConnection().prepareStatement(
 					"INSERT INTO plugin_libfilenames (plugin_id, filename)"
-					+ "VALUES (?, ?)");
+							+ "VALUES (?, ?)");
 			for (String fileName : fileNames) {
 				statement.setLong(1, id);
 				statement.setString(2, fileName);
-				Logger.getLogger("mysql").log(Level.TRACE, "Executing: " + statement.toString());
+				Logger.getLogger("mysql").log(Level.TRACE,
+						"Executing: " + statement.toString());
 				statement.executeUpdate();
 			}
 			statement.close();
 		} catch (SQLException e) {
 			throw new DAOException("SQL error", e);
 		}
-		
-	}
 
+	}
 
 }
