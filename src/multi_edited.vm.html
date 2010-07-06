@@ -11,7 +11,9 @@
 		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 		<meta http-equiv="Content-Script-Type" content="text/javascript" />
 		<meta http-equiv="Content-Style-Type" content="text/css" />
+		#if( $nextPage )
 		<meta http-equiv="refresh" content="2;url=$nextPage?$nextPageParamName=$nextPageParamValue"/>
+		#end
 		<link rel="StyleSheet" href="$context.getStaticPath()/css/tables.css" type="text/css" media="screen"/>
 		<script type="text/javascript" src="$context.getStaticPath()/js/targethack.js"></script>
 	</head>
@@ -45,6 +47,10 @@
 				The operation was not completed successfully.
 			#end
 			</p>
+			#if( $message )
+			<p>$message</p>
+			#end
+			#if( $nextPage )
 			<p>
 				Please wait while we redirect you.  Alternatively, you may click the button to continue.
 			</p>
@@ -52,6 +58,7 @@
 				<input type="hidden" name="$nextPageParamName" value="$nextPageParamValue"/>
 				<input type="submit" value="Continue..."/>
 			</form>
+			#end
 		</div>
 			
 		<div class="navbar">

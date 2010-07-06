@@ -100,14 +100,12 @@ public class MySQLPluginMetadataDAO extends MySQLEntityDAO<PluginMetadata>
 					"Executing: " + statementObject.toString());
 			ResultSet rs = statementObject.executeQuery();
 			libJarFiles = new LinkedList<File>();
-			if (rs.first()) {
-				while (rs.next()) {
-					String fileName = rs.getString(1);
-					libJarFiles.add(new File(PageDispatcherServlet.realPath,
-							"WEB-INF" + File.separator + "lib" + File.separator
-									+ "plugin_" + pluginMetadata.getPluginId()
-									+ "_" + fileName));
-				}
+			while (rs.next()) {
+				String fileName = rs.getString(1);
+				libJarFiles.add(new File(PageDispatcherServlet.realPath,
+						"WEB-INF" + File.separator + "lib" + File.separator
+								+ "plugin_" + pluginMetadata.getPluginId()
+								+ "_" + fileName));
 			}
 			rs.close();
 			statementObject.close();

@@ -27,6 +27,7 @@ import org.apache.velocity.VelocityContext;
 
 import uk.ac.warwick.dcs.boss.frontend.Page;
 import uk.ac.warwick.dcs.boss.frontend.PageContext;
+import uk.ac.warwick.dcs.boss.frontend.PageDispatcherServlet;
 import uk.ac.warwick.dcs.boss.frontend.PageLoadException;
 import uk.ac.warwick.dcs.boss.frontend.sites.AdminPageFactory;
 import uk.ac.warwick.dcs.boss.model.FactoryException;
@@ -55,6 +56,15 @@ public class PerformEditPluginPage extends Page {
 	protected void handlePost(PageContext pageContext, Template template,
 			VelocityContext templateContext) throws ServletException,
 			IOException {
+		IDAOSession f;
+		try {
+			DAOFactory df = (DAOFactory) FactoryRegistrar
+					.getFactory(DAOFactory.class);
+			f = df.getInstance();
+		} catch (FactoryException e) {
+			throw new ServletException("dao init error", e);
+		}
+
 		if (pageContext.hasUploadedFiles()) {
 			InputStream in = null;
 			String uploadedFilename = null;
@@ -128,8 +138,8 @@ public class PerformEditPluginPage extends Page {
 
 			// valid plugin file (as far as MANIFEST file goes)
 			String pluginId = atts.getValue(PLUGIN_ID);
-			File pluginFolder = new File(pageContext.getWebInfFolderPath(),
-			"plugins");
+			File webInfDir = new File(PageDispatcherServlet.realPath, "WEB-INF");
+			File pluginFolder = new File(webInfDir, "plugins");
 
 			// archiving the plugin file under WEB-INF/plugins/
 			// since the pluginId is unique, there shouldn't be a collision
@@ -138,8 +148,7 @@ public class PerformEditPluginPage extends Page {
 			FileUtils.copyFile(pluginFile, pluginJarFile);
 
 			// make the plugin active by copy the jar file into WEB-INF/lib
-			File webAppLibFolder = new File(pageContext.getWebInfFolderPath(),
-			"lib");
+			File webAppLibFolder = new File(webInfDir, "lib");
 			pluginJarFile = new File(webAppLibFolder, "plugin_" + pluginId
 					+ ".jar");
 			FileUtils.copyFile(pluginFile, pluginJarFile);
@@ -178,20 +187,11 @@ public class PerformEditPluginPage extends Page {
 				}
 			}
 
-			// create and persist PluginMetadata entity
-			IDAOSession f;
-			try {
-				DAOFactory df = (DAOFactory) FactoryRegistrar
-				.getFactory(DAOFactory.class);
-				f = df.getInstance();
-			} catch (FactoryException e) {
-				throw new ServletException("dao init error", e);
-			}
-			
 			try {
 				f.beginTransaction();
-				
-				// create a PluginMetadata entity and set the corresponding values
+
+				// create a PluginMetadata entity and set the corresponding
+				// values
 				PluginMetadata pluginMetadata = new PluginMetadata();
 				pluginMetadata.setPluginId(atts.getValue(PLUGIN_ID));
 				pluginMetadata.setName(atts.getValue(PLUGIN_NAME));
@@ -201,16 +201,21 @@ public class PerformEditPluginPage extends Page {
 				if (atts.containsKey(PLUGIN_EMAIL))
 					pluginMetadata.setEmail(atts.getValue(PLUGIN_EMAIL));
 				if (atts.containsKey(PLUGIN_DESCRIPTION))
-					pluginMetadata.setDescription(atts.getValue(PLUGIN_DESCRIPTION));
-				
+					pluginMetadata.setDescription(atts
+							.getValue(PLUGIN_DESCRIPTION));
+
 				// persist into database
-				IPluginMetadataDAO pluginMetadataDao = f.getPluginMetadataDAOInstance();
-				pluginMetadata.setId(pluginMetadataDao.createPersistentCopy(pluginMetadata));
-				
+				IPluginMetadataDAO pluginMetadataDao = f
+						.getPluginMetadataDAOInstance();
+				pluginMetadata.setId(pluginMetadataDao
+						.createPersistentCopy(pluginMetadata));
+
 				// set lib filenames if there're some
 				if (!libFileNames.isEmpty())
-					pluginMetadataDao.setLibJarFileNames(pluginMetadata.getId(), libFileNames.toArray(new String[0]));
-				
+					pluginMetadataDao.setLibJarFileNames(
+							pluginMetadata.getId(),
+							libFileNames.toArray(new String[0]));
+
 				// done
 				f.endTransaction();
 			} catch (DAOException e) {
@@ -218,15 +223,56 @@ public class PerformEditPluginPage extends Page {
 				throw new ServletException("dao exception");
 			}
 			FileUtils.deleteDirectory(tempDir);
-			templateContext.put("greet", pageContext.getSession().getPersonBinding().getChosenName());
+			templateContext.put("greet", pageContext.getSession()
+					.getPersonBinding().getChosenName());
 			templateContext.put("success", true);
-			templateContext.put("nextPage", pageContext.getPageUrl(AdminPageFactory.SITE_NAME, AdminPageFactory.PLUGINS_PAGE));
-			templateContext.put("nextPageParamName", "dummy");
-			templateContext.put("nextPageParamValue", "nothing");
+			templateContext.put("message", "Please restart BOSS for the change to take effect");
 			pageContext.renderTemplate(template, templateContext);
 		} else {
 			String doString = pageContext.getParameter("do");
 			if (doString != null && doString.equals("Delete")) {
+				String pluginString = pageContext.getParameter("plugin");
+				if (pluginString == null || pluginString.isEmpty()) {
+					throw new ServletException("Unexpected POST request");
+				}
+				Long pId = Long.valueOf(pluginString);
+
+				try {
+					f.beginTransaction();
+
+					// delete all the jar files
+					IPluginMetadataDAO pluginMetadataDao = f
+							.getPluginMetadataDAOInstance();
+					PluginMetadata pluginMetadata = pluginMetadataDao
+							.retrievePersistentEntity(pId);
+					File mainJarFile = pluginMetadataDao.getMainJarFile(pId);
+					mainJarFile.delete();
+					File[] libJarFiles = pluginMetadataDao.getLibJarFiles(pId);
+					for (int i = 0; i < libJarFiles.length; i++) {
+						libJarFiles[i].delete();
+					}
+					File webInfDir = new File(PageDispatcherServlet.realPath,
+							"WEB-INF");
+					File pluginStorageDir = new File(webInfDir, "plugins");
+					File thisPluginJar = new File(pluginStorageDir,
+							pluginMetadata.getPluginId() + ".jar");
+					thisPluginJar.delete();
+
+					// delete metadata in database
+					pluginMetadataDao.deletePersistentEntity(pId);
+
+					// done
+					f.endTransaction();
+
+					templateContext.put("greet", pageContext.getSession()
+							.getPersonBinding().getChosenName());
+					templateContext.put("success", true);
+					templateContext.put("message", "Please restart BOSS for the change to take effect");
+					pageContext.renderTemplate(template, templateContext);
+				} catch (DAOException e) {
+					f.abortTransaction();
+					throw new ServletException("dao exception");
+				}
 
 			} else {
 				throw new ServletException("Unexpected POST request");
@@ -235,15 +281,15 @@ public class PerformEditPluginPage extends Page {
 	}
 
 	public static final Attributes.Name PLUGIN_ID = new Attributes.Name(
-	"BOSS-Plugin-Id");
+			"BOSS-Plugin-Id");
 	public static final Attributes.Name PLUGIN_NAME = new Attributes.Name(
-	"BOSS-Plugin-Name");
+			"BOSS-Plugin-Name");
 	public static final Attributes.Name PLUGIN_AUTHOR = new Attributes.Name(
-	"BOSS-Plugin-Author");
+			"BOSS-Plugin-Author");
 	public static final Attributes.Name PLUGIN_EMAIL = new Attributes.Name(
-	"BOSS-Plugin-Email");
+			"BOSS-Plugin-Email");
 	public static final Attributes.Name PLUGIN_VERSION = new Attributes.Name(
-	"BOSS-Plugin-Version");
+			"BOSS-Plugin-Version");
 	public static final Attributes.Name PLUGIN_DESCRIPTION = new Attributes.Name(
-	"BOSS-Plugin-Description");
+			"BOSS-Plugin-Description");
 }

@@ -396,8 +396,7 @@ public class PageContext {
 	public String getConfigurationFilePath() {
 		return this.context.getRealPath("WEB-INF/config.properties");
 	}
-	
-	public String getWebInfFolderPath() {
-		return this.context.getRealPath("WEB-INF");
+	public String getContextPath() {
+		return this.context.getContextPath();
 	}
 }
