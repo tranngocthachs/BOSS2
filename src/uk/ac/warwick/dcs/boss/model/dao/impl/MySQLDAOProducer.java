@@ -38,8 +38,8 @@ import uk.ac.warwick.dcs.boss.model.dao.IStaffInterfaceQueriesDAO;
 import uk.ac.warwick.dcs.boss.model.dao.IStudentInterfaceQueriesDAO;
 import uk.ac.warwick.dcs.boss.model.dao.ISubmissionDAO;
 import uk.ac.warwick.dcs.boss.model.dao.ITestDAO;
-import uk.ac.warwick.dcs.boss.model.dao.beans.spi.PluginEntity;
-import uk.ac.warwick.dcs.boss.model.dao.impl.spi.MySQLPluginEntityDAO;
+import uk.ac.warwick.dcs.boss.plugins.spi.dao.MySQLPluginEntityDAO;
+import uk.ac.warwick.dcs.boss.plugins.spi.dao.PluginEntity;
 
 public class MySQLDAOProducer implements IDAOSession {
 	
@@ -124,6 +124,9 @@ public class MySQLDAOProducer implements IDAOSession {
 				executeAndLog(logger, statement, "DROP TABLE IF EXISTS person");
 
 				executeAndLog(logger, statement, "DROP TABLE IF EXISTS version");
+				
+				executeAndLog(logger, statement, "DROP TABLE IF EXISTS pluginmetadata");
+				executeAndLog(logger, statement, "DROP TABLE IF EXISTS plugin_libfilenames");
 				
 				statement.close();
 				
@@ -326,6 +329,24 @@ public class MySQLDAOProducer implements IDAOSession {
 				executeAndLog(logger, statement, "CREATE TABLE IF NOT EXISTS version (version INT NOT NULL)");
 				executeAndLog(logger, statement, "DELETE FROM version");
 				executeAndLog(logger, statement, "INSERT INTO version (version) VALUES (" + STORAGE_VERSION_1_2 + ")");
+				
+				
+				executeAndLog(logger, statement, "CREATE TABLE pluginmetadata (" +
+						"  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY," +
+						"  plugin_id varchar(30) NOT NULL," +
+						"  name varchar(64) NOT NULL," +
+						"  author varchar(64) DEFAULT NULL," +
+						"  email varchar(64) DEFAULT NULL," +
+						"  version varchar(20) NOT NULL," +
+						"  description text,"+
+						"  PRIMARY KEY (id),"+
+						"  UNIQUE KEY plugin_id (plugin_id)" +
+						") ENGINE=InnoDB");
+				executeAndLog(logger, statement, " CREATE TABLE plugin_libfilenames (" +
+						"  plugin_id NOT NULL," +
+						"  filename varchar(64) NOT NULL," +
+						"  FOREIGN KEY (plugin_id) REFERENCES pluginmetadata(id) ON DELETE CASCADE" +
+						") ENGINE=InnoDB");
 				
 				statement.close();
 			} catch (SQLException e) {

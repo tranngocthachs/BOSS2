@@ -25,7 +25,7 @@ import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.PerformTestPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.SubmissionsPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.SubmitPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.TestPage;
-import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.spi.StudentPluginPageProvider;
+import uk.ac.warwick.dcs.boss.plugins.spi.pages.StudentPluginPageProvider;
 
 public class StudentPageFactory extends PageFactory {
 

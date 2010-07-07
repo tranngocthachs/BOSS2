@@ -1,8 +1,7 @@
-package uk.ac.warwick.dcs.boss.model.dao.impl.spi;
+package uk.ac.warwick.dcs.boss.plugins.spi.dao;
 
 
 import uk.ac.warwick.dcs.boss.model.dao.DAOException;
-import uk.ac.warwick.dcs.boss.model.dao.beans.spi.PluginEntity;
 import uk.ac.warwick.dcs.boss.model.dao.impl.MySQLEntityDAO;
 
 /**

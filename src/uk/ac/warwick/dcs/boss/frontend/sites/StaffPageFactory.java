@@ -59,8 +59,8 @@ import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.TestHashPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.TestsPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.UploadAssignmentResourcePage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.UploadTestResourcePage;
-import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.spi.StaffPluginPageProvider;
-import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.spi.StudentPluginPageProvider;
+import uk.ac.warwick.dcs.boss.plugins.spi.pages.StaffPluginPageProvider;
+import uk.ac.warwick.dcs.boss.plugins.spi.pages.StudentPluginPageProvider;
 
 public class StaffPageFactory extends PageFactory {
 

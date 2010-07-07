@@ -1,6 +1,6 @@
 package uk.ac.warwick.dcs.boss.model.dao;
 
-import uk.ac.warwick.dcs.boss.model.dao.beans.spi.PluginEntity;
+import uk.ac.warwick.dcs.boss.plugins.spi.dao.PluginEntity;
 
 public interface IDAOSession {
 

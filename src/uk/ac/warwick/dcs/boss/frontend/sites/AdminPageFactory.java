@@ -27,7 +27,7 @@ import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PerformFindModuleAdminis
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PerformRemoveModuleAdministratorPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PluginsPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.UtilitiesPage;
-import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.spi.AdminPluginPageProvider;
+import uk.ac.warwick.dcs.boss.plugins.spi.pages.AdminPluginPageProvider;
 
 public class AdminPageFactory extends PageFactory {
 

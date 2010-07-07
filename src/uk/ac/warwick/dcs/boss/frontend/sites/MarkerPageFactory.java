@@ -17,7 +17,7 @@ import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.PerformTestPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.StudentsPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.SubmissionsPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.TestPage;
-import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.spi.MarkerPluginPageProvider;
+import uk.ac.warwick.dcs.boss.plugins.spi.pages.MarkerPluginPageProvider;
 
 public class MarkerPageFactory extends PageFactory {
 

@@ -1,4 +1,4 @@
-package uk.ac.warwick.dcs.boss.frontend.sites.adminpages.spi;
+package uk.ac.warwick.dcs.boss.plugins.spi.pages;
 
 import java.io.IOException;
 
@@ -11,18 +11,18 @@ import uk.ac.warwick.dcs.boss.frontend.Page;
 import uk.ac.warwick.dcs.boss.frontend.PageContext;
 import uk.ac.warwick.dcs.boss.frontend.PageLoadException;
 
-public abstract class AdminPluginPageProvider extends Page {
+public abstract class MarkerPluginPageProvider extends Page {
 
-	private AdminPluginPageProvider(String pageTemplate,
+	private MarkerPluginPageProvider(String pageTemplate,
 			AccessLevel accessLevel) throws PageLoadException {
 		super(pageTemplate, accessLevel);
 	}
 	
-	public AdminPluginPageProvider(String pageTemplate) throws PageLoadException {
-		super(pageTemplate, AccessLevel.ADMIN);
+	public MarkerPluginPageProvider(String pageTemplate) throws PageLoadException {
+		super(pageTemplate, AccessLevel.USER);
 	}
 	
-	public AdminPluginPageProvider() throws PageLoadException {
+	public MarkerPluginPageProvider() throws PageLoadException {
 		this(null, null);
 	}
 
