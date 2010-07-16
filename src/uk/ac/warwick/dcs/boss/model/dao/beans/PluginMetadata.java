@@ -9,6 +9,9 @@ public class PluginMetadata extends Entity {
 	private String email;
 	private String version;
 	private String description;
+	private String[] libFilenames;
+	private Boolean enable;
+	
 	/**
 	 * @return the pluginId
 	 */
@@ -80,5 +83,29 @@ public class PluginMetadata extends Entity {
 	 */
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	/**
+	 * @return the libFilenames
+	 */
+	public String[] getLibFilenames() {
+		return libFilenames;
+	}
+	/**
+	 * @param libFilenames the libFilenames to set
+	 */
+	public void setLibFilenames(String[] libFilenames) {
+		this.libFilenames = libFilenames;
+	}
+	/**
+	 * @return the enable
+	 */
+	public Boolean getEnable() {
+		return enable;
+	}
+	/**
+	 * @param enable the enable to set
+	 */
+	public void setEnable(Boolean enable) {
+		this.enable = enable;
 	}
 }

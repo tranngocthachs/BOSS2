@@ -126,7 +126,6 @@ public class MySQLDAOProducer implements IDAOSession {
 				executeAndLog(logger, statement, "DROP TABLE IF EXISTS version");
 				
 				executeAndLog(logger, statement, "DROP TABLE IF EXISTS pluginmetadata");
-				executeAndLog(logger, statement, "DROP TABLE IF EXISTS plugin_libfilenames");
 				
 				statement.close();
 				
@@ -338,14 +337,11 @@ public class MySQLDAOProducer implements IDAOSession {
 						"  author varchar(64) DEFAULT NULL," +
 						"  email varchar(64) DEFAULT NULL," +
 						"  version varchar(20) NOT NULL," +
-						"  description text,"+
-						"  PRIMARY KEY (id),"+
+						"  description text," +
+						"  lib_filenames text," +
+						"  enable BOOLEAN NOT NULL," +
+						"  PRIMARY KEY (id)," +
 						"  UNIQUE KEY plugin_id (plugin_id)" +
-						") ENGINE=InnoDB");
-				executeAndLog(logger, statement, " CREATE TABLE plugin_libfilenames (" +
-						"  plugin_id NOT NULL," +
-						"  filename varchar(64) NOT NULL," +
-						"  FOREIGN KEY (plugin_id) REFERENCES pluginmetadata(id) ON DELETE CASCADE" +
 						") ENGINE=InnoDB");
 				
 				statement.close();

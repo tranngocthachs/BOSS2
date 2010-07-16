@@ -43,6 +43,7 @@
 						<th>Version</th>
 						<th>Description</th>
 						<th>Author</th>
+						<th>Enable</th>
 						<th>Actions</th>
 					</tr>
 				</thead>
@@ -61,16 +62,34 @@
 							$plugin.getVersion()
 						</td>
 						<td>
+							#if($plugin.getDescription)
 							$plugin.getDescription()
+							#end
 						</td>
 						<td>
+							#if($plugin.getEmail() && $plugin.getAuthor())
 							<a href="mailto:$plugin.getEmail()">$plugin.getAuthor()</a>
+							#elseif($plugin.getAuthor())
+							$plugin.getAuthor()
+							#end
+						</td>
+						<td>
+							#if($plugin.getEnable())
+							Yes
+							#else
+							No
+							#end
 						</td>
 						<td>
 							<form method="post" action="$context.getPageUrl("admin", "perform_edit_plugin")">
 								<p>
 									<input type="hidden" name="plugin" value="$plugin.getId()"/>
 									<input type="submit" name="do" value="Delete"/><br />
+									#if($plugin.getEnable())
+									<input type="submit" name="do" value="Disable"/><br />
+									#else
+									<input type="submit" name="do" value="Enable"/><br />
+									#end
 								</p>
 							</form>
 						</td>								

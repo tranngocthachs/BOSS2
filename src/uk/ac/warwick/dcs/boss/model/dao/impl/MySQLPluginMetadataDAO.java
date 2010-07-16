@@ -1,18 +1,12 @@
 package uk.ac.warwick.dcs.boss.model.dao.impl;
 
-import java.io.File;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Vector;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-
-import uk.ac.warwick.dcs.boss.frontend.PageDispatcherServlet;
 import uk.ac.warwick.dcs.boss.model.dao.DAOException;
 import uk.ac.warwick.dcs.boss.model.dao.IPluginMetadataDAO;
 import uk.ac.warwick.dcs.boss.model.dao.beans.PluginMetadata;
@@ -38,6 +32,8 @@ public class MySQLPluginMetadataDAO extends MySQLEntityDAO<PluginMetadata>
 		fieldNames.add("email");
 		fieldNames.add("version");
 		fieldNames.add("description");
+		fieldNames.add("lib_filenames");
+		fieldNames.add("enable");
 		return fieldNames;
 	}
 
@@ -50,6 +46,19 @@ public class MySQLPluginMetadataDAO extends MySQLEntityDAO<PluginMetadata>
 		output.add(entity.getEmail());
 		output.add(entity.getVersion());
 		output.add(entity.getDescription());
+		String[] libFilenames = entity.getLibFilenames();
+		Object libFileNameObj = null;
+		if (libFilenames != null) {
+			StringBuffer libFilenameStr = new StringBuffer();
+			for (int i = 0; i < libFilenames.length; i++) {
+				libFilenameStr.append(libFilenames[i].trim());
+				if ( i < libFilenames.length - 1)
+					libFilenameStr.append(":");
+			}
+			libFileNameObj = libFilenameStr.toString();
+		}
+		output.add(libFileNameObj);
+		output.add(entity.getEnable());
 		return output;
 	}
 
@@ -67,83 +76,18 @@ public class MySQLPluginMetadataDAO extends MySQLEntityDAO<PluginMetadata>
 				+ ".version"));
 		pluginMetadata.setDescription(databaseValues.getString(tableName
 				+ ".description"));
+		String[] libFilenames = null;
+		String libFilenameStr = databaseValues.getString(tableName + ".lib_filenames");
+		if (libFilenameStr != null) {
+			libFilenames = libFilenameStr.split("\\s*:\\s*");
+		}
+		pluginMetadata.setLibFilenames(libFilenames);
+		pluginMetadata.setEnable(databaseValues.getBoolean(tableName + ".enable"));
 		return pluginMetadata;
-
 	}
 
 	@Override
 	public String getMySQLSortingString() {
 		return "id DESC";
 	}
-
-	@Override
-	public File getMainJarFile(Long id) throws DAOException {
-		PluginMetadata pluginMetadata = retrievePersistentEntity(id);
-		return new File(PageDispatcherServlet.realPath, "WEB-INF"
-				+ File.separator + "lib" + File.separator + "plugin_"
-				+ pluginMetadata.getPluginId() + ".jar");
-	}
-
-	@Override
-	public File[] getLibJarFiles(Long id) throws DAOException {
-
-		try {
-			PluginMetadata pluginMetadata = retrievePersistentEntity(id);
-			LinkedList<File> libJarFiles = null;
-			String statementString = "SELECT filename FROM plugin_libfilenames WHERE plugin_id=?";
-			PreparedStatement statementObject = getConnection()
-					.prepareStatement(statementString);
-			statementObject.setObject(1, id);
-
-			// Execute the statement.
-			Logger.getLogger("mysql").log(Level.TRACE,
-					"Executing: " + statementObject.toString());
-			ResultSet rs = statementObject.executeQuery();
-			libJarFiles = new LinkedList<File>();
-			while (rs.next()) {
-				String fileName = rs.getString(1);
-				libJarFiles.add(new File(PageDispatcherServlet.realPath,
-						"WEB-INF" + File.separator + "lib" + File.separator
-								+ "plugin_" + pluginMetadata.getPluginId()
-								+ "_" + fileName));
-			}
-			rs.close();
-			statementObject.close();
-			return libJarFiles.toArray(new File[0]);
-		} catch (SQLException e) {
-			throw new DAOException("sql error", e);
-		}
-
-	}
-
-	@Override
-	public void setLibJarFileNames(Long id, String[] fileNames)
-			throws DAOException {
-		try {
-			PreparedStatement statement = getConnection().prepareStatement(
-					"DELETE FROM plugin_libfilenames " + "WHERE plugin_id=?");
-			statement.setLong(1, id);
-
-			Logger.getLogger("mysql").log(Level.TRACE,
-					"Executing: " + statement.toString());
-			statement.executeUpdate();
-			statement.close();
-
-			statement = getConnection().prepareStatement(
-					"INSERT INTO plugin_libfilenames (plugin_id, filename)"
-							+ "VALUES (?, ?)");
-			for (String fileName : fileNames) {
-				statement.setLong(1, id);
-				statement.setString(2, fileName);
-				Logger.getLogger("mysql").log(Level.TRACE,
-						"Executing: " + statement.toString());
-				statement.executeUpdate();
-			}
-			statement.close();
-		} catch (SQLException e) {
-			throw new DAOException("SQL error", e);
-		}
-
-	}
-
 }

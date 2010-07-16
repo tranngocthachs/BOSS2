@@ -1,6 +1,5 @@
 package uk.ac.warwick.dcs.boss.frontend.sites.adminpages;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -8,13 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Enumeration;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Properties;
-import java.util.jar.Attributes;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
 import javax.servlet.ServletException;
 
@@ -27,9 +20,7 @@ import org.apache.velocity.VelocityContext;
 
 import uk.ac.warwick.dcs.boss.frontend.Page;
 import uk.ac.warwick.dcs.boss.frontend.PageContext;
-import uk.ac.warwick.dcs.boss.frontend.PageDispatcherServlet;
 import uk.ac.warwick.dcs.boss.frontend.PageLoadException;
-import uk.ac.warwick.dcs.boss.frontend.sites.AdminPageFactory;
 import uk.ac.warwick.dcs.boss.model.FactoryException;
 import uk.ac.warwick.dcs.boss.model.FactoryRegistrar;
 import uk.ac.warwick.dcs.boss.model.dao.DAOException;
@@ -38,6 +29,7 @@ import uk.ac.warwick.dcs.boss.model.dao.IDAOSession;
 import uk.ac.warwick.dcs.boss.model.dao.IPluginMetadataDAO;
 import uk.ac.warwick.dcs.boss.model.dao.beans.PluginMetadata;
 import uk.ac.warwick.dcs.boss.model.testing.impl.TemporaryDirectory;
+import uk.ac.warwick.dcs.boss.plugins.PluginManager;
 
 public class PerformEditPluginPage extends Page {
 
@@ -117,112 +109,33 @@ public class PerformEditPluginPage extends Page {
 				if (out != null)
 					out.close();
 			}
-			JarFile jarFile = null;
-			Attributes atts = null;
-
+			
+			// we have a pluginFile at this point
+			PluginMetadata pluginMetadata = null;
 			try {
-				// we have the plugin in a jar file
-				jarFile = new JarFile(pluginFile);
-				atts = jarFile.getManifest().getMainAttributes();
-
-				// manifest file is required to supplied at least plugin's id,
-				// name, and version
-				if (!atts.containsKey(PLUGIN_ID)
-						|| !atts.containsKey(PLUGIN_NAME)
-						|| !atts.containsKey(PLUGIN_VERSION)) {
-					throw new IOException();
-				}
-			} catch (IOException e) {
-				throw new ServletException("Supplied file is not a BOSS plugin");
+				// install the plugin
+				pluginMetadata = PluginManager.installPlugin(pluginFile);
+			} catch (Exception e) {
+				throw new ServletException("Error while installing plugin", e);
 			}
-
-			// valid plugin file (as far as MANIFEST file goes)
-			String pluginId = atts.getValue(PLUGIN_ID);
-			File webInfDir = new File(PageDispatcherServlet.realPath, "WEB-INF");
-			File pluginFolder = new File(webInfDir, "plugins");
-
-			// archiving the plugin file under WEB-INF/plugins/
-			// since the pluginId is unique, there shouldn't be a collision
-			// regarding name
-			File pluginJarFile = new File(pluginFolder, pluginId + ".jar");
-			FileUtils.copyFile(pluginFile, pluginJarFile);
-
-			// make the plugin active by copy the jar file into WEB-INF/lib
-			File webAppLibFolder = new File(webInfDir, "lib");
-			pluginJarFile = new File(webAppLibFolder, "plugin_" + pluginId
-					+ ".jar");
-			FileUtils.copyFile(pluginFile, pluginJarFile);
-
-			// copy the dependencies of the plugin (residing under lib folder of
-			// the plugin's jar file) if exists.
-			List<String> libFileNames = new LinkedList<String>();
-			Enumeration<JarEntry> enumeration = jarFile.entries();
-			while (enumeration.hasMoreElements()) {
-				JarEntry entry = enumeration.nextElement();
-				String entryName = entry.getName();
-				if (entryName.startsWith("lib/") && entryName.endsWith(".jar")) {
-					String[] entryPathComps = entryName.split("/");
-					String libFileName = entryPathComps[entryPathComps.length - 1];
-					libFileNames.add(libFileName);
-					File destLibFile = new File(webAppLibFolder, "plugin_"
-							+ pluginId + "_" + libFileName);
-					in = null;
-					out = null;
-					try {
-						in = new BufferedInputStream(
-								jarFile.getInputStream(entry));
-						out = new BufferedOutputStream(new FileOutputStream(
-								destLibFile));
-						int c;
-						while ((c = in.read()) != -1) {
-							out.write(c);
-						}
-						out.flush();
-					} finally {
-						if (in != null)
-							in.close();
-						if (out != null)
-							out.close();
-					}
-				}
-			}
-
+			
+			FileUtils.deleteDirectory(tempDir);
 			try {
 				f.beginTransaction();
-
-				// create a PluginMetadata entity and set the corresponding
-				// values
-				PluginMetadata pluginMetadata = new PluginMetadata();
-				pluginMetadata.setPluginId(atts.getValue(PLUGIN_ID));
-				pluginMetadata.setName(atts.getValue(PLUGIN_NAME));
-				pluginMetadata.setVersion(atts.getValue(PLUGIN_VERSION));
-				if (atts.containsKey(PLUGIN_AUTHOR))
-					pluginMetadata.setAuthor(atts.getValue(PLUGIN_AUTHOR));
-				if (atts.containsKey(PLUGIN_EMAIL))
-					pluginMetadata.setEmail(atts.getValue(PLUGIN_EMAIL));
-				if (atts.containsKey(PLUGIN_DESCRIPTION))
-					pluginMetadata.setDescription(atts
-							.getValue(PLUGIN_DESCRIPTION));
-
+				
 				// persist into database
 				IPluginMetadataDAO pluginMetadataDao = f
 						.getPluginMetadataDAOInstance();
 				pluginMetadata.setId(pluginMetadataDao
 						.createPersistentCopy(pluginMetadata));
 
-				// set lib filenames if there're some
-				if (!libFileNames.isEmpty())
-					pluginMetadataDao.setLibJarFileNames(
-							pluginMetadata.getId(),
-							libFileNames.toArray(new String[0]));
-
 				// done
 				f.endTransaction();
 			} catch (DAOException e) {
 				f.abortTransaction();
-				throw new ServletException("dao exception");
+				throw new ServletException("dao exception", e);
 			}
-			FileUtils.deleteDirectory(tempDir);
+			
 			templateContext.put("greet", pageContext.getSession()
 					.getPersonBinding().getChosenName());
 			templateContext.put("success", true);
@@ -230,7 +143,7 @@ public class PerformEditPluginPage extends Page {
 			pageContext.renderTemplate(template, templateContext);
 		} else {
 			String doString = pageContext.getParameter("do");
-			if (doString != null && doString.equals("Delete")) {
+			if (doString != null) {
 				String pluginString = pageContext.getParameter("plugin");
 				if (pluginString == null || pluginString.isEmpty()) {
 					throw new ServletException("Unexpected POST request");
@@ -240,26 +153,27 @@ public class PerformEditPluginPage extends Page {
 				try {
 					f.beginTransaction();
 
-					// delete all the jar files
 					IPluginMetadataDAO pluginMetadataDao = f
 							.getPluginMetadataDAOInstance();
 					PluginMetadata pluginMetadata = pluginMetadataDao
 							.retrievePersistentEntity(pId);
-					File mainJarFile = pluginMetadataDao.getMainJarFile(pId);
-					mainJarFile.delete();
-					File[] libJarFiles = pluginMetadataDao.getLibJarFiles(pId);
-					for (int i = 0; i < libJarFiles.length; i++) {
-						libJarFiles[i].delete();
-					}
-					File webInfDir = new File(PageDispatcherServlet.realPath,
-							"WEB-INF");
-					File pluginStorageDir = new File(webInfDir, "plugins");
-					File thisPluginJar = new File(pluginStorageDir,
-							pluginMetadata.getPluginId() + ".jar");
-					thisPluginJar.delete();
+					
+					if (doString.equals("Delete")) {
+						// uninstall
+						PluginManager.uninstallPlugin(pluginMetadata);
 
-					// delete metadata in database
-					pluginMetadataDao.deletePersistentEntity(pId);
+						// delete metadata in database
+						pluginMetadataDao.deletePersistentEntity(pId);
+
+					}
+					else if (doString.equals("Enable")) {
+						PluginManager.enablePlugin(pluginMetadata);
+						pluginMetadataDao.updatePersistentEntity(pluginMetadata);
+					}
+					else if (doString.equals("Disable")) {
+						PluginManager.disablePlugin(pluginMetadata);
+						pluginMetadataDao.updatePersistentEntity(pluginMetadata);
+					}
 
 					// done
 					f.endTransaction();
@@ -279,17 +193,4 @@ public class PerformEditPluginPage extends Page {
 			}
 		}
 	}
-
-	public static final Attributes.Name PLUGIN_ID = new Attributes.Name(
-			"BOSS-Plugin-Id");
-	public static final Attributes.Name PLUGIN_NAME = new Attributes.Name(
-			"BOSS-Plugin-Name");
-	public static final Attributes.Name PLUGIN_AUTHOR = new Attributes.Name(
-			"BOSS-Plugin-Author");
-	public static final Attributes.Name PLUGIN_EMAIL = new Attributes.Name(
-			"BOSS-Plugin-Email");
-	public static final Attributes.Name PLUGIN_VERSION = new Attributes.Name(
-			"BOSS-Plugin-Version");
-	public static final Attributes.Name PLUGIN_DESCRIPTION = new Attributes.Name(
-			"BOSS-Plugin-Description");
 }
