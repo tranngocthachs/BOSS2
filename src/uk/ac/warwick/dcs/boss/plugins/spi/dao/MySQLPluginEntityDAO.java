@@ -1,6 +1,8 @@
 package uk.ac.warwick.dcs.boss.plugins.spi.dao;
 
 
+import java.lang.reflect.ParameterizedType;
+
 import uk.ac.warwick.dcs.boss.model.dao.DAOException;
 import uk.ac.warwick.dcs.boss.model.dao.impl.MySQLEntityDAO;
 
@@ -10,7 +12,13 @@ import uk.ac.warwick.dcs.boss.model.dao.impl.MySQLEntityDAO;
  *
  */
 public abstract class MySQLPluginEntityDAO<E extends PluginEntity> extends MySQLEntityDAO<E> {
+	protected Class<E> entityType;
+	public Class<E> getEntityType() {
+		return entityType;
+	}
 	
-	abstract public boolean tableCreated();
-	abstract public void createTable() throws DAOException;
+	@SuppressWarnings("unchecked")
+	public MySQLPluginEntityDAO() {
+		this.entityType = ((Class<E>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
+	}
 }

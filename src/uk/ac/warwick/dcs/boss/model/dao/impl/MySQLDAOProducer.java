@@ -636,27 +636,18 @@ public class MySQLDAOProducer implements IDAOSession {
 		}
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public IEntityDAO<? extends PluginEntity> getAdditionalDAOInstance(
 			Class<? extends PluginEntity> clazz) throws DAOException {
-		Collection<? extends PluginEntity> availablePluginEntities = Lookup.getDefault().lookupAll(PluginEntity.class);
-		Iterator<? extends PluginEntity> iter = availablePluginEntities.iterator();
-		while (iter.hasNext()) {
-			PluginEntity pluginEntity = iter.next();
-			if (pluginEntity.getClass().equals(clazz)) {
-				Class<? extends IEntityDAO<? extends PluginEntity>> associatedDaoClass = pluginEntity.getAssiociatedDAO();
-				Iterator<? extends MySQLPluginEntityDAO> ite = Lookup.getDefault().lookupAll(MySQLPluginEntityDAO.class).iterator();
-				while (ite.hasNext()) {
-					MySQLPluginEntityDAO pluginEntityDao = ite.next();
-					if (pluginEntityDao.getClass().equals(associatedDaoClass)) { 
-						pluginEntityDao.setConnection(connection);
-						if (!pluginEntityDao.tableCreated())
-							pluginEntityDao.createTable();
-						return pluginEntityDao;
-					}
-				}
+		Iterator<? extends MySQLPluginEntityDAO> ite = Lookup.getDefault().lookupAll(MySQLPluginEntityDAO.class).iterator();
+		while (ite.hasNext()) {
+			MySQLPluginEntityDAO pluginEntityDao = ite.next();
+			if (pluginEntityDao.getEntityType().equals(clazz)) { 
+				pluginEntityDao.setConnection(connection);
+				return pluginEntityDao;
 			}
-		}
+		}	
 		return null;
 	}
 

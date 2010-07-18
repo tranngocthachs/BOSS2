@@ -157,26 +157,31 @@ public class PerformEditPluginPage extends Page {
 							.getPluginMetadataDAOInstance();
 					PluginMetadata pluginMetadata = pluginMetadataDao
 							.retrievePersistentEntity(pId);
-					
+					f.endTransaction();
 					if (doString.equals("Delete")) {
 						// uninstall
 						PluginManager.uninstallPlugin(pluginMetadata);
-
+						
+						f.beginTransaction();
+						pluginMetadataDao = f.getPluginMetadataDAOInstance();
 						// delete metadata in database
 						pluginMetadataDao.deletePersistentEntity(pId);
-
+						f.endTransaction();
 					}
 					else if (doString.equals("Enable")) {
 						PluginManager.enablePlugin(pluginMetadata);
+						f.beginTransaction();
+						pluginMetadataDao = f.getPluginMetadataDAOInstance();
 						pluginMetadataDao.updatePersistentEntity(pluginMetadata);
+						f.endTransaction();
 					}
 					else if (doString.equals("Disable")) {
 						PluginManager.disablePlugin(pluginMetadata);
+						f.beginTransaction();
+						pluginMetadataDao = f.getPluginMetadataDAOInstance();
 						pluginMetadataDao.updatePersistentEntity(pluginMetadata);
+						f.endTransaction();
 					}
-
-					// done
-					f.endTransaction();
 
 					templateContext.put("greet", pageContext.getSession()
 							.getPersonBinding().getChosenName());

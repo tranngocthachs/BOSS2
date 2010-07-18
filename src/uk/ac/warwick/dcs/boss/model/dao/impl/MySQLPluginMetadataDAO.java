@@ -1,11 +1,17 @@
 package uk.ac.warwick.dcs.boss.model.dao.impl;
 
+import java.io.InputStream;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Scanner;
 import java.util.Vector;
+
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 import uk.ac.warwick.dcs.boss.model.dao.DAOException;
 import uk.ac.warwick.dcs.boss.model.dao.IPluginMetadataDAO;
@@ -90,4 +96,21 @@ public class MySQLPluginMetadataDAO extends MySQLEntityDAO<PluginMetadata>
 	public String getMySQLSortingString() {
 		return "id DESC";
 	}
+
+	@Override
+	public void executeSQLScript(InputStream sqlScriptInStream) throws DAOException {
+		Scanner s = new Scanner(sqlScriptInStream);
+		s.useDelimiter("\\s*;\\s*");
+		while (s.hasNext()) {
+			String sql = s.next();
+			try {		
+				// Execute the statement.
+				Logger.getLogger("mysql").log(Level.TRACE, "Executing: " + sql);
+				getConnection().createStatement().executeUpdate(sql);
+			} catch (SQLException e) {
+				throw new DAOException("SQL error", e);
+			}
+		}
+	}
+
 }
