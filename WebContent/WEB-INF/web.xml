@@ -25,6 +25,11 @@
     <servlet-name>Captcha</servlet-name>
     <servlet-class>nl.captcha.servlet.CaptchaServlet</servlet-class>
   </servlet>
+  <!--  Weblets servlet configuration   -->
+   <servlet>
+    <servlet-name>Weblets Servlet</servlet-name>
+    <servlet-class>net.java.dev.weblets.WebletsServlet</servlet-class>
+  </servlet>
   
   <!-- Servlet mappings -->
   <servlet-mapping>
@@ -35,6 +40,11 @@
   <servlet-mapping>
     <servlet-name>PageDispatcherServlet</servlet-name>
     <url-pattern>/PageDispatcherServlet/*</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>Weblets Servlet</servlet-name>
+    <url-pattern>/weblets/*</url-pattern>
   </servlet-mapping>
   
   <session-config>

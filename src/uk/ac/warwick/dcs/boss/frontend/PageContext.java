@@ -12,6 +12,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.java.dev.weblets.WebletUtils;
+
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
@@ -396,7 +398,13 @@ public class PageContext {
 	public String getConfigurationFilePath() {
 		return this.context.getRealPath("WEB-INF/config.properties");
 	}
+	
 	public String getContextPath() {
 		return this.context.getContextPath();
 	}
+	
+	public String getWebletResourceURL(String weblet, String pathInfo) {
+		return WebletUtils.getURL(weblet, pathInfo);
+	}
+	
 }
