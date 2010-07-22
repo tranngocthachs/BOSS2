@@ -3,7 +3,6 @@ package uk.ac.warwick.dcs.boss.plugins;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,9 +16,9 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
-import javax.servlet.ServletException;
-
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 import uk.ac.warwick.dcs.boss.frontend.PageDispatcherServlet;
 import uk.ac.warwick.dcs.boss.model.FactoryException;
@@ -45,27 +44,36 @@ public class PluginManager {
 	public static final Attributes.Name PLUGIN_DATABASE = new Attributes.Name("BOSS-Plugin-Database");
 	public static final Attributes.Name PLUGIN_DATABASE_CREATE_SCRIPT = new Attributes.Name("BOSS-Plugin-Database-Create");
 	public static final Attributes.Name PLUGIN_DATABASE_DELETE_SCRIPT = new Attributes.Name("BOSS-Plugin-Database-Delete");
+	public static Logger logger = Logger.getLogger("plugin manager");
 	
 	public static PluginMetadata installPlugin(File pluginFile) throws IOException, InvalidPluginException {
 		JarFile jarFile = null;
 		Attributes atts = null;
-
+		boolean initDB = false;
 		try {
 			// we have the plugin in a jar file
 			jarFile = new JarFile(pluginFile);
 			atts = jarFile.getManifest().getMainAttributes();
-
-			// manifest file is required to supplied at least plugin's id,
-			// name, and version
-			if (!atts.containsKey(PLUGIN_ID)
-					|| !atts.containsKey(PLUGIN_NAME)
-					|| !atts.containsKey(PLUGIN_VERSION)) {
-				throw new IOException();
-			}
 		} catch (IOException e) {
 			throw new InvalidPluginException("Supplied file is not a valid BOSS plugin");
 		}
-
+		
+		// manifest file is required to supplied at least plugin's id,
+		// name, and version
+		if (!atts.containsKey(PLUGIN_ID)
+				|| !atts.containsKey(PLUGIN_NAME)
+				|| !atts.containsKey(PLUGIN_VERSION)) {
+			throw new InvalidPluginException();
+		}
+		
+		// if requires new db tables, there should be create and delete script entries
+		if (atts.containsKey(PLUGIN_DATABASE) && atts.getValue(PLUGIN_DATABASE).equalsIgnoreCase("true")) {
+			if (atts.containsKey(PLUGIN_DATABASE_CREATE_SCRIPT) && atts.containsKey(PLUGIN_DATABASE_DELETE_SCRIPT))
+				initDB = true;
+			else
+				throw new InvalidPluginException("Supplied file is not a valid BOSS plugin");
+		}
+		
 		// we have a valid plugin file (as far as MANIFEST file goes)
 		String pluginId = atts.getValue(PluginManager.PLUGIN_ID);
 		File webInfDir = new File(PageDispatcherServlet.realPath, "WEB-INF");
@@ -75,7 +83,20 @@ public class PluginManager {
 		// since the pluginId is unique, there shouldn't be a collision
 		// regarding name
 		File pluginJarFile = new File(pluginFolder, pluginId + ".jar");
-		FileUtils.copyFile(pluginFile, pluginJarFile);
+		try {
+			logger.log(Level.INFO, "Storing " + pluginId + " plugin into WEB-INF/plugins folder");
+			FileUtils.copyFile(pluginFile, pluginJarFile);
+		} catch (IOException e) {
+			if (pluginJarFile.exists()) {
+				logger.log(Level.INFO, "Deleting " + pluginId + " plugin file in WEB-INF/plugins folder");
+				pluginJarFile.delete();
+			}
+				
+			
+			// rethrow exception
+			throw e;
+		}
+		
 
 		// get lib filenames if present
 		List<String> libFileNames = new LinkedList<String>();
@@ -106,21 +127,37 @@ public class PluginManager {
 			pluginMetadata.setLibFilenames(libFileNames.toArray(new String[0]));
 		}
 
-		// check if this plugin requires new database tables
-		if (atts.containsKey(PLUGIN_DATABASE) && atts.getValue(PLUGIN_DATABASE).equalsIgnoreCase("true")) {
-			if (atts.containsKey(PLUGIN_DATABASE_CREATE_SCRIPT) && atts.containsKey(PLUGIN_DATABASE_DELETE_SCRIPT))
+		try {
+			// init new db table if required
+			if (initDB) {
 				initPluginTables(jarFile);
-			else
-				throw new InvalidPluginException("Supplied file is not a valid BOSS plugin");
+			}
+			// enable the plugin
+			PluginManager.enablePlugin(pluginMetadata);
+		} catch (IOException e) {
+			// installation is unsuccessful, delete plugin file in WEB-INF/plugins
+			if (pluginJarFile.exists()) {
+				logger.log(Level.INFO, "Deleting " + pluginId + " plugin file in WEB-INF/plugins folder");
+				pluginJarFile.delete();
+			}
+			
+			// rethrow exception
+			throw e;
+		} catch (InvalidPluginException e) {
+			// installation is unsuccessful, delete plugin file in WEB-INF/plugins
+			if (pluginJarFile.exists()) {
+				logger.log(Level.INFO, "Deleting " + pluginId + " plugin file in WEB-INF/plugins folder");
+				pluginJarFile.delete();
+			}
+			
+			// rethrow exception
+			throw e;
 		}
-		
-		// enable the plugin
-		PluginManager.enablePlugin(pluginMetadata);
 		
 		return pluginMetadata;
 	}
 
-	public static void uninstallPlugin(PluginMetadata pluginInfo) throws IOException {
+	public static void uninstallPlugin(PluginMetadata pluginInfo) throws IOException, DAOException {
 		// delete plugin's database tables
 		// if this plugin didn't introduce any table, this call simply do nothing
 		destroyPluginTables(pluginInfo);
@@ -136,6 +173,7 @@ public class PluginManager {
 		File pluginStorageDir = new File(webInfDir, "plugins");
 		File thisPluginJar = new File(pluginStorageDir,
 				pluginInfo.getPluginId() + ".jar");
+		logger.log(Level.INFO, "Deleting " + pluginInfo.getPluginId() + " plugin file in WEB-INF/plugins folder");
 		thisPluginJar.delete();
 	}
 
@@ -147,7 +185,18 @@ public class PluginManager {
 		File webAppLibFolder = new File(webInfDir, "lib");
 		File pluginJarFile = new File(webAppLibFolder, "plugin_" + pluginId
 				+ ".jar");
-		FileUtils.copyFile(pluginFile, pluginJarFile);
+		try {
+			logger.log(Level.INFO, "Copying main jar file of " + pluginId + " plugin into WEB-INF/lib folder");
+			FileUtils.copyFile(pluginFile, pluginJarFile);
+		} catch (IOException e) { 
+			if (pluginJarFile.exists()) {
+				logger.log(Level.INFO, "Deleting " + pluginId + " plugin file in WEB-INF/lib folder");
+				pluginJarFile.delete();
+			}
+			// rethrow exception
+			throw e;
+		}
+		
 
 		// copy the dependencies of the plugin (residing under lib folder of
 		// the plugin's jar file) if exists.
@@ -155,38 +204,53 @@ public class PluginManager {
 		String[] libFNStrs = pluginInfo.getLibFilenames();
 		if (libFNStrs != null) {
 			List<String> libFileNames = Arrays.asList(libFNStrs);
-			Enumeration<JarEntry> enumeration = jarFile.entries();
-			while (enumeration.hasMoreElements()) {
-				JarEntry entry = enumeration.nextElement();
-				String entryName = entry.getName();
-				if (entryName.startsWith("lib/") && entryName.endsWith(".jar")) {
-					String[] entryPathComps = entryName.split("/");
-					String libFileName = entryPathComps[entryPathComps.length - 1];
-					if (libFileNames.contains(libFileName)) {
-						File destLibFile = new File(webAppLibFolder, "plugin_"
-								+ pluginId + "_" + libFileName);
-						InputStream in = null;
-						OutputStream out = null;
-						try {
-							in = new BufferedInputStream(
-									jarFile.getInputStream(entry));
-							out = new BufferedOutputStream(new FileOutputStream(
-									destLibFile));
-							int c;
-							while ((c = in.read()) != -1) {
-								out.write(c);
+			try {
+				Enumeration<JarEntry> enumeration = jarFile.entries();
+				while (enumeration.hasMoreElements()) {
+					JarEntry entry = enumeration.nextElement();
+					String entryName = entry.getName();
+					if (entryName.startsWith("lib/") && entryName.endsWith(".jar")) {
+						String[] entryPathComps = entryName.split("/");
+						String libFileName = entryPathComps[entryPathComps.length - 1];
+						if (libFileNames.contains(libFileName)) {
+							File destLibFile = new File(webAppLibFolder, "plugin_"
+									+ pluginId + "_" + libFileName);
+							InputStream in = null;
+							OutputStream out = null;
+							logger.log(Level.INFO, "Extracting lib jar file " + libFileName + " of " + pluginId + " plugin into WEB-INF/lib folder");
+							try {
+								in = new BufferedInputStream(
+										jarFile.getInputStream(entry));
+								out = new BufferedOutputStream(new FileOutputStream(
+										destLibFile));
+								int c;
+								while ((c = in.read()) != -1) {
+									out.write(c);
+								}
+								out.flush();
+							} finally {
+								if (in != null)
+									in.close();
+								if (out != null)
+									out.close();
 							}
-							out.flush();
-						} finally {
-							if (in != null)
-								in.close();
-							if (out != null)
-								out.close();
 						}
 					}
 				}
+			} catch (IOException e) {
+				// clean up any lib file which has been activated (copied to WEB-INF/lib)  
+				for (String filename : libFileNames) {
+					File destLibFile = new File(webAppLibFolder, "plugin_"
+							+ pluginId + "_" + filename);
+					if (destLibFile.exists()) {
+						logger.log(Level.INFO, "Deleting lib jar file " + filename + " of " + pluginId + " plugin in WEB-INF/lib folder");
+						destLibFile.delete();
+					}
+				}
+				
+				// rethrow exception
+				throw e;
 			}
-
 		}
 		pluginInfo.setEnable(true);
 	}
@@ -195,6 +259,7 @@ public class PluginManager {
 		
 		// delete main jar file in webapp's lib folder
 		File mainJarFile = new File(PageDispatcherServlet.realPath, "WEB-INF" + File.separator + "lib" + File.separator + "plugin_" + pluginInfo.getPluginId() +".jar");
+		logger.log(Level.INFO, "Deleting " + pluginInfo.getPluginId() + " plugin file in WEB-INF/lib folder");
 		mainJarFile.delete();
 		
 		// delete lib jar file also in webapp's lib folder
@@ -203,7 +268,7 @@ public class PluginManager {
 			File webInfLibDir = new File(PageDispatcherServlet.realPath, "WEB-INF" + File.separator + "lib");
 			for (int i = 0; i < libFNs.length; i++) {
 				File libFile = new File(webInfLibDir, "plugin_" + pluginInfo.getPluginId() + "_" + libFNs[i]);
-				System.out.println("Deleting " + libFile.getAbsolutePath());
+				logger.log(Level.INFO, "Deleting lib jar file " + libFNs[i] + " of " + pluginInfo.getPluginId() + " plugin in WEB-INF/lib folder");
 				libFile.delete();
 			}
 		}
@@ -213,9 +278,17 @@ public class PluginManager {
 	private static void initPluginTables(JarFile pluginFile) throws IOException, InvalidPluginException {
 		Attributes atts = pluginFile.getManifest().getMainAttributes();
 		String createSQLFilename = atts.getValue(PLUGIN_DATABASE_CREATE_SCRIPT);
-		ZipEntry entry = pluginFile.getEntry(createSQLFilename);
-		if (entry != null) {
-			InputStream createSQLIS = pluginFile.getInputStream(entry);
+		String pluginId = atts.getValue(PLUGIN_ID);
+		ZipEntry createScriptEntry = pluginFile.getEntry(createSQLFilename);
+		
+		// making sure there's really a delete script too
+		String deleteSQLFilename = atts.getValue(PLUGIN_DATABASE_DELETE_SCRIPT);
+		ZipEntry deleteScriptEntry = pluginFile.getEntry(deleteSQLFilename);
+		
+		if (createScriptEntry == null || deleteScriptEntry == null)
+			throw new InvalidPluginException("Supplied file is not a valid BOSS plugin");
+		else {
+			InputStream createSQLIS = pluginFile.getInputStream(createScriptEntry);
 			IDAOSession f = null;
 			try {
 				DAOFactory df = (DAOFactory) FactoryRegistrar
@@ -226,40 +299,28 @@ public class PluginManager {
 			}
 			try {
 				f.beginTransaction();
+				logger.log(Level.INFO, "Executing initialisation SQL script " + createSQLFilename + " of " + pluginId + " plugin");
 				f.getPluginMetadataDAOInstance().executeSQLScript(createSQLIS);
 				f.endTransaction();
 			} catch (DAOException e) {
 				f.abortTransaction();
+				throw new InvalidPluginException("Supplied file is not a valid BOSS plugin");
 			}
-		}
-		else
-			throw new InvalidPluginException("Supplied file is not a valid BOSS plugin");
-		
-		// making sure there's really a delete script too
-		String deleteSQLFilename = atts.getValue(PLUGIN_DATABASE_DELETE_SCRIPT);
-		entry = pluginFile.getEntry(deleteSQLFilename);
-		if (entry == null)
-			throw new InvalidPluginException("Supplied file is not a valid BOSS plugin");
+		}	
 	}
-	public static File getPluginFile(String pluginId) throws FileNotFoundException {
-		File retval = new File(PageDispatcherServlet.realPath, "WEB-INF" + File.separator + "plugins" + File.separator + pluginId + ".jar");
-		if (retval.exists())
-			return retval;
-		else
-			throw new FileNotFoundException("No plugin file can be found");
-	}
-	private static void destroyPluginTables(PluginMetadata pluginInfo) throws IOException {
-		File pluginFile = getPluginFile(pluginInfo.getPluginId());
+	
+	private static void destroyPluginTables(PluginMetadata pluginInfo) throws IOException, DAOException {
+		File pluginFile = new File(PageDispatcherServlet.realPath, "WEB-INF" + File.separator + "plugins" + File.separator + pluginInfo.getPluginId() + ".jar");
 		JarFile jarFile = new JarFile(pluginFile);
 		Attributes atts = jarFile.getManifest().getMainAttributes();
 		
 		// only proceed if this plugin introduced new tables
 		if (atts.containsKey(PLUGIN_DATABASE) && atts.getValue(PLUGIN_DATABASE).equalsIgnoreCase("true")) {
-			String createSQLFilename = atts.getValue(PLUGIN_DATABASE_DELETE_SCRIPT);
-			if (createSQLFilename != null) {
-				ZipEntry entry = jarFile.getEntry(createSQLFilename);
+			String deleteSQLFilename = atts.getValue(PLUGIN_DATABASE_DELETE_SCRIPT);
+			if (deleteSQLFilename != null) {
+				ZipEntry entry = jarFile.getEntry(deleteSQLFilename);
 				if (entry != null) {
-					InputStream createSQLIS = jarFile.getInputStream(entry);
+					InputStream deleteSQLIS = jarFile.getInputStream(entry);
 					IDAOSession f = null;
 					try {
 						DAOFactory df = (DAOFactory) FactoryRegistrar
@@ -270,10 +331,12 @@ public class PluginManager {
 					}
 					try {
 						f.beginTransaction();
-						f.getPluginMetadataDAOInstance().executeSQLScript(createSQLIS);
+						logger.log(Level.INFO, "Executing cleanup SQL script " + deleteSQLFilename + " of " + pluginInfo.getPluginId() + " plugin");
+						f.getPluginMetadataDAOInstance().executeSQLScript(deleteSQLIS);
 						f.endTransaction();
 					} catch (DAOException e) {
 						f.abortTransaction();
+						throw e;
 					}
 				}
 			}

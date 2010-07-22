@@ -2,7 +2,6 @@ package uk.ac.warwick.dcs.boss.model.dao.impl;
 
 import java.io.InputStream;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
@@ -97,7 +96,7 @@ public class MySQLPluginMetadataDAO extends MySQLEntityDAO<PluginMetadata>
 		return "id DESC";
 	}
 
-	@Override
+
 	public void executeSQLScript(InputStream sqlScriptInStream) throws DAOException {
 		Scanner s = new Scanner(sqlScriptInStream);
 		s.useDelimiter("\\s*;\\s*");

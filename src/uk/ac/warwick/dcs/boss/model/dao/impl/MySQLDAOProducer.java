@@ -6,7 +6,6 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -636,9 +635,8 @@ public class MySQLDAOProducer implements IDAOSession {
 		}
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	@Override
-	public IEntityDAO<? extends PluginEntity> getAdditionalDAOInstance(
+
+	public IEntityDAO<? extends PluginEntity> getAdditionalDAOInstance (
 			Class<? extends PluginEntity> clazz) throws DAOException {
 		Iterator<? extends MySQLPluginEntityDAO> ite = Lookup.getDefault().lookupAll(MySQLPluginEntityDAO.class).iterator();
 		while (ite.hasNext()) {
@@ -651,7 +649,6 @@ public class MySQLDAOProducer implements IDAOSession {
 		return null;
 	}
 
-	@Override
 	public IPluginMetadataDAO getPluginMetadataDAOInstance()
 			throws DAOException {
 		if (!transactionLock.isHeldByCurrentThread()) {

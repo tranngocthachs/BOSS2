@@ -20,7 +20,6 @@
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/lsimplecaptcha-20071121.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/mail.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/mysql-connector-java-5.1.6-bin.jar"/>
-	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/ojdbc5.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/servlet-api.jar" sourcepath="WebContent/WEB-INF/lib/servlet-api-src.zip"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/tomcat-coyote.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/tomcat-dbcp.jar"/>
@@ -30,6 +29,7 @@
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/velocity-1.6.4.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/org-openide-util-lookup.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/commons-io-1.4.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/ojdbc6.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>

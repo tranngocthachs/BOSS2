@@ -21,6 +21,7 @@ import org.apache.velocity.VelocityContext;
 import uk.ac.warwick.dcs.boss.frontend.Page;
 import uk.ac.warwick.dcs.boss.frontend.PageContext;
 import uk.ac.warwick.dcs.boss.frontend.PageLoadException;
+import uk.ac.warwick.dcs.boss.frontend.sites.AdminPageFactory;
 import uk.ac.warwick.dcs.boss.model.FactoryException;
 import uk.ac.warwick.dcs.boss.model.FactoryRegistrar;
 import uk.ac.warwick.dcs.boss.model.dao.DAOException;
@@ -29,6 +30,7 @@ import uk.ac.warwick.dcs.boss.model.dao.IDAOSession;
 import uk.ac.warwick.dcs.boss.model.dao.IPluginMetadataDAO;
 import uk.ac.warwick.dcs.boss.model.dao.beans.PluginMetadata;
 import uk.ac.warwick.dcs.boss.model.testing.impl.TemporaryDirectory;
+import uk.ac.warwick.dcs.boss.plugins.InvalidPluginException;
 import uk.ac.warwick.dcs.boss.plugins.PluginManager;
 
 public class PerformEditPluginPage extends Page {
@@ -112,34 +114,46 @@ public class PerformEditPluginPage extends Page {
 			
 			// we have a pluginFile at this point
 			PluginMetadata pluginMetadata = null;
+			boolean success = true;
 			try {
 				// install the plugin
 				pluginMetadata = PluginManager.installPlugin(pluginFile);
-			} catch (Exception e) {
-				throw new ServletException("Error while installing plugin", e);
+			} catch (InvalidPluginException e) {
+				success = false;
+			} finally {
+				FileUtils.deleteDirectory(tempDir);
 			}
 			
-			FileUtils.deleteDirectory(tempDir);
-			try {
-				f.beginTransaction();
-				
-				// persist into database
-				IPluginMetadataDAO pluginMetadataDao = f
-						.getPluginMetadataDAOInstance();
-				pluginMetadata.setId(pluginMetadataDao
-						.createPersistentCopy(pluginMetadata));
+			if (success) {
+				try {
+					f.beginTransaction();
+					
+					// persist into database
+					IPluginMetadataDAO pluginMetadataDao = f
+							.getPluginMetadataDAOInstance();
+					pluginMetadata.setId(pluginMetadataDao
+							.createPersistentCopy(pluginMetadata));
 
-				// done
-				f.endTransaction();
-			} catch (DAOException e) {
-				f.abortTransaction();
-				throw new ServletException("dao exception", e);
+					// done
+					f.endTransaction();
+				} catch (DAOException e) {
+					f.abortTransaction();
+					throw new ServletException("dao exception", e);
+				}
 			}
+			
 			
 			templateContext.put("greet", pageContext.getSession()
 					.getPersonBinding().getChosenName());
-			templateContext.put("success", true);
-			templateContext.put("message", "Please restart BOSS for the change to take effect");
+			templateContext.put("success", success);
+			if (success)
+				templateContext.put("message", "Please restart BOSS for the change to take effect");
+			else {
+				templateContext.put("message", "The provided plugin is not a valid BOSS's plugin");
+				templateContext.put("nextPage", pageContext.getPageUrl(AdminPageFactory.SITE_NAME, AdminPageFactory.PLUGINS_PAGE));
+				templateContext.put("nextPageParamName", "dummy");
+				templateContext.put("nextPageParamValue", "nothing");
+			}
 			pageContext.renderTemplate(template, templateContext);
 		} else {
 			String doString = pageContext.getParameter("do");
@@ -190,7 +204,7 @@ public class PerformEditPluginPage extends Page {
 					pageContext.renderTemplate(template, templateContext);
 				} catch (DAOException e) {
 					f.abortTransaction();
-					throw new ServletException("dao exception");
+					throw new ServletException("dao exception", e);
 				}
 
 			} else {
