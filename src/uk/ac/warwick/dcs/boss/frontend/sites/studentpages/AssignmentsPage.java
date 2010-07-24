@@ -2,15 +2,19 @@ package uk.ac.warwick.dcs.boss.frontend.sites.studentpages;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.servlet.ServletException;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
+import org.openide.util.Lookup;
 
 import uk.ac.warwick.dcs.boss.frontend.Page;
 import uk.ac.warwick.dcs.boss.frontend.PageContext;
 import uk.ac.warwick.dcs.boss.frontend.PageLoadException;
+import uk.ac.warwick.dcs.boss.frontend.sites.StudentPageFactory;
 import uk.ac.warwick.dcs.boss.model.FactoryException;
 import uk.ac.warwick.dcs.boss.model.FactoryRegistrar;
 import uk.ac.warwick.dcs.boss.model.dao.DAOException;
@@ -20,6 +24,7 @@ import uk.ac.warwick.dcs.boss.model.dao.IModuleDAO;
 import uk.ac.warwick.dcs.boss.model.dao.IStudentInterfaceQueriesDAO;
 import uk.ac.warwick.dcs.boss.model.dao.beans.Module;
 import uk.ac.warwick.dcs.boss.model.dao.beans.queries.StudentAssignmentsQueryResult;
+import uk.ac.warwick.dcs.boss.plugins.spi.extralinks.StudentPluginEntryLink;
 
 public class AssignmentsPage extends Page {
 	
@@ -128,6 +133,19 @@ public class AssignmentsPage extends Page {
 			// TODO: localisation
 			templateContext.put("greet", pageContext.getSession().getPersonBinding().getChosenName());
 			templateContext.put("assignments", result);
+			
+			// loading plugins' entry pages (if present)
+			Collection<? extends StudentPluginEntryLink> extraLinkProviders = Lookup.getDefault().lookupAll(StudentPluginEntryLink.class);
+			if (!extraLinkProviders.isEmpty()) {
+				List<String> labels = new LinkedList<String>();
+				List<String> links = new LinkedList<String>();
+				for (StudentPluginEntryLink link : extraLinkProviders) {
+					labels.add(link.getLinkLabel());
+					links.add(pageContext.getPageUrl(StudentPageFactory.SITE_NAME, link.getEntryPageName()));
+				}
+				templateContext.put("extraLinks", links);
+				templateContext.put("extraLabels", labels);
+			}
 
 			pageContext.renderTemplate(template, templateContext);
 		} catch (DAOException e) {

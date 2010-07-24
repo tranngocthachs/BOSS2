@@ -41,7 +41,17 @@
 				<li><a href="$context.getPageUrl("student", "assignments")?show=closed&amp;sorting=$sorting">Closed assignments</a></li>
 				<li><a href="$context.getPageUrl("student", "assignments")?show=both&amp;sorting=$sorting">Open and closed assignments</a></li>
 				<li><a href="$context.getPageUrl("student", "modules")">Assignments by module...</a></li>
-			</ul>			
+			</ul>
+			#if($extraLinks)
+			<h2>Extra...</h2>
+			<ul>
+				#set($i = 0)
+				#foreach($link in $extraLinks)
+				<li><a href="$link">$extraLabels.get($i)</a></li>
+				#set($i = $i + 1)
+				#end
+			</ul>
+			#end			
 		</div>	
 			
 			#if($sorting == "deadline_asc")

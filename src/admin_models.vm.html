@@ -31,11 +31,20 @@
 				<li><a href="$context.getPageUrl("admin", "plugins")">Manage plugins</a></li>
 				<li><a href="$context.getPageUrl("system", "logout")">Log out</a></li>
 			</ul>
-			
 			<h2>Actions...</h2>
 			<ul>
 				<li><a href="$context.getPageUrl("admin", "edit_model")?create=true">Create new model</a></li>
-			</ul>	
+			</ul>
+			#if($extraLinks)
+			<h2>Extra...</h2>
+			<ul>
+				#set($i = 0)
+				#foreach($link in $extraLinks)
+				<li><a href="$link">$extraLabels.get($i)</a></li>
+				#set($i = $i + 1)
+				#end
+			</ul>
+			#end
 		</div>	
 		
 		#if($sorting == "module_count_asc")

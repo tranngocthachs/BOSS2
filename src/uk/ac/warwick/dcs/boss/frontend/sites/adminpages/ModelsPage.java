@@ -2,23 +2,28 @@ package uk.ac.warwick.dcs.boss.frontend.sites.adminpages;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.servlet.ServletException;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
+import org.openide.util.Lookup;
 
 import uk.ac.warwick.dcs.boss.frontend.Page;
 import uk.ac.warwick.dcs.boss.frontend.PageContext;
 import uk.ac.warwick.dcs.boss.frontend.PageLoadException;
+import uk.ac.warwick.dcs.boss.frontend.sites.AdminPageFactory;
 import uk.ac.warwick.dcs.boss.model.FactoryException;
 import uk.ac.warwick.dcs.boss.model.FactoryRegistrar;
 import uk.ac.warwick.dcs.boss.model.dao.DAOException;
 import uk.ac.warwick.dcs.boss.model.dao.DAOFactory;
 import uk.ac.warwick.dcs.boss.model.dao.IAdminInterfaceQueriesDAO;
-import uk.ac.warwick.dcs.boss.model.dao.IDAOSession;
 import uk.ac.warwick.dcs.boss.model.dao.IAdminInterfaceQueriesDAO.AdminModelsQuerySortingType;
+import uk.ac.warwick.dcs.boss.model.dao.IDAOSession;
 import uk.ac.warwick.dcs.boss.model.dao.beans.queries.AdminModelsQueryResult;
+import uk.ac.warwick.dcs.boss.plugins.spi.extralinks.AdminPluginEntryLink;
 
 public class ModelsPage extends Page {
 	
@@ -70,7 +75,20 @@ public class ModelsPage extends Page {
 			// TODO: localisation
 			templateContext.put("greet", pageContext.getSession().getPersonBinding().getChosenName());
 			templateContext.put("models", result);
-
+			
+			// loading plugins' entry pages (if present)
+			Collection<? extends AdminPluginEntryLink> extraLinkProviders = Lookup.getDefault().lookupAll(AdminPluginEntryLink.class);
+			if (!extraLinkProviders.isEmpty()) {
+				List<String> labels = new LinkedList<String>();
+				List<String> links = new LinkedList<String>();
+				for (AdminPluginEntryLink link : extraLinkProviders) {
+					labels.add(link.getLinkLabel());
+					links.add(pageContext.getPageUrl(AdminPageFactory.SITE_NAME, link.getEntryPageName()));
+				}
+				templateContext.put("extraLinks", links);
+				templateContext.put("extraLabels", labels);
+			}
+			
 			pageContext.renderTemplate(template, templateContext);
 		} catch (DAOException e) {
 			f.abortTransaction();
