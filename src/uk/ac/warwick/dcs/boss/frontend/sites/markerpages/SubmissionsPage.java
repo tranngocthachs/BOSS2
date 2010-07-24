@@ -2,15 +2,19 @@ package uk.ac.warwick.dcs.boss.frontend.sites.markerpages;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.servlet.ServletException;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
+import org.openide.util.Lookup;
 
 import uk.ac.warwick.dcs.boss.frontend.Page;
 import uk.ac.warwick.dcs.boss.frontend.PageContext;
 import uk.ac.warwick.dcs.boss.frontend.PageLoadException;
+import uk.ac.warwick.dcs.boss.frontend.sites.MarkerPageFactory;
 import uk.ac.warwick.dcs.boss.model.FactoryException;
 import uk.ac.warwick.dcs.boss.model.FactoryRegistrar;
 import uk.ac.warwick.dcs.boss.model.dao.DAOException;
@@ -18,6 +22,7 @@ import uk.ac.warwick.dcs.boss.model.dao.DAOFactory;
 import uk.ac.warwick.dcs.boss.model.dao.IDAOSession;
 import uk.ac.warwick.dcs.boss.model.dao.IMarkerInterfaceQueriesDAO;
 import uk.ac.warwick.dcs.boss.model.dao.beans.queries.MarkerSubmissionsQueryResult;
+import uk.ac.warwick.dcs.boss.plugins.spi.extralinks.MarkerSubmissionPluginEntryProvider;
 
 public class SubmissionsPage extends Page {
 
@@ -98,6 +103,22 @@ public class SubmissionsPage extends Page {
 			}
 			templateContext.put("submissions", result);
 			templateContext.put("markingAssignmentId", markingAssignmentId);
+			
+			// loading additional buttons for plugin actions on a student submission
+			Collection<? extends MarkerSubmissionPluginEntryProvider> pluginEntryLinks = Lookup.getDefault().lookupAll(MarkerSubmissionPluginEntryProvider.class);
+			if (!pluginEntryLinks.isEmpty()) {
+				List<String> pluginLinks = new LinkedList<String>();
+				List<String> pluginLinkSubmissionParaStrs = new LinkedList<String>();
+				List<String> pluginLinkLabels = new LinkedList<String>();
+				for (MarkerSubmissionPluginEntryProvider pluginLink : pluginEntryLinks) {
+					pluginLinks.add(pageContext.getPageUrl(MarkerPageFactory.SITE_NAME, pluginLink.getEntryPageName()));
+					pluginLinkSubmissionParaStrs.add(pluginLink.getSubmissionParaString());
+					pluginLinkLabels.add(pluginLink.getLinkLabel());
+				}
+				templateContext.put("pluginLinks", pluginLinks);
+				templateContext.put("pluginLinkSubmissionParaStrs", pluginLinkSubmissionParaStrs);
+				templateContext.put("pluginLinkLabels", pluginLinkLabels);
+			}
 			
 			pageContext.renderTemplate(template, templateContext);
 		} catch (DAOException e) {

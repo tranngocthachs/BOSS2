@@ -32,7 +32,20 @@
 			<h2>Actions...</h2>
 			<ul>
 				<li><a href="$context.getPageUrl("staff", "multi_download")?assignment=$assignment.getId()">Download multiple submissions...</a></li>
-			</ul>			
+			</ul>
+			
+			#if($pluginLinks)
+			<h2>Extra...</h2>
+			<ul>
+				#set($i = 0)
+				#set($assId = $assignment.getId())
+				#foreach($link in $pluginLinks)
+				#set($paraStr = $pluginLinkAssParaStrs.get($i))
+				<li><a href="${link}?${paraStr}=$assId">$pluginLinkLabels.get($i)</a></li>
+				#set($i = $i + 1)
+				#end
+			</ul>
+			#end			
 		</div>	
 	
 		#set($student_sort_type = "uniq_desc")

@@ -30,6 +30,18 @@
 				<li><a href="$context.getPageUrl("student", "details")">Show my account</a></li>
 				<li><a href="$context.getPageUrl("system", "logout")">Log out</a></li>
 			</ul>
+			#if($pluginLinks)
+			<h2>Extra...</h2>
+			<ul>
+				#set($i = 0)
+				#set($assId = $assignment.getAssignment().getId())
+				#foreach($link in $pluginLinks)
+				#set($paraStr = $pluginLinkAssParaStrs.get($i))
+				<li><a href="${link}?${paraStr}=$assId">$pluginLinkLabels.get($i)</a></li>
+				#set($i = $i + 1)
+				#end
+			</ul>
+			#end
 		</div>	
 	
 		<div class="table">

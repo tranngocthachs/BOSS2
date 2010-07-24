@@ -24,7 +24,7 @@ import uk.ac.warwick.dcs.boss.model.dao.IModuleDAO;
 import uk.ac.warwick.dcs.boss.model.dao.IStudentInterfaceQueriesDAO;
 import uk.ac.warwick.dcs.boss.model.dao.beans.Module;
 import uk.ac.warwick.dcs.boss.model.dao.beans.queries.StudentAssignmentsQueryResult;
-import uk.ac.warwick.dcs.boss.plugins.spi.extralinks.StudentPluginEntryLink;
+import uk.ac.warwick.dcs.boss.plugins.spi.extralinks.StudentPluginEntryLinkProvider;
 
 public class AssignmentsPage extends Page {
 	
@@ -135,11 +135,11 @@ public class AssignmentsPage extends Page {
 			templateContext.put("assignments", result);
 			
 			// loading plugins' entry pages (if present)
-			Collection<? extends StudentPluginEntryLink> extraLinkProviders = Lookup.getDefault().lookupAll(StudentPluginEntryLink.class);
+			Collection<? extends StudentPluginEntryLinkProvider> extraLinkProviders = Lookup.getDefault().lookupAll(StudentPluginEntryLinkProvider.class);
 			if (!extraLinkProviders.isEmpty()) {
 				List<String> labels = new LinkedList<String>();
 				List<String> links = new LinkedList<String>();
-				for (StudentPluginEntryLink link : extraLinkProviders) {
+				for (StudentPluginEntryLinkProvider link : extraLinkProviders) {
 					labels.add(link.getLinkLabel());
 					links.add(pageContext.getPageUrl(StudentPageFactory.SITE_NAME, link.getEntryPageName()));
 				}

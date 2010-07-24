@@ -23,7 +23,7 @@ import uk.ac.warwick.dcs.boss.model.dao.IAdminInterfaceQueriesDAO;
 import uk.ac.warwick.dcs.boss.model.dao.IAdminInterfaceQueriesDAO.AdminModelsQuerySortingType;
 import uk.ac.warwick.dcs.boss.model.dao.IDAOSession;
 import uk.ac.warwick.dcs.boss.model.dao.beans.queries.AdminModelsQueryResult;
-import uk.ac.warwick.dcs.boss.plugins.spi.extralinks.AdminPluginEntryLink;
+import uk.ac.warwick.dcs.boss.plugins.spi.extralinks.AdminPluginEntryLinkProvider;
 
 public class ModelsPage extends Page {
 	
@@ -77,11 +77,11 @@ public class ModelsPage extends Page {
 			templateContext.put("models", result);
 			
 			// loading plugins' entry pages (if present)
-			Collection<? extends AdminPluginEntryLink> extraLinkProviders = Lookup.getDefault().lookupAll(AdminPluginEntryLink.class);
+			Collection<? extends AdminPluginEntryLinkProvider> extraLinkProviders = Lookup.getDefault().lookupAll(AdminPluginEntryLinkProvider.class);
 			if (!extraLinkProviders.isEmpty()) {
 				List<String> labels = new LinkedList<String>();
 				List<String> links = new LinkedList<String>();
-				for (AdminPluginEntryLink link : extraLinkProviders) {
+				for (AdminPluginEntryLinkProvider link : extraLinkProviders) {
 					labels.add(link.getLinkLabel());
 					links.add(pageContext.getPageUrl(AdminPageFactory.SITE_NAME, link.getEntryPageName()));
 				}

@@ -22,7 +22,7 @@ import uk.ac.warwick.dcs.boss.model.dao.DAOFactory;
 import uk.ac.warwick.dcs.boss.model.dao.IDAOSession;
 import uk.ac.warwick.dcs.boss.model.dao.IMarkerInterfaceQueriesDAO;
 import uk.ac.warwick.dcs.boss.model.dao.beans.queries.MarkerAssignmentsQueryResult;
-import uk.ac.warwick.dcs.boss.plugins.spi.extralinks.MarkerPluginEntryLink;
+import uk.ac.warwick.dcs.boss.plugins.spi.extralinks.MarkerPluginEntryLinkProvider;
 
 public class AssignmentsPage extends Page {
 	
@@ -99,11 +99,11 @@ public class AssignmentsPage extends Page {
 			templateContext.put("assignments", result);
 
 			// loading plugins' entry pages (if present)
-			Collection<? extends MarkerPluginEntryLink> extraLinkProviders = Lookup.getDefault().lookupAll(MarkerPluginEntryLink.class);
+			Collection<? extends MarkerPluginEntryLinkProvider> extraLinkProviders = Lookup.getDefault().lookupAll(MarkerPluginEntryLinkProvider.class);
 			if (!extraLinkProviders.isEmpty()) {
 				List<String> labels = new LinkedList<String>();
 				List<String> links = new LinkedList<String>();
-				for (MarkerPluginEntryLink link : extraLinkProviders) {
+				for (MarkerPluginEntryLinkProvider link : extraLinkProviders) {
 					labels.add(link.getLinkLabel());
 					links.add(pageContext.getPageUrl(MarkerPageFactory.SITE_NAME, link.getEntryPageName()));
 				}

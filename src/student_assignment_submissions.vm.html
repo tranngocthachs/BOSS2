@@ -117,7 +117,18 @@
 									<input type="submit" value="Test"/>
 								</p>
 							</form>
-							
+							#if($pluginLinks)
+							#set($i = 0)
+							#foreach($link in $pluginLinks)
+								<form action="$link" method="get">
+								<p>
+									<input type="hidden" name="$pluginLinkSubmissionParaStrs.get($i)" value="$submission.getSubmission().getId()"/>
+									<input type="submit" value="$pluginLinkLabels.get($i)"/>
+								</p>
+							</form>
+							#end
+							#set($i = $i + 1)
+							#end
 						</td>
 					</tr>
 					
