@@ -339,6 +339,7 @@ public class MySQLDAOProducer implements IDAOSession {
 						"  description text," +
 						"  lib_filenames text," +
 						"  enable BOOLEAN NOT NULL," +
+						"  configurable BOOLEAN NOT NULL," +
 						"  PRIMARY KEY (id)," +
 						"  UNIQUE KEY plugin_id (plugin_id)" +
 						") ENGINE=InnoDB");

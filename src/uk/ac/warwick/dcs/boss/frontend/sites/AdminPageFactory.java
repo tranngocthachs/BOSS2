@@ -1,13 +1,13 @@
 package uk.ac.warwick.dcs.boss.frontend.sites;
 
 import java.util.Iterator;
-import java.util.ServiceLoader;
 
 import org.openide.util.Lookup;
 
 import uk.ac.warwick.dcs.boss.frontend.Page;
 import uk.ac.warwick.dcs.boss.frontend.PageFactory;
 import uk.ac.warwick.dcs.boss.frontend.PageLoadException;
+import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.ConfigPluginPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.EditModelPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.EditModulePage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.EditPersonPage;
@@ -18,6 +18,7 @@ import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.ModuleAdministratorsPage
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.ModulesPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PeoplePage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PerformAddModuleAdministratorPage;
+import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PerformConfigPluginPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PerformEditModelPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PerformEditModulePage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PerformEditPersonPage;
@@ -54,6 +55,8 @@ public class AdminPageFactory extends PageFactory {
 	
 	public static String PLUGINS_PAGE = "plugins";
 	public static String PERFORM_EDIT_PLUGIN_PAGE = "perform_edit_plugin";
+	public static String CONFIG_PLUGIN_PAGE = "config_plugin";
+	public static String PERFORM_CONFIG_PLUGIN_PAGE = "perform_config_plugin";
 	
 	@Override
 	protected Page getPage(String pageName) throws PageLoadException {
@@ -95,6 +98,10 @@ public class AdminPageFactory extends PageFactory {
 			return new PluginsPage();
 		} else if (pageName.equals(PERFORM_EDIT_PLUGIN_PAGE)) {
 			return new PerformEditPluginPage();
+		} else if (pageName.equals(CONFIG_PLUGIN_PAGE)) {
+			return new ConfigPluginPage();
+		} else if (pageName.equals(PERFORM_CONFIG_PLUGIN_PAGE)) {
+			return new PerformConfigPluginPage();
 		} else {
 			Iterator<? extends AdminPluginPageProvider> adminPluginPagesIter = Lookup.getDefault().lookupAll(AdminPluginPageProvider.class).iterator();
 			while (adminPluginPagesIter.hasNext()) {

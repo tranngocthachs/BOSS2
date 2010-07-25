@@ -39,6 +39,7 @@ public class MySQLPluginMetadataDAO extends MySQLEntityDAO<PluginMetadata>
 		fieldNames.add("description");
 		fieldNames.add("lib_filenames");
 		fieldNames.add("enable");
+		fieldNames.add("configurable");
 		return fieldNames;
 	}
 
@@ -64,6 +65,7 @@ public class MySQLPluginMetadataDAO extends MySQLEntityDAO<PluginMetadata>
 		}
 		output.add(libFileNameObj);
 		output.add(entity.getEnable());
+		output.add(entity.getConfigurable());
 		return output;
 	}
 
@@ -88,6 +90,7 @@ public class MySQLPluginMetadataDAO extends MySQLEntityDAO<PluginMetadata>
 		}
 		pluginMetadata.setLibFilenames(libFilenames);
 		pluginMetadata.setEnable(databaseValues.getBoolean(tableName + ".enable"));
+		pluginMetadata.setConfigurable(databaseValues.getBoolean(tableName + ".configurable"));
 		return pluginMetadata;
 	}
 

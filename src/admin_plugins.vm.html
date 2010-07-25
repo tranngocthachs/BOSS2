@@ -44,6 +44,7 @@
 						<th>Description</th>
 						<th>Author</th>
 						<th>Enable</th>
+						<th>Configurable</th>
 						<th>Actions</th>
 					</tr>
 				</thead>
@@ -81,17 +82,30 @@
 							#end
 						</td>
 						<td>
-							<form method="post" action="$context.getPageUrl("admin", "perform_edit_plugin")">
-								<p>
-									<input type="hidden" name="plugin" value="$plugin.getId()"/>
-									<input type="submit" name="do" value="Delete"/><br />
-									#if($plugin.getEnable())
-									<input type="submit" name="do" value="Disable"/><br />
-									#else
-									<input type="submit" name="do" value="Enable"/><br />
-									#end
-								</p>
-							</form>
+							#if($plugin.getConfigurable())
+							Yes
+							#else
+							No
+							#end
+						</td>
+						<td>
+							<p>
+								<form method="post" action="$context.getPageUrl("admin", "perform_edit_plugin")">
+										<input type="hidden" name="plugin" value="$plugin.getId()"/>
+										<input type="submit" name="do" value="Delete"/><br />
+										#if($plugin.getEnable())
+										<input type="submit" name="do" value="Disable"/><br />
+										#else
+										<input type="submit" name="do" value="Enable"/><br />
+										#end
+								</form>
+								#if($plugin.getConfigurable())
+								<form method="get" action="$context.getPageUrl("admin", "config_plugin")">
+										<input type="hidden" name="plugin" value="$plugin.getId()"/>
+										<input type="submit" name="do" value="Config"/><br />
+								</form>
+								#end
+							</p>
 						</td>								
 						
 					</tr>

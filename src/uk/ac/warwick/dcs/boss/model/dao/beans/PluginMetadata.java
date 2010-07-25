@@ -11,6 +11,7 @@ public class PluginMetadata extends Entity {
 	private String description;
 	private String[] libFilenames;
 	private Boolean enable;
+	private Boolean configurable;
 	
 	/**
 	 * @return the pluginId
@@ -107,5 +108,19 @@ public class PluginMetadata extends Entity {
 	 */
 	public void setEnable(Boolean enable) {
 		this.enable = enable;
+	}
+	
+	/**
+	 * @return the configurable
+	 */
+	public Boolean getConfigurable() {
+		return configurable;
+	}
+	
+	/**
+	 * @param configurable the configurable to set
+	 */
+	public void setConfigurable(Boolean configurable) {
+		this.configurable = configurable;
 	}
 }

@@ -3,6 +3,7 @@ package uk.ac.warwick.dcs.boss.plugins;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,6 +12,7 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -41,6 +43,9 @@ public class PluginManager {
 			"BOSS-Plugin-Version");
 	public static final Attributes.Name PLUGIN_DESCRIPTION = new Attributes.Name(
 			"BOSS-Plugin-Description");
+	public static final Attributes.Name PLUGIN_CONFIGURATION = new Attributes.Name(
+			"BOSS-Plugin-Configuration");
+	
 	public static final Attributes.Name PLUGIN_DATABASE = new Attributes.Name("BOSS-Plugin-Database");
 	public static final Attributes.Name PLUGIN_DATABASE_CREATE_SCRIPT = new Attributes.Name("BOSS-Plugin-Database-Create");
 	public static final Attributes.Name PLUGIN_DATABASE_DELETE_SCRIPT = new Attributes.Name("BOSS-Plugin-Database-Delete");
@@ -92,12 +97,10 @@ public class PluginManager {
 				pluginJarFile.delete();
 			}
 				
-			
 			// rethrow exception
 			throw e;
 		}
 		
-
 		// get lib filenames if present
 		List<String> libFileNames = new LinkedList<String>();
 		Enumeration<JarEntry> enumeration = jarFile.entries();
@@ -134,6 +137,44 @@ public class PluginManager {
 			}
 			// enable the plugin
 			PluginManager.enablePlugin(pluginMetadata);
+			
+			// extracting properties file if present
+			if (atts.containsKey(PLUGIN_CONFIGURATION)) {
+				ZipEntry entry = jarFile.getEntry(atts.getValue(PLUGIN_CONFIGURATION));
+				if (entry != null) {
+					InputStream in = null;
+					OutputStream out = null;
+					logger.log(Level.INFO, "Extracting configuration file of " + pluginId + " plugin into WEB-INF/plugins folder");
+					File destConfFile = new File(pluginFolder, pluginId + ".properties");
+					try {
+						in = new BufferedInputStream(
+								jarFile.getInputStream(entry));
+						
+						out = new BufferedOutputStream(new FileOutputStream(
+								destConfFile));
+						int c;
+						while ((c = in.read()) != -1) {
+							out.write(c);
+						}
+						out.flush();
+					} catch (IOException e) {
+						if (destConfFile.exists())
+							destConfFile.delete();
+					} finally {
+						if (in != null)
+							in.close();
+						if (out != null)
+							out.close();
+					}
+					pluginMetadata.setConfigurable(true);
+				}
+				else
+					throw new InvalidPluginException("Supplied file is not a valid BOSS plugin");
+			}
+			else {
+				pluginMetadata.setConfigurable(false);
+			}
+
 		} catch (IOException e) {
 			// installation is unsuccessful, delete plugin file in WEB-INF/plugins
 			if (pluginJarFile.exists()) {
@@ -175,6 +216,13 @@ public class PluginManager {
 				pluginInfo.getPluginId() + ".jar");
 		logger.log(Level.INFO, "Deleting " + pluginInfo.getPluginId() + " plugin file in WEB-INF/plugins folder");
 		thisPluginJar.delete();
+		
+		if (pluginInfo.getConfigurable()) {
+			File thisPluginConf = new File(pluginStorageDir,
+					pluginInfo.getPluginId() + ".properties");
+			if (thisPluginConf.exists())
+				thisPluginConf.delete();
+		}
 	}
 
 	public static void enablePlugin(PluginMetadata pluginInfo) throws IOException {
@@ -273,6 +321,40 @@ public class PluginManager {
 			}
 		}
 		pluginInfo.setEnable(false);
+	}
+	
+	public static Properties getConfiguration(String pluginId) throws IOException, PluginNotConfigurableException {
+		Properties prop = new Properties();
+		File propFile = new File(PageDispatcherServlet.realPath, "WEB-INF" + File.separator + "plugins" + File.separator + pluginId + ".properties");
+		if (propFile.exists()) {
+			FileInputStream in = null;
+			try {
+				in = new FileInputStream(propFile);
+				prop.load(in);
+			} finally {
+				if (in != null)
+					in.close();
+			}
+		}
+		else
+			throw new PluginNotConfigurableException("plugin " + pluginId + " is not configurable");
+		return prop;
+	}
+	
+	public static void setConfiguration(String pluginId, Properties prop) throws IOException, PluginNotConfigurableException {
+		File propFile = new File(PageDispatcherServlet.realPath, "WEB-INF" + File.separator + "plugins" + File.separator + pluginId + ".properties");
+		if (propFile.exists()) {
+			FileOutputStream out = null;
+			try {
+				out = new FileOutputStream(propFile);
+				prop.store(out, null);
+			} finally {
+				if (out != null)
+					out.close();
+			}	
+		}
+		else
+			throw new PluginNotConfigurableException("plugin " + pluginId + " is not configurable");
 	}
 	
 	private static void initPluginTables(JarFile pluginFile) throws IOException, InvalidPluginException {
