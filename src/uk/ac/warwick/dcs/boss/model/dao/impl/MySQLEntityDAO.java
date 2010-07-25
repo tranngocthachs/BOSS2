@@ -49,7 +49,7 @@ public abstract class MySQLEntityDAO<E extends Entity> implements IEntityDAO<E> 
 		// Begin the transaction
 		try {
 			// Construct the statement.
-			String statementString = "INSERT INTO " + entity.getClass().getSimpleName().toLowerCase()
+			String statementString = "INSERT INTO " + getTableName()
 				+ " (" + namesBuffer + ")"
 				+ " VALUES (" + valuesBuffer + ")";
 			PreparedStatement statementObject = getConnection().prepareStatement(statementString);
