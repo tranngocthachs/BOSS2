@@ -68,7 +68,7 @@ public class PluginManager {
 		if (!atts.containsKey(PLUGIN_ID)
 				|| !atts.containsKey(PLUGIN_NAME)
 				|| !atts.containsKey(PLUGIN_VERSION)) {
-			throw new InvalidPluginException();
+			throw new InvalidPluginException("Supplied file is not a valid BOSS plugin");
 		}
 		
 		// if requires new db tables, there should be create and delete script entries
@@ -76,7 +76,7 @@ public class PluginManager {
 			if (atts.containsKey(PLUGIN_DATABASE_CREATE_SCRIPT) && atts.containsKey(PLUGIN_DATABASE_DELETE_SCRIPT))
 				initDB = true;
 			else
-				throw new InvalidPluginException("Supplied file is not a valid BOSS plugin");
+				throw new InvalidPluginException("Plugin needs creating and deleting sql scripts in order to use new tables");
 		}
 		
 		// we have a valid plugin file (as far as MANIFEST file goes)
@@ -169,7 +169,7 @@ public class PluginManager {
 					pluginMetadata.setConfigurable(true);
 				}
 				else
-					throw new InvalidPluginException("Supplied file is not a valid BOSS plugin");
+					throw new InvalidPluginException("Supplied plugin file doesn't contain initial configuration file " + atts.getValue(PLUGIN_CONFIGURATION) + " as advertised");
 			}
 			else {
 				pluginMetadata.setConfigurable(false);
@@ -368,7 +368,7 @@ public class PluginManager {
 		ZipEntry deleteScriptEntry = pluginFile.getEntry(deleteSQLFilename);
 		
 		if (createScriptEntry == null || deleteScriptEntry == null)
-			throw new InvalidPluginException("Supplied file is not a valid BOSS plugin");
+			throw new InvalidPluginException("Supplied plugin file doesn't contain sql scripts:  " + createSQLFilename + " and/or " + deleteSQLFilename + " as advertised");
 		else {
 			InputStream createSQLIS = pluginFile.getInputStream(createScriptEntry);
 			IDAOSession f = null;

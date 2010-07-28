@@ -644,6 +644,9 @@ public class MySQLDAOProducer implements IDAOSession {
 			MySQLPluginEntityDAO pluginEntityDao = ite.next();
 			if (pluginEntityDao.getEntityType().equals(clazz)) { 
 				pluginEntityDao.setConnection(connection);
+				if (!transactionLock.isHeldByCurrentThread()) {
+					throw new DAOException("no transaction in process");
+				}
 				return pluginEntityDao;
 			}
 		}	

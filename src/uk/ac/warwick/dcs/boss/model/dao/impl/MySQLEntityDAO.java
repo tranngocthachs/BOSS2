@@ -340,7 +340,7 @@ public abstract class MySQLEntityDAO<E extends Entity> implements IEntityDAO<E> 
 		this.connection = connection;
 	}
 
-	public Connection getConnection() {
+	protected Connection getConnection() {
 		return connection;
 	} 
 

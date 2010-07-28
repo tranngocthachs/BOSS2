@@ -120,6 +120,7 @@ public class PerformEditPluginPage extends Page {
 				pluginMetadata = PluginManager.installPlugin(pluginFile);
 			} catch (InvalidPluginException e) {
 				success = false;
+				templateContext.put("message", e.getMessage());
 			} finally {
 				FileUtils.deleteDirectory(tempDir);
 			}
@@ -149,7 +150,6 @@ public class PerformEditPluginPage extends Page {
 			if (success)
 				templateContext.put("message", "Please restart BOSS for the change to take effect");
 			else {
-				templateContext.put("message", "The provided plugin is not a valid BOSS's plugin");
 				templateContext.put("nextPage", pageContext.getPageUrl(AdminPageFactory.SITE_NAME, AdminPageFactory.PLUGINS_PAGE));
 				templateContext.put("nextPageParamName", "dummy");
 				templateContext.put("nextPageParamValue", "nothing");
