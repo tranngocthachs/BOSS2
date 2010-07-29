@@ -29,9 +29,9 @@ public abstract class MySQLEntityDAO<E extends Entity> implements IEntityDAO<E> 
 		this.setConnection(connection);
 	}
 	
-	public MySQLEntityDAO() {
-		connection = null;
-	}
+//	public MySQLEntityDAO() {
+//		connection = null;
+//	}
 	
 	public Long createPersistentCopy(E entity)
 			throws DAOException {		
