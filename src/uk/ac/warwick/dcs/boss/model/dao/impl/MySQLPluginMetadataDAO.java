@@ -1,23 +1,37 @@
 package uk.ac.warwick.dcs.boss.model.dao.impl;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.Vector;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
+
+import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.parser.CCJSqlParserManager;
+import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.create.table.CreateTable;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import uk.ac.warwick.dcs.boss.frontend.PageDispatcherServlet;
 import uk.ac.warwick.dcs.boss.model.dao.DAOException;
 import uk.ac.warwick.dcs.boss.model.dao.IPluginMetadataDAO;
 import uk.ac.warwick.dcs.boss.model.dao.beans.PluginMetadata;
+import uk.ac.warwick.dcs.boss.plugins.PluginManager;
 
 public class MySQLPluginMetadataDAO extends MySQLEntityDAO<PluginMetadata>
-		implements IPluginMetadataDAO {
+implements IPluginMetadataDAO {
 
 	public MySQLPluginMetadataDAO(Connection connection) throws DAOException {
 		super(connection);
@@ -99,20 +113,120 @@ public class MySQLPluginMetadataDAO extends MySQLEntityDAO<PluginMetadata>
 		return "id DESC";
 	}
 
-
-	public void executeSQLScript(InputStream sqlScriptInStream) throws DAOException {
-		Scanner s = new Scanner(sqlScriptInStream);
+	public void initCustomTables(String statements) throws DAOException {
+		CCJSqlParserManager pm = new CCJSqlParserManager();
+		Scanner s = new Scanner(statements);
 		s.useDelimiter("\\s*;\\s*");
+		List<String> createdTbls = new LinkedList<String>();
+		boolean success = true;
+		java.sql.Statement statement = null;
+		try {
+			statement = getConnection().createStatement(); 
+		} catch (SQLException e) {
+			throw new DAOException("SQL Error", e);
+		}
+		
 		while (s.hasNext()) {
-			String sql = s.next();
-			try {		
-				// Execute the statement.
-				Logger.getLogger("mysql").log(Level.TRACE, "Executing: " + sql);
-				getConnection().createStatement().executeUpdate(sql);
-			} catch (SQLException e) {
-				throw new DAOException("SQL error", e);
+			String stmStr = s.next();
+			String temp = stmStr.replaceAll("`", "");
+			Statement stm;
+			try {
+				stm = pm.parse(new StringReader(temp));
+			} catch (JSQLParserException e) {
+				success = false;
+				break;
 			}
+			if (stm instanceof CreateTable) {
+				Logger.getLogger("mysql").log(Level.TRACE, "Executing: " + stmStr); 
+				try {
+					// execute create table statement
+					statement.executeUpdate(stmStr);
+				} catch (SQLException e) {
+					success = false;
+					break;
+				}
+				createdTbls.add(((CreateTable) stm).getTable().getName());
+			}
+			else {
+				success = false;
+				break;
+			}
+		}
+		try {
+			statement.close();
+		} catch (SQLException e) {
+			throw new DAOException("SQL Error", e);
+		}
+		
+		if (!success) {
+			try {
+				statement = getConnection().createStatement();
+				for (String table : createdTbls) {
+					String sql = "DROP TABLE IF EXISTS " + table;
+					Logger.getLogger("mysql").log(Level.TRACE, "Executing: " + sql);
+					statement.executeUpdate(sql);
+				}
+				statement.close();
+			} catch (SQLException e) {
+				throw new DAOException("SQL Error", e);
+			}
+			
+			// throw exception to signal operation failed
+			throw new DAOException("Unexpecting sql script");
 		}
 	}
 
+	public void destroyCustomTables(String pluginId) throws DAOException, IOException {
+		File pluginFile = new File(PageDispatcherServlet.realPath, "WEB-INF" + File.separator + "plugins" + File.separator + pluginId + ".jar");
+		JarFile jarFile = new JarFile(pluginFile);
+		Attributes atts = jarFile.getManifest().getMainAttributes();
+
+		// only proceed if this plugin introduced new tables
+		if (atts.containsKey(PluginManager.PLUGIN_DATABASE) && atts.getValue(PluginManager.PLUGIN_DATABASE).equalsIgnoreCase("true")
+				&& atts.containsKey(PluginManager.PLUGIN_DATABASE_CREATE_SCRIPT)) {
+			String createSQLFilename = atts.getValue(PluginManager.PLUGIN_DATABASE_CREATE_SCRIPT);
+			if (createSQLFilename != null) {
+				ZipEntry entry = jarFile.getEntry(createSQLFilename);
+				if (entry != null) {
+					InputStream createSQLIS = jarFile.getInputStream(entry);
+					CCJSqlParserManager pm = new CCJSqlParserManager();
+					Scanner s = new Scanner(createSQLIS);
+					s.useDelimiter("\\s*;\\s*");
+					List<String> tables = new LinkedList<String>();
+					while (s.hasNext()) {
+						String stmStr = s.next();
+						String temp = stmStr.replaceAll("`", "");
+						Statement stm;
+						try {
+							stm = pm.parse(new StringReader(temp));
+						} catch (JSQLParserException e) {
+							throw new DAOException("Unrecognised SQL statement: " + stmStr, e);
+						}
+						if (stm instanceof CreateTable) {
+							tables.add(((CreateTable) stm).getTable().getName());
+						}
+						else {
+							throw new DAOException("Not CREATE TABLE statement: " + stmStr);
+						}
+					}
+
+
+					try {
+						java.sql.Statement statement = getConnection().createStatement();
+						for (String table : tables) {
+							// execute drop table statement
+							String sql = "DROP TABLE IF EXISTS " + table;
+							Logger.getLogger("mysql").log(Level.TRACE, "Executing: " + sql);
+							statement.executeUpdate(sql);
+						}
+						statement.close();
+					} catch (SQLException e) {
+						throw new DAOException("SQL error", e);
+
+					}
+
+				}
+			}
+		}
+	}
 }

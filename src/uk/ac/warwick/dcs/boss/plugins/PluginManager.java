@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.LinkedList;
@@ -19,6 +20,7 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -48,7 +50,7 @@ public class PluginManager {
 	
 	public static final Attributes.Name PLUGIN_DATABASE = new Attributes.Name("BOSS-Plugin-Database");
 	public static final Attributes.Name PLUGIN_DATABASE_CREATE_SCRIPT = new Attributes.Name("BOSS-Plugin-Database-Create");
-	public static final Attributes.Name PLUGIN_DATABASE_DELETE_SCRIPT = new Attributes.Name("BOSS-Plugin-Database-Delete");
+//	public static final Attributes.Name PLUGIN_DATABASE_DELETE_SCRIPT = new Attributes.Name("BOSS-Plugin-Database-Delete");
 	public static Logger logger = Logger.getLogger("plugin manager");
 	
 	public static PluginMetadata installPlugin(File pluginFile) throws IOException, InvalidPluginException {
@@ -73,7 +75,7 @@ public class PluginManager {
 		
 		// if requires new db tables, there should be create and delete script entries
 		if (atts.containsKey(PLUGIN_DATABASE) && atts.getValue(PLUGIN_DATABASE).equalsIgnoreCase("true")) {
-			if (atts.containsKey(PLUGIN_DATABASE_CREATE_SCRIPT) && atts.containsKey(PLUGIN_DATABASE_DELETE_SCRIPT))
+			if (atts.containsKey(PLUGIN_DATABASE_CREATE_SCRIPT))
 				initDB = true;
 			else
 				throw new InvalidPluginException("Plugin needs creating and deleting sql scripts in order to use new tables");
@@ -363,14 +365,12 @@ public class PluginManager {
 		String pluginId = atts.getValue(PLUGIN_ID);
 		ZipEntry createScriptEntry = pluginFile.getEntry(createSQLFilename);
 		
-		// making sure there's really a delete script too
-		String deleteSQLFilename = atts.getValue(PLUGIN_DATABASE_DELETE_SCRIPT);
-		ZipEntry deleteScriptEntry = pluginFile.getEntry(deleteSQLFilename);
-		
-		if (createScriptEntry == null || deleteScriptEntry == null)
-			throw new InvalidPluginException("Supplied plugin file doesn't contain sql scripts:  " + createSQLFilename + " and/or " + deleteSQLFilename + " as advertised");
+		if (createScriptEntry == null)
+			throw new InvalidPluginException("Supplied plugin file doesn't contain init sql scripts: " + createSQLFilename + " as advertised");
 		else {
 			InputStream createSQLIS = pluginFile.getInputStream(createScriptEntry);
+			StringWriter sqlScriptWriter = new StringWriter();
+			IOUtils.copy(createSQLIS, sqlScriptWriter);
 			IDAOSession f = null;
 			try {
 				DAOFactory df = (DAOFactory) FactoryRegistrar
@@ -382,7 +382,7 @@ public class PluginManager {
 			try {
 				f.beginTransaction();
 				logger.log(Level.INFO, "Executing initialisation SQL script " + createSQLFilename + " of " + pluginId + " plugin");
-				f.getPluginMetadataDAOInstance().executeSQLScript(createSQLIS);
+				f.getPluginMetadataDAOInstance().initCustomTables(sqlScriptWriter.toString());
 				f.endTransaction();
 			} catch (DAOException e) {
 				f.abortTransaction();
@@ -392,36 +392,23 @@ public class PluginManager {
 	}
 	
 	private static void destroyPluginTables(PluginMetadata pluginInfo) throws IOException, DAOException {
-		File pluginFile = new File(PageDispatcherServlet.realPath, "WEB-INF" + File.separator + "plugins" + File.separator + pluginInfo.getPluginId() + ".jar");
-		JarFile jarFile = new JarFile(pluginFile);
-		Attributes atts = jarFile.getManifest().getMainAttributes();
-		
-		// only proceed if this plugin introduced new tables
-		if (atts.containsKey(PLUGIN_DATABASE) && atts.getValue(PLUGIN_DATABASE).equalsIgnoreCase("true")) {
-			String deleteSQLFilename = atts.getValue(PLUGIN_DATABASE_DELETE_SCRIPT);
-			if (deleteSQLFilename != null) {
-				ZipEntry entry = jarFile.getEntry(deleteSQLFilename);
-				if (entry != null) {
-					InputStream deleteSQLIS = jarFile.getInputStream(entry);
-					IDAOSession f = null;
-					try {
-						DAOFactory df = (DAOFactory) FactoryRegistrar
-								.getFactory(DAOFactory.class);
-						f = df.getInstance();
-					} catch (FactoryException e) {
-						e.printStackTrace();
-					}
-					try {
-						f.beginTransaction();
-						logger.log(Level.INFO, "Executing cleanup SQL script " + deleteSQLFilename + " of " + pluginInfo.getPluginId() + " plugin");
-						f.getPluginMetadataDAOInstance().executeSQLScript(deleteSQLIS);
-						f.endTransaction();
-					} catch (DAOException e) {
-						f.abortTransaction();
-						throw e;
-					}
-				}
-			}
+		String pluginId = pluginInfo.getPluginId();
+		IDAOSession f = null;
+		try {
+			DAOFactory df = (DAOFactory) FactoryRegistrar
+					.getFactory(DAOFactory.class);
+			f = df.getInstance();
+		} catch (FactoryException e) {
+			e.printStackTrace();
+		}
+		try {
+			f.beginTransaction();
+			logger.log(Level.INFO, "Dropping custom tables of " + pluginId + " plugin");
+			f.getPluginMetadataDAOInstance().destroyCustomTables(pluginId);
+			f.endTransaction();
+		} catch (DAOException e) {
+			f.abortTransaction();
+			throw e;
 		}
 	}
 }
