@@ -8,7 +8,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.LinkedList;
@@ -20,7 +19,6 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -50,10 +48,10 @@ public class PluginManager {
 	
 	public static final Attributes.Name PLUGIN_DATABASE = new Attributes.Name("BOSS-Plugin-Database");
 	public static final Attributes.Name PLUGIN_DATABASE_CREATE_SCRIPT = new Attributes.Name("BOSS-Plugin-Database-Create");
-//	public static final Attributes.Name PLUGIN_DATABASE_DELETE_SCRIPT = new Attributes.Name("BOSS-Plugin-Database-Delete");
+	public static final Attributes.Name PLUGIN_DATABASE_DELETE_SCRIPT = new Attributes.Name("BOSS-Plugin-Database-Delete");
 	public static Logger logger = Logger.getLogger("plugin manager");
 	
-	public static PluginMetadata installPlugin(File pluginFile) throws IOException, InvalidPluginException {
+	public static PluginMetadata installPlugin(File pluginFile) throws IOException, InvalidPluginException, DAOException {
 		JarFile jarFile = null;
 		Attributes atts = null;
 		boolean initDB = false;
@@ -75,7 +73,7 @@ public class PluginManager {
 		
 		// if requires new db tables, there should be create and delete script entries
 		if (atts.containsKey(PLUGIN_DATABASE) && atts.getValue(PLUGIN_DATABASE).equalsIgnoreCase("true")) {
-			if (atts.containsKey(PLUGIN_DATABASE_CREATE_SCRIPT))
+			if (atts.containsKey(PLUGIN_DATABASE_CREATE_SCRIPT) && atts.containsKey(PLUGIN_DATABASE_DELETE_SCRIPT))
 				initDB = true;
 			else
 				throw new InvalidPluginException("Plugin needs creating and deleting sql scripts in order to use new tables");
@@ -135,7 +133,26 @@ public class PluginManager {
 		try {
 			// init new db table if required
 			if (initDB) {
-				initPluginTables(jarFile);
+				IDAOSession f = null;
+				try {
+					DAOFactory df = (DAOFactory) FactoryRegistrar
+							.getFactory(DAOFactory.class);
+					f = df.getInstance();
+				} catch (FactoryException e) {
+					e.printStackTrace();
+				}
+				try {
+					f.beginTransaction();
+					logger.log(Level.INFO, "Executing initialisation SQL script of " + pluginId + " plugin");
+					f.getPluginMetadataDAOInstance().createPluginCustomTables(pluginId);
+					f.endTransaction();
+				} catch (DAOException e) {
+					f.abortTransaction();
+					throw e;
+				} catch (InvalidPluginException e) {
+					f.abortTransaction();
+					throw e;
+				}
 			}
 			// enable the plugin
 			PluginManager.enablePlugin(pluginMetadata);
@@ -200,10 +217,27 @@ public class PluginManager {
 		return pluginMetadata;
 	}
 
-	public static void uninstallPlugin(PluginMetadata pluginInfo) throws IOException, DAOException {
+	public static void uninstallPlugin(PluginMetadata pluginInfo) throws IOException, DAOException, InvalidPluginException {
 		// delete plugin's database tables
-		// if this plugin didn't introduce any table, this call simply do nothing
-		destroyPluginTables(pluginInfo);
+		// if this plugin didn't introduce any table, this piece of code simply does nothing
+		String pluginId = pluginInfo.getPluginId();
+		IDAOSession f = null;
+		try {
+			DAOFactory df = (DAOFactory) FactoryRegistrar
+					.getFactory(DAOFactory.class);
+			f = df.getInstance();
+		} catch (FactoryException e) {
+			e.printStackTrace();
+		}
+		try {
+			f.beginTransaction();
+			logger.log(Level.INFO, "Executing initialisation SQL script of " + pluginId + " plugin");
+			f.getPluginMetadataDAOInstance().destroyPluginCustomTables(pluginId);
+			f.endTransaction();
+		} catch (DAOException e) {
+			f.abortTransaction();
+			throw e;
+		}
 		
 		// if this plugin is currently enable, disable it first
 		if (pluginInfo.getEnable())
@@ -358,7 +392,7 @@ public class PluginManager {
 		else
 			throw new PluginNotConfigurableException("plugin " + pluginId + " is not configurable");
 	}
-	
+/*
 	private static void initPluginTables(JarFile pluginFile) throws IOException, InvalidPluginException {
 		Attributes atts = pluginFile.getManifest().getMainAttributes();
 		String createSQLFilename = atts.getValue(PLUGIN_DATABASE_CREATE_SCRIPT);
@@ -411,4 +445,5 @@ public class PluginManager {
 			throw e;
 		}
 	}
+*/
 }

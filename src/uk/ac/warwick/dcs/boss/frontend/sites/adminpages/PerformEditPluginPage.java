@@ -121,6 +121,9 @@ public class PerformEditPluginPage extends Page {
 			} catch (InvalidPluginException e) {
 				success = false;
 				templateContext.put("message", e.getMessage());
+			} catch (DAOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			} finally {
 				FileUtils.deleteDirectory(tempDir);
 			}
@@ -174,7 +177,11 @@ public class PerformEditPluginPage extends Page {
 					f.endTransaction();
 					if (doString.equals("Delete")) {
 						// uninstall
-						PluginManager.uninstallPlugin(pluginMetadata);
+						try {
+							PluginManager.uninstallPlugin(pluginMetadata);
+						} catch (InvalidPluginException e) {
+							throw new ServletException("Invalid plugin file of " + pluginMetadata.getPluginId() + ". Should not happen!", e);
+						}
 						
 						f.beginTransaction();
 						pluginMetadataDao = f.getPluginMetadataDAOInstance();
