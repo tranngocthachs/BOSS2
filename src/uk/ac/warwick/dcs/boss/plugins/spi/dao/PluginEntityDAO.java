@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.Collection;
 
 import uk.ac.warwick.dcs.boss.model.dao.DAOException;
+import uk.ac.warwick.dcs.boss.plugins.dbschema.SQLTableSchema;
 
 public abstract class PluginEntityDAO<E extends PluginEntity> {
 	
@@ -50,4 +51,6 @@ public abstract class PluginEntityDAO<E extends PluginEntity> {
 	 * @return sorting string (e.g., x DESC, y ASC)
 	 */
 	public abstract String getMySQLSortingString();
+	
+	public abstract SQLTableSchema getTableSchema();
 }

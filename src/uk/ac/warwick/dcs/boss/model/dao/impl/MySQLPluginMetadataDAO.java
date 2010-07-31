@@ -1,28 +1,28 @@
 package uk.ac.warwick.dcs.boss.model.dao.impl;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.Scanner;
 import java.util.Vector;
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.openide.util.Lookup;
+import org.openide.util.lookup.Lookups;
 
 import uk.ac.warwick.dcs.boss.frontend.PageDispatcherServlet;
 import uk.ac.warwick.dcs.boss.model.dao.DAOException;
 import uk.ac.warwick.dcs.boss.model.dao.IPluginMetadataDAO;
 import uk.ac.warwick.dcs.boss.model.dao.beans.PluginMetadata;
-import uk.ac.warwick.dcs.boss.plugins.InvalidPluginException;
-import uk.ac.warwick.dcs.boss.plugins.PluginManager;
+import uk.ac.warwick.dcs.boss.plugins.dbschema.SQLTableSchema;
+import uk.ac.warwick.dcs.boss.plugins.spi.dao.PluginEntityDAO;
 
 public class MySQLPluginMetadataDAO extends MySQLEntityDAO<PluginMetadata>
 		implements IPluginMetadataDAO {
@@ -109,245 +109,54 @@ public class MySQLPluginMetadataDAO extends MySQLEntityDAO<PluginMetadata>
 	public String getMySQLSortingString() {
 		return "id DESC";
 	}
-/*
-	public void initCustomTables(String statements) throws DAOException {
-		CCJSqlParserManager pm = new CCJSqlParserManager();
-		Scanner s = new Scanner(statements);
-		s.useDelimiter("\\s*;\\s*");
-		List<String> createdTbls = new LinkedList<String>();
-		boolean success = true;
-		java.sql.Statement statement = null;
-		try {
-			statement = getConnection().createStatement();
-		} catch (SQLException e) {
-			throw new DAOException("SQL Error", e);
-		}
 
-		while (s.hasNext()) {
-			String stmStr = s.next();
-			String temp = stmStr.replaceAll("`", "");
-			Statement stm;
-			try {
-				stm = pm.parse(new StringReader(temp));
-			} catch (JSQLParserException e) {
-				success = false;
-				break;
-			}
-			if (stm instanceof CreateTable) {
-				Logger.getLogger("mysql").log(Level.TRACE,
-						"Executing: " + stmStr);
-				try {
-					// execute create table statement
-					statement.executeUpdate(stmStr);
-				} catch (SQLException e) {
-					success = false;
-					break;
-				}
-				createdTbls.add(((CreateTable) stm).getTable().getName());
-			} else {
-				success = false;
-				break;
-			}
-		}
-		try {
-			statement.close();
-		} catch (SQLException e) {
-			throw new DAOException("SQL Error", e);
-		}
-
-		if (!success) {
-			try {
-				statement = getConnection().createStatement();
-				for (String table : createdTbls) {
-					String sql = "DROP TABLE IF EXISTS " + table;
-					Logger.getLogger("mysql").log(Level.TRACE,
-							"Executing: " + sql);
-					statement.executeUpdate(sql);
-				}
-				statement.close();
-			} catch (SQLException e) {
-				throw new DAOException("SQL Error", e);
-			}
-
-			// throw exception to signal operation failed
-			throw new DAOException("Unexpecting sql script");
-		}
-	}
-
-	public void destroyCustomTables(String pluginId) throws DAOException,
-			IOException {
+	public void createPluginCustomTables(String pluginId) throws DAOException {
 		File pluginFile = new File(PageDispatcherServlet.realPath, "WEB-INF"
 				+ File.separator + "plugins" + File.separator + pluginId
 				+ ".jar");
-		JarFile jarFile = new JarFile(pluginFile);
-		Attributes atts = jarFile.getManifest().getMainAttributes();
-
-		// only proceed if this plugin introduced new tables
-		if (atts.containsKey(PluginManager.PLUGIN_DATABASE)
-				&& atts.getValue(PluginManager.PLUGIN_DATABASE)
-						.equalsIgnoreCase("true")
-				&& atts.containsKey(PluginManager.PLUGIN_DATABASE_CREATE_SCRIPT)) {
-			String createSQLFilename = atts
-					.getValue(PluginManager.PLUGIN_DATABASE_CREATE_SCRIPT);
-			if (createSQLFilename != null) {
-				ZipEntry entry = jarFile.getEntry(createSQLFilename);
-				if (entry != null) {
-					InputStream createSQLIS = jarFile.getInputStream(entry);
-					CCJSqlParserManager pm = new CCJSqlParserManager();
-					Scanner s = new Scanner(createSQLIS);
-					s.useDelimiter("\\s*;\\s*");
-					List<String> tables = new LinkedList<String>();
-					while (s.hasNext()) {
-						String stmStr = s.next();
-						String temp = stmStr.replaceAll("`", "");
-						Statement stm;
-						try {
-							stm = pm.parse(new StringReader(temp));
-						} catch (JSQLParserException e) {
-							throw new DAOException(
-									"Unrecognised SQL statement: " + stmStr, e);
-						}
-						if (stm instanceof CreateTable) {
-							tables.add(((CreateTable) stm).getTable().getName());
-						} else {
-							throw new DAOException(
-									"Not CREATE TABLE statement: " + stmStr);
-						}
-					}
-
-					try {
-						java.sql.Statement statement = getConnection()
-								.createStatement();
-						for (String table : tables) {
-							// execute drop table statement
-							String sql = "DROP TABLE IF EXISTS " + table;
-							Logger.getLogger("mysql").log(Level.TRACE,
-									"Executing: " + sql);
-							statement.executeUpdate(sql);
-						}
-						statement.close();
-					} catch (SQLException e) {
-						throw new DAOException("SQL error", e);
-
-					}
-
-				}
-			}
-		}
-	}
-*/
-	public void createPluginCustomTables(String pluginId) throws DAOException,
-			InvalidPluginException {
-		File pluginFile = new File(PageDispatcherServlet.realPath, "WEB-INF"
-				+ File.separator + "plugins" + File.separator + pluginId
-				+ ".jar");
-		JarFile jarFile = null;
-		Attributes atts = null;
+		URL url = null;
 		try {
-			jarFile = new JarFile(pluginFile);
-			atts = jarFile.getManifest().getMainAttributes();
-		} catch (IOException e) {
-			throw new InvalidPluginException(
-					"IO error (plugin file doesn't exist)", e);
+			url = pluginFile.toURI().toURL();
+		} catch (MalformedURLException e) {
+			throw new DAOException(e);
 		}
-
-		// only proceed if this plugin introduces new tables
-		if (atts.containsKey(PluginManager.PLUGIN_DATABASE)
-				&& atts.getValue(PluginManager.PLUGIN_DATABASE)
-						.equalsIgnoreCase("true")
-				&& atts.containsKey(PluginManager.PLUGIN_DATABASE_CREATE_SCRIPT)
-				&& atts.containsKey(PluginManager.PLUGIN_DATABASE_DELETE_SCRIPT)) {
-			String createSQLFilename = atts
-					.getValue(PluginManager.PLUGIN_DATABASE_CREATE_SCRIPT);
-			String deleteSQLFilename = atts
-					.getValue(PluginManager.PLUGIN_DATABASE_DELETE_SCRIPT);
-			if (createSQLFilename != null
-					&& jarFile.getEntry(createSQLFilename) != null
-					&& deleteSQLFilename != null
-					&& jarFile.getEntry(deleteSQLFilename) != null) {
-				ZipEntry entry = jarFile.getEntry(createSQLFilename);
-				InputStream createSQLIS = null;
+		URL[] urls = {url};
+		URLClassLoader classLoader = new URLClassLoader(urls, Thread.currentThread().getContextClassLoader());
+		Lookup lookup = Lookups.metaInfServices(classLoader);
+		Collection<? extends PluginEntityDAO> pluginDbs = lookup.lookupAll(PluginEntityDAO.class);
+		for (PluginEntityDAO pluginDb : pluginDbs) {
+			// make sure it's not the one that already installed. If this is something which was 
+			// installed, the ClassLoader of it will not be the same as the one we have above
+			if (pluginDb.getClass().getClassLoader() == classLoader) {
+				SQLTableSchema tableSchema = pluginDb.getTableSchema();
+				String createStr = tableSchema.getSQLCreateString();
+				Logger.getLogger("mysql").log(Level.TRACE, "Executing " + createStr);
 				try {
-					createSQLIS = jarFile.getInputStream(entry);
-				} catch (IOException e) {
-					throw new DAOException("IO error", e);
-				}
-				Scanner s = new Scanner(createSQLIS);
-				s.useDelimiter("\\s*;\\s*");
-				try {
-					java.sql.Statement statement = getConnection()
-							.createStatement();
-					while (s.hasNext()) {
-						String sql = s.next();
-						Logger.getLogger("mysql").log(Level.TRACE,
-								"Executing: " + sql);
-						statement.execute(sql);
-					}
-					statement.close();
+					Statement stm = getConnection().createStatement();
+					stm.executeUpdate(createStr);
 				} catch (SQLException e) {
 					throw new DAOException("SQL error", e);
 				}
-			} else {
-				throw new InvalidPluginException(
-						"Plugin file doesn't contain create and/or delete tables scripts");
 			}
 		}
 	}
 
-	public void destroyPluginCustomTables(String pluginId) throws DAOException,
-			InvalidPluginException {
-		File pluginFile = new File(PageDispatcherServlet.realPath, "WEB-INF"
-				+ File.separator + "plugins" + File.separator + pluginId
-				+ ".jar");
-		JarFile jarFile = null;
-		Attributes atts = null;
-		try {
-			jarFile = new JarFile(pluginFile);
-			atts = jarFile.getManifest().getMainAttributes();
-		} catch (IOException e) {
-			throw new InvalidPluginException(
-					"IO error (plugin file doesn't exist)", e);
-		}
-
-		// only proceed if this plugin introduces new tables
-		if (atts.containsKey(PluginManager.PLUGIN_DATABASE)
-				&& atts.getValue(PluginManager.PLUGIN_DATABASE)
-						.equalsIgnoreCase("true")
-				&& atts.containsKey(PluginManager.PLUGIN_DATABASE_CREATE_SCRIPT)
-				&& atts.containsKey(PluginManager.PLUGIN_DATABASE_DELETE_SCRIPT)) {
-			String createSQLFilename = atts
-					.getValue(PluginManager.PLUGIN_DATABASE_CREATE_SCRIPT);
-			String deleteSQLFilename = atts
-					.getValue(PluginManager.PLUGIN_DATABASE_DELETE_SCRIPT);
-			if (createSQLFilename != null
-					&& jarFile.getEntry(createSQLFilename) != null
-					&& deleteSQLFilename != null
-					&& jarFile.getEntry(deleteSQLFilename) != null) {
-				ZipEntry entry = jarFile.getEntry(deleteSQLFilename);
-				InputStream deleteSQLIS = null;
+	public void destroyPluginCustomTables(String pluginId) throws DAOException {
+		Collection<? extends PluginEntityDAO> pluginDbs = Lookup.getDefault().lookupAll(PluginEntityDAO.class);
+		for (PluginEntityDAO pluginDb : pluginDbs) {
+			// make sure we get the right one
+			// the line below will get the full path of the jar file of which pluginDb is loaded from
+			// the correct one would be having the name plugin_<pluginId>.jar
+			String pluginFilePath = pluginDb.getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+			if (pluginFilePath.endsWith(pluginId + ".jar")) {
+				String dropStr = "DROP TABLE IF EXISTS " + pluginDb.getTableName();
+				Logger.getLogger("mysql").log(Level.TRACE, "Executing " + dropStr);
 				try {
-					deleteSQLIS = jarFile.getInputStream(entry);
-				} catch (IOException e) {
-					throw new DAOException("IO error", e);
-				}
-				Scanner s = new Scanner(deleteSQLIS);
-				s.useDelimiter("\\s*;\\s*");
-				try {
-					java.sql.Statement statement = getConnection()
-							.createStatement();
-					while (s.hasNext()) {
-						String sql = s.next();
-						Logger.getLogger("mysql").log(Level.TRACE,
-								"Executing: " + sql);
-						statement.execute(sql);
-					}
-					statement.close();
+					Statement stm = getConnection().createStatement();
+					stm.executeUpdate(dropStr);
 				} catch (SQLException e) {
 					throw new DAOException("SQL error", e);
 				}
-			} else {
-				throw new InvalidPluginException(
-						"Plugin file doesn't contain create and/or delete tables scripts");
 			}
 		}
 	}
