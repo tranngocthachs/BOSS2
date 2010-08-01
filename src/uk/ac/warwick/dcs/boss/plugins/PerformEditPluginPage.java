@@ -1,4 +1,4 @@
-package uk.ac.warwick.dcs.boss.frontend.sites.adminpages;
+package uk.ac.warwick.dcs.boss.plugins;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -30,8 +30,6 @@ import uk.ac.warwick.dcs.boss.model.dao.IDAOSession;
 import uk.ac.warwick.dcs.boss.model.dao.IPluginMetadataDAO;
 import uk.ac.warwick.dcs.boss.model.dao.beans.PluginMetadata;
 import uk.ac.warwick.dcs.boss.model.testing.impl.TemporaryDirectory;
-import uk.ac.warwick.dcs.boss.plugins.InvalidPluginException;
-import uk.ac.warwick.dcs.boss.plugins.PluginManager;
 
 public class PerformEditPluginPage extends Page {
 

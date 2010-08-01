@@ -1,4 +1,4 @@
-package uk.ac.warwick.dcs.boss.frontend.sites.adminpages;
+package uk.ac.warwick.dcs.boss.plugins;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -17,8 +17,6 @@ import uk.ac.warwick.dcs.boss.model.dao.DAOException;
 import uk.ac.warwick.dcs.boss.model.dao.DAOFactory;
 import uk.ac.warwick.dcs.boss.model.dao.IDAOSession;
 import uk.ac.warwick.dcs.boss.model.dao.beans.PluginMetadata;
-import uk.ac.warwick.dcs.boss.plugins.PluginManager;
-import uk.ac.warwick.dcs.boss.plugins.PluginNotConfigurableException;
 
 public class ConfigPluginPage extends Page {
 

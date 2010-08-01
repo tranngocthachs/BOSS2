@@ -7,7 +7,6 @@ import org.openide.util.Lookup;
 import uk.ac.warwick.dcs.boss.frontend.Page;
 import uk.ac.warwick.dcs.boss.frontend.PageFactory;
 import uk.ac.warwick.dcs.boss.frontend.PageLoadException;
-import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.ConfigPluginPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.EditModelPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.EditModulePage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.EditPersonPage;
@@ -18,16 +17,17 @@ import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.ModuleAdministratorsPage
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.ModulesPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PeoplePage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PerformAddModuleAdministratorPage;
-import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PerformConfigPluginPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PerformEditModelPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PerformEditModulePage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PerformEditPersonPage;
-import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PerformEditPluginPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PerformExecuteUtilityPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PerformFindModuleAdministratorPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PerformRemoveModuleAdministratorPage;
-import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PluginsPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.UtilitiesPage;
+import uk.ac.warwick.dcs.boss.plugins.ConfigPluginPage;
+import uk.ac.warwick.dcs.boss.plugins.PerformConfigPluginPage;
+import uk.ac.warwick.dcs.boss.plugins.PerformEditPluginPage;
+import uk.ac.warwick.dcs.boss.plugins.PluginsPage;
 import uk.ac.warwick.dcs.boss.plugins.spi.pages.AdminPluginPageProvider;
 
 public class AdminPageFactory extends PageFactory {

@@ -1,4 +1,4 @@
-package uk.ac.warwick.dcs.boss.frontend.sites.adminpages;
+package uk.ac.warwick.dcs.boss.plugins;
 
 import java.io.IOException;
 import java.util.Collection;

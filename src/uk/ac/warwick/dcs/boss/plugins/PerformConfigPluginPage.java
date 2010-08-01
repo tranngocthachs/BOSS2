@@ -1,4 +1,4 @@
-package uk.ac.warwick.dcs.boss.frontend.sites.adminpages;
+package uk.ac.warwick.dcs.boss.plugins;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -12,8 +12,6 @@ import uk.ac.warwick.dcs.boss.frontend.Page;
 import uk.ac.warwick.dcs.boss.frontend.PageContext;
 import uk.ac.warwick.dcs.boss.frontend.PageLoadException;
 import uk.ac.warwick.dcs.boss.frontend.sites.AdminPageFactory;
-import uk.ac.warwick.dcs.boss.plugins.PluginManager;
-import uk.ac.warwick.dcs.boss.plugins.PluginNotConfigurableException;
 
 public class PerformConfigPluginPage extends Page {
 

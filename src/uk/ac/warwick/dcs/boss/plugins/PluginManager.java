@@ -30,24 +30,24 @@ import uk.ac.warwick.dcs.boss.model.dao.DAOFactory;
 import uk.ac.warwick.dcs.boss.model.dao.IDAOSession;
 import uk.ac.warwick.dcs.boss.model.dao.beans.PluginMetadata;
 
-public class PluginManager {
-	public static final Attributes.Name PLUGIN_ID = new Attributes.Name(
+class PluginManager {
+	static final Attributes.Name PLUGIN_ID = new Attributes.Name(
 			"BOSS-Plugin-Id");
-	public static final Attributes.Name PLUGIN_NAME = new Attributes.Name(
+	static final Attributes.Name PLUGIN_NAME = new Attributes.Name(
 			"BOSS-Plugin-Name");
-	public static final Attributes.Name PLUGIN_AUTHOR = new Attributes.Name(
+	static final Attributes.Name PLUGIN_AUTHOR = new Attributes.Name(
 			"BOSS-Plugin-Author");
-	public static final Attributes.Name PLUGIN_EMAIL = new Attributes.Name(
+	static final Attributes.Name PLUGIN_EMAIL = new Attributes.Name(
 			"BOSS-Plugin-Email");
-	public static final Attributes.Name PLUGIN_VERSION = new Attributes.Name(
+	static final Attributes.Name PLUGIN_VERSION = new Attributes.Name(
 			"BOSS-Plugin-Version");
-	public static final Attributes.Name PLUGIN_DESCRIPTION = new Attributes.Name(
+	static final Attributes.Name PLUGIN_DESCRIPTION = new Attributes.Name(
 			"BOSS-Plugin-Description");
-	public static final Attributes.Name PLUGIN_CONFIGURATION = new Attributes.Name(
+	static final Attributes.Name PLUGIN_CONFIGURATION = new Attributes.Name(
 			"BOSS-Plugin-Configuration");
-	public static Logger logger = Logger.getLogger("plugin manager");
+	static Logger logger = Logger.getLogger("plugin manager");
 
-	public static PluginMetadata installPlugin(File pluginFile)
+	static PluginMetadata installPlugin(File pluginFile)
 			throws IOException, InvalidPluginException, DAOException {
 		JarFile jarFile = null;
 		Attributes atts = null;
@@ -212,7 +212,7 @@ public class PluginManager {
 		return pluginMetadata;
 	}
 
-	public static void uninstallPlugin(PluginMetadata pluginInfo)
+	static void uninstallPlugin(PluginMetadata pluginInfo)
 			throws IOException, DAOException, InvalidPluginException {
 		// delete plugin's database tables
 		// if this plugin didn't introduce any table, this piece of code simply
@@ -257,7 +257,7 @@ public class PluginManager {
 		}
 	}
 
-	public static void enablePlugin(PluginMetadata pluginInfo)
+	static void enablePlugin(PluginMetadata pluginInfo)
 			throws IOException {
 		String pluginId = pluginInfo.getPluginId();
 		File webInfDir = new File(PageDispatcherServlet.realPath, "WEB-INF");
@@ -344,7 +344,7 @@ public class PluginManager {
 		pluginInfo.setEnable(true);
 	}
 
-	public static void disablePlugin(PluginMetadata pluginInfo) {
+	static void disablePlugin(PluginMetadata pluginInfo) {
 
 		// delete main jar file in webapp's lib folder
 		File mainJarFile = new File(PageDispatcherServlet.realPath, "WEB-INF"
@@ -371,7 +371,7 @@ public class PluginManager {
 		pluginInfo.setEnable(false);
 	}
 
-	public static Properties getConfiguration(String pluginId)
+	static Properties getConfiguration(String pluginId)
 			throws IOException, PluginNotConfigurableException {
 		Properties prop = new Properties();
 		File propFile = new File(PageDispatcherServlet.realPath, "WEB-INF"
@@ -392,7 +392,7 @@ public class PluginManager {
 		return prop;
 	}
 
-	public static void setConfiguration(String pluginId, Properties prop)
+	static void setConfiguration(String pluginId, Properties prop)
 			throws IOException, PluginNotConfigurableException {
 		File propFile = new File(PageDispatcherServlet.realPath, "WEB-INF"
 				+ File.separator + "plugins" + File.separator + pluginId
