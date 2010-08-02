@@ -62,7 +62,6 @@ public class MySQLSherlockSessionDAO extends MySQLEntityDAO<SherlockSession> imp
 	}
 
 
-	@Override
 	public void setRequiredFilenames(Long sherlockSessionId, Collection<String> fileNames)
 		throws DAOException {
 		try {
@@ -91,8 +90,6 @@ public class MySQLSherlockSessionDAO extends MySQLEntityDAO<SherlockSession> imp
 		
 	}
 
-
-	@Override
 	public Collection<String> fetchRequiredFilenames(Long sherlockSessionId)
 			throws DAOException {
 		try {
@@ -117,8 +114,6 @@ public class MySQLSherlockSessionDAO extends MySQLEntityDAO<SherlockSession> imp
 		}
 	}
 
-
-	@Override
 	public void removeRequiredFilenames(Long sherlockSessionId)
 			throws DAOException {
 		try {

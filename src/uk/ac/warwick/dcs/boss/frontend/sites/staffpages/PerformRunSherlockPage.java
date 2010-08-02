@@ -550,7 +550,6 @@ SherlockProcessCallback {
 		Settings.getSherlockSettings().store();
 	}
 
-	@Override
 	public void exceptionThrown(SherlockProcessException spe) {
 		// Remove everything that's been done, and let the user know.
 		process.deleteWorkDone();

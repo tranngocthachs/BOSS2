@@ -565,7 +565,6 @@ public class MySQLDAOProducer implements IDAOSession {
 		return new MySQLLocalisationDAO(connection);
 	}	
 	
-	@Override
 	public ISherlockSessionDAO getSherlockSessionDAOInstance() throws DAOException {
 		if (!transactionLock.isHeldByCurrentThread()) {
 			throw new DAOException("no transaction in process");

@@ -592,7 +592,6 @@ public class MySQLStaffInterfaceQueriesDAO implements IStaffInterfaceQueriesDAO 
 
 	}
 
-	@Override
 	public Collection<SherlockSession> performStaffSherlockSessionsQuery(
 			Long assignmentId) throws DAOException {
 		try {
