@@ -39,19 +39,20 @@
 			<table class="full">
 				<thead>
 					<tr>
-						<th>Property</th>
-						<th>Value</th>
+						<th>Name</th>
+						<th>Setting</th>
 					</tr>
 				</thead>
 				<tbody>
 					#set($style="odd")
-					#foreach($key in $prop.keySet())
-						<tr>
+					#foreach($option in $options)
+						<tr class="$style">
 							<td>
-								<p>$key</p>
+								<h3>$option.getName()</h3>
 							</td>
 							<td>
-								<input type="text" name="$key" value="$prop.get($key)" size="64"/>
+								<em>$option.getDescription()</em><br/>
+								<input name="$option.getName()" value="$prop.getProperty($option.getName())" />
 							</td>
 						</tr>
 						#if($style == "odd")

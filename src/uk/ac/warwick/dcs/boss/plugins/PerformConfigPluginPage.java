@@ -12,6 +12,7 @@ import uk.ac.warwick.dcs.boss.frontend.Page;
 import uk.ac.warwick.dcs.boss.frontend.PageContext;
 import uk.ac.warwick.dcs.boss.frontend.PageLoadException;
 import uk.ac.warwick.dcs.boss.frontend.sites.AdminPageFactory;
+import uk.ac.warwick.dcs.boss.plugins.spi.config.PluginConfiguration;
 
 public class PerformConfigPluginPage extends Page {
 
@@ -36,11 +37,11 @@ public class PerformConfigPluginPage extends Page {
 			throw new ServletException("Unexpected POST request");
 		
 		try {
-			Properties prop = PluginManager.getConfiguration(pluginId);
+			Properties prop = PluginConfiguration.getConfiguration(pluginId);
 			for(Object key : prop.keySet()) {
 				prop.setProperty((String)key, pageContext.getParameter((String)key));
 			}
-			PluginManager.setConfiguration(pluginId, prop);
+			PluginConfiguration.setConfiguration(pluginId, prop);
 		} catch (PluginNotConfigurableException e) {
 			throw new ServletException("plugin " + pluginId + " is not configurable");
 		}

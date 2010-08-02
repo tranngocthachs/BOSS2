@@ -20,5 +20,5 @@ public class ConfigurationOption {
 	
 	public String getDefaultValue() {
 		return defaultValue;
-	}	
+	}
 }
