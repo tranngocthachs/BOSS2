@@ -407,17 +407,14 @@ public abstract class MySQLEntityDAO<E extends Entity> implements IEntityDAO<E> 
 			Logger.getLogger("mysql").log(Level.TRACE, "Executing: " + statementObject.toString());
 			ResultSet rs = statementObject.executeQuery();
 			Vector<E> result = new Vector<E>();
-			System.out.println("TNT: " + rs);
 			while (rs.next()) {
 				E e = createInstanceFromDatabaseValues(getTableName(), rs);				
 				e.setId(rs.getLong("id"));
-				System.out.println("TNT: " + e);
 				result.add(e);
 			}
 
 			rs.close();
 			statementObject.close();
-			System.out.println("TNT: result size " + result.size());
 			// Done
 			return result;
 		} catch (SQLException e) {
