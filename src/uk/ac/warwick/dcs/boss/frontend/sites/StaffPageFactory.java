@@ -1,7 +1,6 @@
 package uk.ac.warwick.dcs.boss.frontend.sites;
 
 import java.util.Iterator;
-import java.util.ServiceLoader;
 
 import org.openide.util.Lookup;
 
@@ -59,8 +58,8 @@ import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.TestHashPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.TestsPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.UploadAssignmentResourcePage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.UploadTestResourcePage;
+import uk.ac.warwick.dcs.boss.plugins.PluginPage;
 import uk.ac.warwick.dcs.boss.plugins.spi.pages.StaffPluginPageProvider;
-import uk.ac.warwick.dcs.boss.plugins.spi.pages.StudentPluginPageProvider;
 
 public class StaffPageFactory extends PageFactory {
 
@@ -229,7 +228,7 @@ public class StaffPageFactory extends PageFactory {
 			while (staffPluginPagesIter.hasNext()) {
 				StaffPluginPageProvider provider = staffPluginPagesIter.next();
 				if (provider.getName().equals(pageName))
-					return provider;
+					return new PluginPage(provider);
 			}
 			
 			throw new PageLoadException(404, "page not found");

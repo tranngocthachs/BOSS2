@@ -37,6 +37,7 @@ import uk.ac.warwick.dcs.boss.model.dao.IStaffInterfaceQueriesDAO;
 import uk.ac.warwick.dcs.boss.model.dao.IStudentInterfaceQueriesDAO;
 import uk.ac.warwick.dcs.boss.model.dao.ISubmissionDAO;
 import uk.ac.warwick.dcs.boss.model.dao.ITestDAO;
+import uk.ac.warwick.dcs.boss.plugins.MySQLPluginEntityDAO;
 import uk.ac.warwick.dcs.boss.plugins.spi.dao.PluginEntity;
 import uk.ac.warwick.dcs.boss.plugins.spi.dao.PluginEntityDAO;
 

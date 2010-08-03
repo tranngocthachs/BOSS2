@@ -25,6 +25,7 @@ import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.PerformTestPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.SubmissionsPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.SubmitPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.TestPage;
+import uk.ac.warwick.dcs.boss.plugins.PluginPage;
 import uk.ac.warwick.dcs.boss.plugins.spi.pages.StudentPluginPageProvider;
 
 public class StudentPageFactory extends PageFactory {
@@ -93,7 +94,7 @@ public class StudentPageFactory extends PageFactory {
 			while (studentPluginPagesIter.hasNext()) {
 				StudentPluginPageProvider provider = studentPluginPagesIter.next();
 				if (provider.getName().equals(pageName))
-					return provider;
+					return new PluginPage(provider);
 			}
 			
 			throw new PageLoadException(404, "page not found");

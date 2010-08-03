@@ -1,7 +1,6 @@
 package uk.ac.warwick.dcs.boss.frontend.sites;
 
 import java.util.Iterator;
-import java.util.ServiceLoader;
 
 import org.openide.util.Lookup;
 
@@ -17,6 +16,7 @@ import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.PerformTestPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.StudentsPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.SubmissionsPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.TestPage;
+import uk.ac.warwick.dcs.boss.plugins.PluginPage;
 import uk.ac.warwick.dcs.boss.plugins.spi.pages.MarkerPluginPageProvider;
 
 public class MarkerPageFactory extends PageFactory {
@@ -58,7 +58,7 @@ public class MarkerPageFactory extends PageFactory {
 			while (markerPluginPagesIter.hasNext()) {
 				MarkerPluginPageProvider provider = markerPluginPagesIter.next();
 				if (provider.getName().equals(pageName))
-					return provider;
+					return new PluginPage(provider);
 			}
 			
 			throw new PageLoadException(404, "Unknown page identifier");

@@ -1,4 +1,4 @@
-package uk.ac.warwick.dcs.boss.model.dao.impl;
+package uk.ac.warwick.dcs.boss.plugins;
 
 
 import java.sql.Connection;
@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.Collection;
 
 import uk.ac.warwick.dcs.boss.model.dao.DAOException;
+import uk.ac.warwick.dcs.boss.model.dao.impl.MySQLEntityDAO;
 import uk.ac.warwick.dcs.boss.plugins.spi.dao.PluginEntity;
 import uk.ac.warwick.dcs.boss.plugins.spi.dao.PluginEntityDAO;
 

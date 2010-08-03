@@ -27,6 +27,7 @@ import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.UtilitiesPage;
 import uk.ac.warwick.dcs.boss.plugins.ConfigPluginPage;
 import uk.ac.warwick.dcs.boss.plugins.PerformConfigPluginPage;
 import uk.ac.warwick.dcs.boss.plugins.PerformEditPluginPage;
+import uk.ac.warwick.dcs.boss.plugins.PluginPage;
 import uk.ac.warwick.dcs.boss.plugins.PluginsPage;
 import uk.ac.warwick.dcs.boss.plugins.spi.pages.AdminPluginPageProvider;
 
@@ -107,7 +108,7 @@ public class AdminPageFactory extends PageFactory {
 			while (adminPluginPagesIter.hasNext()) {
 				AdminPluginPageProvider provider = adminPluginPagesIter.next();
 				if (provider.getName().equals(pageName))
-					return provider;
+					return new PluginPage(provider);
 			}
 			
 			throw new PageLoadException(404, "page not found");
