@@ -46,6 +46,7 @@
 						<th>Enable</th>
 						<th>Configurable</th>
 						<th>Actions</th>
+						<th>Upgrade</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -105,6 +106,14 @@
 										<input type="submit" name="do" value="Config"/><br />
 								</form>
 								#end
+							</p>
+						</td>
+						<td>
+							<p>
+								<form method="post" action="$context.getPageUrl("admin", "perform_edit_plugin")" enctype="multipart/form-data">
+									<input type="file" name="file" size="10" style="width: 150px"/><input type="submit" name="do" value="Upgrade"/>
+									<input type="hidden" name="plugin" value="$plugin.getId()"/>
+								</form>
 							</p>
 						</td>								
 						

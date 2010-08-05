@@ -50,12 +50,12 @@ class PluginManager {
 			"BOSS-Plugin-Version");
 	static final Attributes.Name PLUGIN_DESCRIPTION = new Attributes.Name(
 			"BOSS-Plugin-Description");
-//	static final Attributes.Name PLUGIN_CONFIGURATION = new Attributes.Name(
-//			"BOSS-Plugin-Configuration");
+	// static final Attributes.Name PLUGIN_CONFIGURATION = new Attributes.Name(
+	// "BOSS-Plugin-Configuration");
 	static Logger logger = Logger.getLogger("plugin manager");
 
-	static PluginMetadata installPlugin(File pluginFile)
-			throws IOException, InvalidPluginException, DAOException {
+	static PluginMetadata installPlugin(File pluginFile) throws IOException,
+			InvalidPluginException, DAOException {
 		JarFile jarFile = null;
 		Attributes atts = null;
 		try {
@@ -75,8 +75,36 @@ class PluginManager {
 					"Supplied file is not a valid BOSS plugin");
 		}
 
+		// check if this plugin exists
+		IDAOSession f = null;
+		try {
+			DAOFactory df = (DAOFactory) FactoryRegistrar
+					.getFactory(DAOFactory.class);
+			f = df.getInstance();
+		} catch (FactoryException e) {
+			e.printStackTrace();
+		}
+		try {
+			f.beginTransaction();
+			PluginMetadata pluginInfo = new PluginMetadata();
+			pluginInfo.setPluginId(atts.getValue(PLUGIN_ID));
+			Collection<PluginMetadata> plugins = f
+					.getPluginMetadataDAOInstance()
+					.findPersistentEntitiesByExample(pluginInfo);
+			f.endTransaction();
+			if (!plugins.isEmpty()) {
+				throw new InvalidPluginException(
+						"The "
+								+ atts.getValue(PLUGIN_ID)
+								+ " plugin is already installed. Consider upgrade the plugin if this is a newer version.");
+			}
+		} catch (DAOException e) {
+			f.abortTransaction();
+			throw e;
+		}
+
 		// we have a valid plugin file (as far as MANIFEST file goes)
-		String pluginId = atts.getValue(PluginManager.PLUGIN_ID);
+		String pluginId = atts.getValue(PluginManager.PLUGIN_ID).trim();
 		File webInfDir = new File(PageDispatcherServlet.realPath, "WEB-INF");
 		File pluginFolder = new File(webInfDir, "plugins");
 
@@ -114,30 +142,21 @@ class PluginManager {
 
 		// create an entity
 		PluginMetadata pluginMetadata = new PluginMetadata();
-		pluginMetadata.setPluginId(atts.getValue(PluginManager.PLUGIN_ID));
-		pluginMetadata.setName(atts.getValue(PluginManager.PLUGIN_NAME));
-		pluginMetadata.setVersion(atts.getValue(PluginManager.PLUGIN_VERSION));
-		if (atts.containsKey(PluginManager.PLUGIN_AUTHOR))
-			pluginMetadata
-					.setAuthor(atts.getValue(PluginManager.PLUGIN_AUTHOR));
-		if (atts.containsKey(PluginManager.PLUGIN_EMAIL))
-			pluginMetadata.setEmail(atts.getValue(PluginManager.PLUGIN_EMAIL));
-		if (atts.containsKey(PluginManager.PLUGIN_DESCRIPTION))
-			pluginMetadata.setDescription(atts
-					.getValue(PluginManager.PLUGIN_DESCRIPTION));
+		pluginMetadata.setPluginId(atts.getValue(PLUGIN_ID).trim());
+		pluginMetadata.setName(atts.getValue(PluginManager.PLUGIN_NAME).trim());
+		pluginMetadata.setVersion(atts.getValue(PluginManager.PLUGIN_VERSION).trim());
+		pluginMetadata.setAuthor(atts.getValue(PluginManager.PLUGIN_AUTHOR).trim());
+		pluginMetadata.setEmail(atts.getValue(PluginManager.PLUGIN_EMAIL).trim());
+		pluginMetadata.setDescription(atts
+				.getValue(PluginManager.PLUGIN_DESCRIPTION).trim());
 		if (!libFileNames.isEmpty()) {
 			pluginMetadata.setLibFilenames(libFileNames.toArray(new String[0]));
-		}
+		} else
+			pluginMetadata.setLibFilenames(null);
 
 		try {
-			IDAOSession f = null;
-			try {
-				DAOFactory df = (DAOFactory) FactoryRegistrar
-						.getFactory(DAOFactory.class);
-				f = df.getInstance();
-			} catch (FactoryException e) {
-				e.printStackTrace();
-			}
+			// init custom tables if required, otherwise it this piece
+			// of code doesn't have any effect
 			try {
 				f.beginTransaction();
 				f.getPluginMetadataDAOInstance().createPluginCustomTables(
@@ -152,47 +171,8 @@ class PluginManager {
 			PluginManager.enablePlugin(pluginMetadata);
 
 			// handling plugin configuration if present
-			pluginMetadata.setConfigurable(PluginManager.initPluginConfig(pluginId));
-/*			if (atts.containsKey(PLUGIN_CONFIGURATION)) {
-				ZipEntry entry = jarFile.getEntry(atts
-						.getValue(PLUGIN_CONFIGURATION));
-				if (entry != null) {
-					InputStream in = null;
-					OutputStream out = null;
-					logger.log(Level.INFO, "Extracting configuration file of "
-							+ pluginId + " plugin into WEB-INF/plugins folder");
-					File destConfFile = new File(pluginFolder, pluginId
-							+ ".properties");
-					try {
-						in = new BufferedInputStream(
-								jarFile.getInputStream(entry));
-
-						out = new BufferedOutputStream(new FileOutputStream(
-								destConfFile));
-						int c;
-						while ((c = in.read()) != -1) {
-							out.write(c);
-						}
-						out.flush();
-					} catch (IOException e) {
-						if (destConfFile.exists())
-							destConfFile.delete();
-					} finally {
-						if (in != null)
-							in.close();
-						if (out != null)
-							out.close();
-					}
-					pluginMetadata.setConfigurable(true);
-				} else
-					throw new InvalidPluginException(
-							"Supplied plugin file doesn't contain initial configuration file "
-									+ atts.getValue(PLUGIN_CONFIGURATION)
-									+ " as advertised");
-			} else {
-				pluginMetadata.setConfigurable(false);
-			}
-*/
+			pluginMetadata.setConfigurable(PluginManager
+					.initPluginConfig(pluginId));
 		} catch (IOException e) {
 			// installation is unsuccessful, delete plugin file in
 			// WEB-INF/plugins
@@ -205,25 +185,11 @@ class PluginManager {
 			// rethrow exception
 			throw e;
 		}
-/* 		catch (InvalidPluginException e) {
-			// installation is unsuccessful, delete plugin file in
-			// WEB-INF/plugins
-			if (pluginJarFile.exists()) {
-				logger.log(Level.INFO, "Deleting " + pluginId
-						+ " plugin file in WEB-INF/plugins folder");
-				pluginJarFile.delete();
-			}
-
-			// rethrow exception
-			throw e;
-		}
-*/
 		return pluginMetadata;
 	}
 
-
-	static void uninstallPlugin(PluginMetadata pluginInfo)
-			throws IOException, DAOException, InvalidPluginException {
+	static void uninstallPlugin(PluginMetadata pluginInfo) throws IOException,
+			DAOException, InvalidPluginException {
 		// delete plugin's database tables
 		// if this plugin didn't introduce any table, this piece of code simply
 		// does nothing
@@ -267,8 +233,7 @@ class PluginManager {
 		}
 	}
 
-	static void enablePlugin(PluginMetadata pluginInfo)
-			throws IOException {
+	static void enablePlugin(PluginMetadata pluginInfo) throws IOException {
 		String pluginId = pluginInfo.getPluginId();
 		File webInfDir = new File(PageDispatcherServlet.realPath, "WEB-INF");
 		// make the plugin active by copy the jar file into WEB-INF/lib
@@ -381,8 +346,114 @@ class PluginManager {
 		pluginInfo.setEnable(false);
 	}
 
-	static Properties getConfiguration(String pluginId)
-			throws IOException, PluginNotConfigurableException {
+	static void upgradePlugin(File newPluginFile, PluginMetadata pluginInfo)
+			throws IOException, InvalidPluginException {
+		JarFile jarFile = null;
+		Attributes atts = null;
+		try {
+			// we have the plugin in a jar file
+			jarFile = new JarFile(newPluginFile);
+			atts = jarFile.getManifest().getMainAttributes();
+		} catch (IOException e) {
+			throw new InvalidPluginException(
+					"Supplied file is not a valid BOSS plugin");
+		}
+
+		// manifest file is required to supplied at least plugin's id,
+		// name, and version
+		if (!atts.containsKey(PLUGIN_ID) || !atts.containsKey(PLUGIN_NAME)
+				|| !atts.containsKey(PLUGIN_VERSION)) {
+			throw new InvalidPluginException(
+					"Supplied file is not a valid BOSS plugin");
+		}
+
+		// check if this plugin is indeed of newer version
+		String pluginId = atts.getValue(PluginManager.PLUGIN_ID).trim();
+		String newVerStr = atts.getValue(PLUGIN_VERSION).trim();
+		if (!pluginId.equals(pluginInfo.getPluginId())
+				|| compareVersion(newVerStr, pluginInfo.getVersion()) <= 0)
+			throw new InvalidPluginException(
+					"Supplied file is not a newer version of "
+							+ pluginInfo.getPluginId());
+
+		// we have a valid plugin file (as far as MANIFEST file goes)
+
+		// if this plugin is currently enable, disable it first
+		if (pluginInfo.getEnable())
+			PluginManager.disablePlugin(pluginInfo);
+
+		File webInfDir = new File(PageDispatcherServlet.realPath, "WEB-INF");
+		File pluginFolder = new File(webInfDir, "plugins");
+
+		// replacing the plugin file under WEB-INF/plugins/
+		File pluginJarFile = new File(pluginFolder, pluginId + ".jar");
+		File oldPluginJarFile = new File(pluginFolder, pluginId + ".jar.old");
+		try {
+			logger.log(Level.INFO, "Replacing " + pluginId
+					+ " plugin file in WEB-INF/plugins folder");
+			pluginJarFile.renameTo(oldPluginJarFile);
+			FileUtils.copyFile(newPluginFile, pluginJarFile);
+		} catch (IOException e) {
+			if (pluginJarFile.exists()) {
+				pluginJarFile.delete();
+			}
+			if (oldPluginJarFile.exists()) {
+				oldPluginJarFile.renameTo(pluginJarFile);
+			}
+			// rethrow exception
+			throw e;
+		}
+
+		// get lib filenames if present
+		List<String> libFileNames = new LinkedList<String>();
+		Enumeration<JarEntry> enumeration = jarFile.entries();
+		while (enumeration.hasMoreElements()) {
+			JarEntry entry = enumeration.nextElement();
+			String entryName = entry.getName();
+			if (entryName.startsWith("lib/") && entryName.endsWith(".jar")) {
+				String[] entryPathComps = entryName.split("/");
+				String libFileName = entryPathComps[entryPathComps.length - 1];
+				libFileNames.add(libFileName);
+			}
+		}
+
+		// update the entity
+		pluginInfo.setName(atts.getValue(PluginManager.PLUGIN_NAME).trim());
+		pluginInfo.setVersion(atts.getValue(PluginManager.PLUGIN_VERSION).trim());
+		pluginInfo.setAuthor(atts.getValue(PluginManager.PLUGIN_AUTHOR).trim());
+		pluginInfo.setEmail(atts.getValue(PluginManager.PLUGIN_EMAIL).trim());
+		pluginInfo.setDescription(atts
+				.getValue(PluginManager.PLUGIN_DESCRIPTION).trim());
+		if (!libFileNames.isEmpty()) {
+			pluginInfo.setLibFilenames(libFileNames.toArray(new String[0]));
+		} else
+			pluginInfo.setLibFilenames(null);
+
+		try {
+			// enable the plugin
+			if (pluginInfo.getEnable())
+				PluginManager.enablePlugin(pluginInfo);
+
+			// handling plugin configuration if present
+			pluginInfo
+					.setConfigurable(PluginManager.initPluginConfig(pluginId));
+		} catch (IOException e) {
+			// upgrade is unsuccessful for some reason revert
+			// to previous version
+			if (oldPluginJarFile.exists()) {
+				oldPluginJarFile.renameTo(pluginJarFile);
+			}
+			// rethrow exception
+			throw e;
+		}
+
+		// seem to be successful, delete the backup old plugin file
+		if (oldPluginJarFile.exists())
+			oldPluginJarFile.delete();
+	}
+
+	static Properties getConfiguration(String pluginId) throws IOException,
+			PluginNotConfigurableException {
 		Properties prop = new Properties();
 		File propFile = new File(PageDispatcherServlet.realPath, "WEB-INF"
 				+ File.separator + "plugins" + File.separator + pluginId
@@ -420,11 +491,11 @@ class PluginManager {
 			throw new PluginNotConfigurableException("plugin " + pluginId
 					+ " is not configurable");
 	}
-	
+
 	private static boolean initPluginConfig(String pluginId) throws IOException {
 		boolean retval = false;
 		File pluginFolder = new File(PageDispatcherServlet.realPath, "WEB-INF"
-				+ File.separator + "plugins"); 
+				+ File.separator + "plugins");
 		File pluginFile = new File(pluginFolder, pluginId + ".jar");
 		URL url = null;
 		try {
@@ -432,26 +503,34 @@ class PluginManager {
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
-		URL[] urls = {url};
-		URLClassLoader classLoader = new URLClassLoader(urls, Thread.currentThread().getContextClassLoader());
+		URL[] urls = { url };
+		URLClassLoader classLoader = new URLClassLoader(urls, Thread
+				.currentThread().getContextClassLoader());
 		Lookup lookup = Lookups.metaInfServices(classLoader);
-		Collection<? extends PluginConfiguration> configs = lookup.lookupAll(PluginConfiguration.class);
+		Collection<? extends PluginConfiguration> configs = lookup
+				.lookupAll(PluginConfiguration.class);
 		for (PluginConfiguration config : configs) {
-			// make sure it's not the one that already installed. If this is something which was 
-			// installed, the ClassLoader of it will not be the same as the one we have above
+			// make sure it's not the one that already installed. If this is
+			// something which was
+			// installed, the ClassLoader of it will not be the same as the one
+			// we have above
 			if (config.getClass().getClassLoader() == classLoader) {
-				Collection<ConfigurationOption> props = config.getConfigurationOptions();
+				Collection<ConfigurationOption> props = config
+						.getConfigurationOptions();
 				Properties properties = new Properties();
 				for (ConfigurationOption prop : props) {
-					properties.setProperty(prop.getName(), prop.getDefaultValue());
+					properties.setProperty(prop.getName(),
+							prop.getDefaultValue());
 				}
-				
+
 				// write the properties file
 				FileOutputStream writer = null;
 				try {
-					File propertiesFile = new File(pluginFolder, pluginId + ".properties");
+					File propertiesFile = new File(pluginFolder, pluginId
+							+ ".properties");
 					writer = new FileOutputStream(propertiesFile);
-					properties.store(writer, "Automatically generated by BOSS2");
+					properties
+							.store(writer, "Automatically generated by BOSS2");
 				} finally {
 					if (writer != null)
 						writer.close();
@@ -461,18 +540,75 @@ class PluginManager {
 		}
 		return retval;
 	}
-	
+
 	static Collection<ConfigurationOption> getPluginConfigOption(String pluginId) {
-		Collection<? extends PluginConfiguration> configs = Lookup.getDefault().lookupAll(PluginConfiguration.class);
+		Collection<? extends PluginConfiguration> configs = Lookup.getDefault()
+				.lookupAll(PluginConfiguration.class);
 		for (PluginConfiguration config : configs) {
 			// make sure we get the right one
-			// the line below will get the full path of the jar file of which config is loaded from
+			// the line below will get the full path of the jar file of which
+			// config is loaded from
 			// the correct one would be having the name plugin_<pluginId>.jar
-			String pluginFilePath = config.getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+			String pluginFilePath = config.getClass().getProtectionDomain()
+					.getCodeSource().getLocation().getPath();
 			if (pluginFilePath.endsWith(pluginId + ".jar")) {
 				return config.getConfigurationOptions();
 			}
 		}
 		return null;
 	}
+
+	private static int compareVersion(String firstVersionStr,
+			String secondVersionStr) throws IllegalArgumentException {
+		// a version string can be a sequence of number, separated by .
+		String versionStrRegex = "(\\d+)(\\.\\d+)*";
+		if (!firstVersionStr.matches(versionStrRegex)
+				|| !secondVersionStr.matches(versionStrRegex))
+			throw new IllegalArgumentException("Malformed version string");
+		String[] firstVersion = firstVersionStr.split("\\.");
+		String[] secondVersion = secondVersionStr.split("\\.");
+		int minLen = (firstVersion.length < secondVersion.length) ? firstVersion.length
+				: secondVersion.length;
+		int maxLen = (firstVersion.length > secondVersion.length) ? firstVersion.length
+				: secondVersion.length;
+
+		// comparing version number starting from the left most portion (major
+		// number)
+		for (int i = 0; i < minLen; i++) {
+			int first = Integer.parseInt(firstVersion[i]);
+			int second = Integer.parseInt(secondVersion[i]);
+			if (first < second)
+				return -1;
+			else if (first > second)
+				return 1;
+		}
+
+		// comparing the rest with padded 0
+		for (int i = minLen; i < maxLen; i++) {
+			int first = 0;
+			int second = 0;
+			if (firstVersion.length > secondVersion.length) {
+				first = Integer.parseInt(firstVersion[i]);
+			} else {
+				second = Integer.parseInt(secondVersion[i]);
+			}
+			if (first < second)
+				return -1;
+			else if (first > second)
+				return 1;
+		}
+
+		// all portions equals
+		return 0;
+	}
+
+	public static void main(String[] args) throws IOException {
+		File tmpFile = File.createTempFile("tnt", ".jar");
+		System.out.println("original file: " + tmpFile.getAbsolutePath());
+		File newTmpFile = new File(tmpFile.getAbsolutePath() + ".old");
+		tmpFile.renameTo(newTmpFile);
+		System.out.println(tmpFile + " " + tmpFile.exists());
+		System.out.println(newTmpFile + " " + newTmpFile.exists());
+	}
+
 }

@@ -43,9 +43,6 @@ public class PluginsPage extends Page {
 			f.endTransaction();
 			templateContext.put("greet", pageContext.getSession().getPersonBinding().getChosenName());
 			templateContext.put("plugins", plugins);
-			for (PluginMetadata plugin : plugins) {
-				System.out.println("desc: " + plugin.getDescription());
-			}
 			pageContext.renderTemplate(template, templateContext);
 		} catch (DAOException e) {
 			f.abortTransaction();

@@ -1,6 +1,5 @@
 package uk.ac.warwick.dcs.boss.plugins;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -14,7 +13,9 @@ import javax.servlet.ServletException;
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.util.Streams;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 
@@ -58,70 +59,87 @@ public class PerformEditPluginPage extends Page {
 		}
 
 		if (pageContext.hasUploadedFiles()) {
-			InputStream in = null;
 			String uploadedFilename = null;
-			boolean unexpected = true;
+			String doStr = null;
+			Long id = null;
+			File pluginFile = null;
+			File tempDir = null;
 			try {
 				FileItemIterator fileIterator = pageContext.getUploadedFiles();
 
 				// try to obtain the input stream (from uploaded file)
 				while (fileIterator.hasNext()) {
 					FileItemStream fileItemStream = fileIterator.next();
-					if (fileItemStream.getFieldName().equals("file")) {
-						in = fileItemStream.openStream();
+					String name = fileItemStream.getFieldName();
+				    InputStream stream = fileItemStream.openStream();
+					if (fileItemStream.isFormField()) {
+						if (name.equals("do"))
+							doStr = Streams.asString(stream);
+						if (name.equals("plugin"))
+							id = Long.valueOf(Streams.asString(stream));
+					}
+					else if (!fileItemStream.isFormField() && name.equals("file")) {
 						uploadedFilename = fileItemStream.getName();
-						unexpected = false;
-						break;
+						
+						// put the uploaded file into a temporary folder for further
+						// inspection and extraction
+						InputStream is = new FileInputStream(new File(
+								pageContext.getConfigurationFilePath()));
+						Properties prop = new Properties();
+						prop.load(is);
+						tempDir = TemporaryDirectory.createTempDir("plugin",
+								new File(prop.getProperty("testing.temp_dir")));
+
+						OutputStream out = null;
+						pluginFile = new File(tempDir, uploadedFilename);
+						try {
+							out = new FileOutputStream(pluginFile);
+							IOUtils.copy(stream, out);
+						} finally {
+							if (out != null)
+								out.close();
+						}
 					}
 				}
 			} catch (FileUploadException e) {
+				if (tempDir != null)
+					FileUtils.deleteDirectory(tempDir);
 				throw new ServletException("error while uploading plugin file",
 						e);
 			}
 
-			// no file uploaded in request
-			if (unexpected)
+			// no file uploaded and/or action string in request
+			if (pluginFile == null || doStr == null)
 				throw new ServletException("Unexpected POST request");
-
-			// put the uploaded file into a temporary folder for further
-			// inspection and extraction
-			File tempDir;
-
-			InputStream is = new FileInputStream(new File(
-					pageContext.getConfigurationFilePath()));
-			Properties prop = new Properties();
-			prop.load(is);
-			tempDir = TemporaryDirectory.createTempDir("plugin",
-					new File(prop.getProperty("testing.temp_dir")));
-
-			OutputStream out = null;
-			File pluginFile = new File(tempDir, uploadedFilename);
-			try {
-				out = new BufferedOutputStream(new FileOutputStream(pluginFile));
-				int c;
-				while ((c = in.read()) != -1) {
-					out.write(c);
-				}
-				out.flush();
-			} finally {
-				if (in != null)
-					in.close();
-				if (out != null)
-					out.close();
-			}
 			
 			// we have a pluginFile at this point
 			PluginMetadata pluginMetadata = null;
 			boolean success = true;
 			try {
-				// install the plugin
-				pluginMetadata = PluginManager.installPlugin(pluginFile);
+				if (doStr.equals("Install")) {
+					// install the plugin
+					pluginMetadata = PluginManager.installPlugin(pluginFile);
+				}
+				else if (doStr.equals("Upgrade") && id != null) {
+					// upgrade the plugin
+					// get current metadata of plugin first
+					try {
+						f.beginTransaction();
+						pluginMetadata = f.getPluginMetadataDAOInstance().retrievePersistentEntity(id);
+						f.endTransaction();
+					} catch (DAOException e) {
+						f.abortTransaction();
+						throw new ServletException("dao exception", e);
+					}
+					PluginManager.upgradePlugin(pluginFile, pluginMetadata);
+				}
+				else
+					throw new ServletException("Unexpected POST request");
 			} catch (InvalidPluginException e) {
 				success = false;
 				templateContext.put("message", e.getMessage());
 			} catch (DAOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				throw new ServletException("dao exception", e);
 			} finally {
 				FileUtils.deleteDirectory(tempDir);
 			}
@@ -129,13 +147,16 @@ public class PerformEditPluginPage extends Page {
 			if (success) {
 				try {
 					f.beginTransaction();
-					
-					// persist into database
 					IPluginMetadataDAO pluginMetadataDao = f
 							.getPluginMetadataDAOInstance();
-					pluginMetadata.setId(pluginMetadataDao
-							.createPersistentCopy(pluginMetadata));
-
+					if (doStr.equals("Install")) {
+						// persist into database
+						pluginMetadata.setId(pluginMetadataDao
+								.createPersistentCopy(pluginMetadata));
+					}
+					else if (doStr.equals("Upgrade")) {
+						pluginMetadataDao.updatePersistentEntity(pluginMetadata);
+					}
 					// done
 					f.endTransaction();
 				} catch (DAOException e) {
