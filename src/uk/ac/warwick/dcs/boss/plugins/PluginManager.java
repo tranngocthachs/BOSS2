@@ -142,13 +142,13 @@ class PluginManager {
 
 		// create an entity
 		PluginMetadata pluginMetadata = new PluginMetadata();
-		pluginMetadata.setPluginId(atts.getValue(PLUGIN_ID).trim());
-		pluginMetadata.setName(atts.getValue(PluginManager.PLUGIN_NAME).trim());
-		pluginMetadata.setVersion(atts.getValue(PluginManager.PLUGIN_VERSION).trim());
-		pluginMetadata.setAuthor(atts.getValue(PluginManager.PLUGIN_AUTHOR).trim());
-		pluginMetadata.setEmail(atts.getValue(PluginManager.PLUGIN_EMAIL).trim());
+		pluginMetadata.setPluginId(atts.getValue(PLUGIN_ID));
+		pluginMetadata.setName(atts.getValue(PluginManager.PLUGIN_NAME));
+		pluginMetadata.setVersion(atts.getValue(PluginManager.PLUGIN_VERSION));
+		pluginMetadata.setAuthor(atts.getValue(PluginManager.PLUGIN_AUTHOR));
+		pluginMetadata.setEmail(atts.getValue(PluginManager.PLUGIN_EMAIL));
 		pluginMetadata.setDescription(atts
-				.getValue(PluginManager.PLUGIN_DESCRIPTION).trim());
+				.getValue(PluginManager.PLUGIN_DESCRIPTION));
 		if (!libFileNames.isEmpty()) {
 			pluginMetadata.setLibFilenames(libFileNames.toArray(new String[0]));
 		} else
@@ -418,12 +418,12 @@ class PluginManager {
 		}
 
 		// update the entity
-		pluginInfo.setName(atts.getValue(PluginManager.PLUGIN_NAME).trim());
-		pluginInfo.setVersion(atts.getValue(PluginManager.PLUGIN_VERSION).trim());
-		pluginInfo.setAuthor(atts.getValue(PluginManager.PLUGIN_AUTHOR).trim());
-		pluginInfo.setEmail(atts.getValue(PluginManager.PLUGIN_EMAIL).trim());
+		pluginInfo.setName(atts.getValue(PluginManager.PLUGIN_NAME));
+		pluginInfo.setVersion(atts.getValue(PluginManager.PLUGIN_VERSION));
+		pluginInfo.setAuthor(atts.getValue(PluginManager.PLUGIN_AUTHOR));
+		pluginInfo.setEmail(atts.getValue(PluginManager.PLUGIN_EMAIL));
 		pluginInfo.setDescription(atts
-				.getValue(PluginManager.PLUGIN_DESCRIPTION).trim());
+				.getValue(PluginManager.PLUGIN_DESCRIPTION));
 		if (!libFileNames.isEmpty()) {
 			pluginInfo.setLibFilenames(libFileNames.toArray(new String[0]));
 		} else
@@ -542,13 +542,26 @@ class PluginManager {
 	}
 
 	static Collection<ConfigurationOption> getPluginConfigOption(String pluginId) {
-		Collection<? extends PluginConfiguration> configs = Lookup.getDefault()
+		File pluginFolder = new File(PageDispatcherServlet.realPath, "WEB-INF"
+				+ File.separator + "plugins");
+		File pluginFile = new File(pluginFolder, pluginId + ".jar");
+		URL url = null;
+		try {
+			url = pluginFile.toURI().toURL();
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+		URL[] urls = { url };
+		URLClassLoader classLoader = new URLClassLoader(urls, Thread
+				.currentThread().getContextClassLoader());
+		Lookup lookup = Lookups.metaInfServices(classLoader);
+		Collection<? extends PluginConfiguration> configs = lookup
 				.lookupAll(PluginConfiguration.class);
 		for (PluginConfiguration config : configs) {
 			// make sure we get the right one
 			// the line below will get the full path of the jar file of which
 			// config is loaded from
-			// the correct one would be having the name plugin_<pluginId>.jar
+			// the correct one would be having suffix plugin_<pluginId>.jar
 			String pluginFilePath = config.getClass().getProtectionDomain()
 					.getCodeSource().getLocation().getPath();
 			if (pluginFilePath.endsWith(pluginId + ".jar")) {

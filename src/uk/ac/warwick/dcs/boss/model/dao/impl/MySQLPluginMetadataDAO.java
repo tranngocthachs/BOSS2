@@ -142,11 +142,24 @@ public class MySQLPluginMetadataDAO extends MySQLEntityDAO<PluginMetadata>
 	}
 
 	public void destroyPluginCustomTables(String pluginId) throws DAOException {
-		Collection<? extends PluginEntityDAO> pluginDbs = Lookup.getDefault().lookupAll(PluginEntityDAO.class);
+		File pluginFile = new File(PageDispatcherServlet.realPath, "WEB-INF"
+				+ File.separator + "plugins" + File.separator + pluginId
+				+ ".jar");
+		URL url = null;
+		try {
+			url = pluginFile.toURI().toURL();
+		} catch (MalformedURLException e) {
+			throw new DAOException(e);
+		}
+		URL[] urls = {url};
+		URLClassLoader classLoader = new URLClassLoader(urls, Thread.currentThread().getContextClassLoader());
+		Lookup lookup = Lookups.metaInfServices(classLoader);
+		Collection<? extends PluginEntityDAO> pluginDbs = lookup.lookupAll(PluginEntityDAO.class);
 		for (PluginEntityDAO pluginDb : pluginDbs) {
 			// make sure we get the right one
 			// the line below will get the full path of the jar file of which pluginDb is loaded from
-			// the correct one would be having the name plugin_<pluginId>.jar
+			// the correct one would be having the suffix <pluginId>.jar
+			// (either the one currently at WEB-INF/lib/plugin_<plugin>.jar or the one in WEB-INF/plugins/<plugin>.jar)
 			String pluginFilePath = pluginDb.getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
 			if (pluginFilePath.endsWith(pluginId + ".jar")) {
 				String dropStr = "DROP TABLE IF EXISTS " + pluginDb.getTableName();
