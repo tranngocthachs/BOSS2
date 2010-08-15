@@ -118,9 +118,8 @@ public class SQLTableSchema {
 		columns.add(new SQLColumnDefinition(colName, Datatype.TEXT, notNull));
 	}
 
-	public <E extends Entity> void setForeignKey(String colName, Class<E> clazz) {
-		foreignKeys.put(colName, clazz.getSimpleName()
-				.toLowerCase());
+	public <E extends Entity> void setForeignKey(String colName, String referencingTableName) {
+		foreignKeys.put(colName, referencingTableName);
 	}
 
 	public String getSQLCreateString() {
@@ -154,8 +153,8 @@ public class SQLTableSchema {
 		tblSch.addDateColumn("deadline", true);
 		tblSch.addIntColumn("person_id", true);
 		tblSch.addIntColumn("assignment_id", true);
-		tblSch.setForeignKey("person_id", Person.class);
-		tblSch.setForeignKey("assignment_id", Assignment.class);
+		tblSch.setForeignKey("person_id", "person");
+		tblSch.setForeignKey("assignment_id", "assignment");
 		System.out.println(tblSch.getSQLCreateString());
 		
 		SQLTableSchema testTbl = new SQLTableSchema("test");
@@ -166,9 +165,9 @@ public class SQLTableSchema {
 		testTbl.addIntColumn("max_time", true);
 		testTbl.addVarCharColumn("command", 255, true);
 		testTbl.addIntColumn("assignment_id", true);
-		testTbl.setForeignKey("assignment_id", Assignment.class);
+		testTbl.setForeignKey("assignment_id", "assignment");
 		testTbl.addIntColumn("resource_id", true);
-		testTbl.setForeignKey("resource_id", Resource.class);
+		testTbl.setForeignKey("resource_id", "resource");
 		System.out.println(testTbl.getSQLCreateString());
 		
 	}
