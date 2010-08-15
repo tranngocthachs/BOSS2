@@ -141,7 +141,7 @@ public class AssignmentsPage extends Page {
 				List<String> links = new LinkedList<String>();
 				for (StudentPluginEntryLinkProvider link : extraLinkProviders) {
 					labels.add(link.getLinkLabel());
-					links.add(pageContext.getPageUrl(StudentPageFactory.SITE_NAME, link.getEntryPageName()));
+					links.add(pageContext.getPageUrl(StudentPageFactory.SITE_NAME, link.getPageName()));
 				}
 				templateContext.put("extraLinks", links);
 				templateContext.put("extraLabels", labels);

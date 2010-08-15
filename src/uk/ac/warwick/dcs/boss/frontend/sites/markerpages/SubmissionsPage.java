@@ -111,7 +111,7 @@ public class SubmissionsPage extends Page {
 				List<String> pluginLinkSubmissionParaStrs = new LinkedList<String>();
 				List<String> pluginLinkLabels = new LinkedList<String>();
 				for (MarkerSubmissionPluginEntryProvider pluginLink : pluginEntryLinks) {
-					pluginLinks.add(pageContext.getPageUrl(MarkerPageFactory.SITE_NAME, pluginLink.getEntryPageName()));
+					pluginLinks.add(pageContext.getPageUrl(MarkerPageFactory.SITE_NAME, pluginLink.getPageName()));
 					pluginLinkSubmissionParaStrs.add(pluginLink.getSubmissionParaString());
 					pluginLinkLabels.add(pluginLink.getLinkLabel());
 				}

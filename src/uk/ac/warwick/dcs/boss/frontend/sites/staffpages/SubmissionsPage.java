@@ -112,7 +112,7 @@ public class SubmissionsPage extends Page {
 				List<String> pluginLinkAssParaStrs = new LinkedList<String>();
 				List<String> pluginLinkLabels = new LinkedList<String>();
 				for (StaffAssignmentPluginEntryProvider pluginLink : pluginEntryLinks) {
-					pluginLinks.add(pageContext.getPageUrl(StaffPageFactory.SITE_NAME, pluginLink.getEntryPageName()));
+					pluginLinks.add(pageContext.getPageUrl(StaffPageFactory.SITE_NAME, pluginLink.getPageName()));
 					pluginLinkAssParaStrs.add(pluginLink.getAssignmentParaString());
 					pluginLinkLabels.add(pluginLink.getLinkLabel());
 				}

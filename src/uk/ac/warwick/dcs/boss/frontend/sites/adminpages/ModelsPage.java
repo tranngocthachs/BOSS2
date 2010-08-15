@@ -83,7 +83,7 @@ public class ModelsPage extends Page {
 				List<String> links = new LinkedList<String>();
 				for (AdminPluginEntryLinkProvider link : extraLinkProviders) {
 					labels.add(link.getLinkLabel());
-					links.add(pageContext.getPageUrl(AdminPageFactory.SITE_NAME, link.getEntryPageName()));
+					links.add(pageContext.getPageUrl(AdminPageFactory.SITE_NAME, link.getPageName()));
 				}
 				templateContext.put("extraLinks", links);
 				templateContext.put("extraLabels", labels);

@@ -93,7 +93,7 @@ public class ModulesPage extends Page {
 				List<String> links = new LinkedList<String>();
 				for (StaffPluginEntryLinkProvider link : extraLinkProviders) {
 					labels.add(link.getLinkLabel());
-					links.add(pageContext.getPageUrl(StaffPageFactory.SITE_NAME, link.getEntryPageName()));
+					links.add(pageContext.getPageUrl(StaffPageFactory.SITE_NAME, link.getPageName()));
 				}
 				templateContext.put("extraLinks", links);
 				templateContext.put("extraLabels", labels);

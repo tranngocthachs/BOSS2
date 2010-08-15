@@ -227,7 +227,7 @@ public class StaffPageFactory extends PageFactory {
 			Iterator<? extends StaffPluginPageProvider> staffPluginPagesIter = Lookup.getDefault().lookupAll(StaffPluginPageProvider.class).iterator();
 			while (staffPluginPagesIter.hasNext()) {
 				StaffPluginPageProvider provider = staffPluginPagesIter.next();
-				if (provider.getName().equals(pageName))
+				if (provider.getPageName().equals(pageName))
 					return new PluginPage(provider);
 			}
 			

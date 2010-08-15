@@ -93,7 +93,7 @@ public class StudentPageFactory extends PageFactory {
 			Iterator<? extends StudentPluginPageProvider> studentPluginPagesIter = Lookup.getDefault().lookupAll(StudentPluginPageProvider.class).iterator();
 			while (studentPluginPagesIter.hasNext()) {
 				StudentPluginPageProvider provider = studentPluginPagesIter.next();
-				if (provider.getName().equals(pageName))
+				if (provider.getPageName().equals(pageName))
 					return new PluginPage(provider);
 			}
 			

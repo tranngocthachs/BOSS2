@@ -57,7 +57,7 @@ public class MarkerPageFactory extends PageFactory {
 			Iterator<? extends MarkerPluginPageProvider> markerPluginPagesIter = Lookup.getDefault().lookupAll(MarkerPluginPageProvider.class).iterator();
 			while (markerPluginPagesIter.hasNext()) {
 				MarkerPluginPageProvider provider = markerPluginPagesIter.next();
-				if (provider.getName().equals(pageName))
+				if (provider.getPageName().equals(pageName))
 					return new PluginPage(provider);
 			}
 			

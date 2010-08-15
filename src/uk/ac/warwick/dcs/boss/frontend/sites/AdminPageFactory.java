@@ -107,7 +107,7 @@ public class AdminPageFactory extends PageFactory {
 			Iterator<? extends AdminPluginPageProvider> adminPluginPagesIter = Lookup.getDefault().lookupAll(AdminPluginPageProvider.class).iterator();
 			while (adminPluginPagesIter.hasNext()) {
 				AdminPluginPageProvider provider = adminPluginPagesIter.next();
-				if (provider.getName().equals(pageName))
+				if (provider.getPageName().equals(pageName))
 					return new PluginPage(provider);
 			}
 			

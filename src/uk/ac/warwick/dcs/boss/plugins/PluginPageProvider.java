@@ -12,7 +12,7 @@ import uk.ac.warwick.dcs.boss.frontend.PageContext;
 
 public abstract class PluginPageProvider {
 
-	public abstract String getName();
+	public abstract String getPageName();
 	
 	public abstract String getPageTemplate();
 	

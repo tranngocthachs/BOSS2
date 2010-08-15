@@ -81,7 +81,7 @@ public class AssignmentPage extends Page {
 				List<String> pluginLinkAssParaStrs = new LinkedList<String>();
 				List<String> pluginLinkLabels = new LinkedList<String>();
 				for (StudentAssignmentPluginEntryProvider pluginLink : pluginEntryLinks) {
-					pluginLinks.add(pageContext.getPageUrl(StudentPageFactory.SITE_NAME, pluginLink.getEntryPageName()));
+					pluginLinks.add(pageContext.getPageUrl(StudentPageFactory.SITE_NAME, pluginLink.getPageName()));
 					pluginLinkAssParaStrs.add(pluginLink.getAssignmentParaString());
 					pluginLinkLabels.add(pluginLink.getLinkLabel());
 				}
