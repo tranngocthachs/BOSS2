@@ -654,7 +654,7 @@ public class MySQLDAOProducer implements IDAOSession {
 				return mySQLPluginEntityDao;
 			}
 		}	
-		return null;
+		throw new DAOException("no DAO can be found for entity: " + clazz.getSimpleName());
 	}
 
 	public IPluginMetadataDAO getPluginMetadataDAOInstance()

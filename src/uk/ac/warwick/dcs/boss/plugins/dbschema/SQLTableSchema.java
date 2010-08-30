@@ -7,10 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import uk.ac.warwick.dcs.boss.model.dao.beans.Assignment;
 import uk.ac.warwick.dcs.boss.model.dao.beans.Entity;
-import uk.ac.warwick.dcs.boss.model.dao.beans.Person;
-import uk.ac.warwick.dcs.boss.model.dao.beans.Resource;
 import uk.ac.warwick.dcs.boss.plugins.dbschema.SQLColumnDefinition.Datatype;
 
 public class SQLTableSchema {
