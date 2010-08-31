@@ -26,7 +26,7 @@ public abstract class MySQLEntityDAO<E extends Entity> implements IEntityDAO<E> 
 	protected Connection connection;
 		
 	public MySQLEntityDAO(Connection connection) throws DAOException {
-		this.setConnection(connection);
+		this.connection = connection;
 	}
 	
 //	public MySQLEntityDAO() {
@@ -334,10 +334,6 @@ public abstract class MySQLEntityDAO<E extends Entity> implements IEntityDAO<E> 
 		} catch (SQLException e) {
 			throw new DAOException("SQL error", e);
 		}
-	}
-
-	public void setConnection(Connection connection) {
-		this.connection = connection;
 	}
 
 	protected Connection getConnection() {
