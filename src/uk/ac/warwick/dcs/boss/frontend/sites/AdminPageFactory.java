@@ -29,7 +29,7 @@ import uk.ac.warwick.dcs.boss.plugins.PerformConfigPluginPage;
 import uk.ac.warwick.dcs.boss.plugins.PerformEditPluginPage;
 import uk.ac.warwick.dcs.boss.plugins.PluginPage;
 import uk.ac.warwick.dcs.boss.plugins.PluginsPage;
-import uk.ac.warwick.dcs.boss.plugins.spi.pages.AdminPluginPageProvider;
+import uk.ac.warwick.dcs.boss.plugins.spi.pages.IAdminPluginPage;
 
 public class AdminPageFactory extends PageFactory {
 
@@ -104,9 +104,9 @@ public class AdminPageFactory extends PageFactory {
 		} else if (pageName.equals(PERFORM_CONFIG_PLUGIN_PAGE)) {
 			return new PerformConfigPluginPage();
 		} else {
-			Iterator<? extends AdminPluginPageProvider> adminPluginPagesIter = Lookup.getDefault().lookupAll(AdminPluginPageProvider.class).iterator();
+			Iterator<? extends IAdminPluginPage> adminPluginPagesIter = Lookup.getDefault().lookupAll(IAdminPluginPage.class).iterator();
 			while (adminPluginPagesIter.hasNext()) {
-				AdminPluginPageProvider provider = adminPluginPagesIter.next();
+				IAdminPluginPage provider = adminPluginPagesIter.next();
 				if (provider.getPageName().equals(pageName))
 					return new PluginPage(provider);
 			}

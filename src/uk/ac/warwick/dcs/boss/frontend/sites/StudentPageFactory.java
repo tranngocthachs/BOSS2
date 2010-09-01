@@ -26,7 +26,7 @@ import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.SubmissionsPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.SubmitPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.studentpages.TestPage;
 import uk.ac.warwick.dcs.boss.plugins.PluginPage;
-import uk.ac.warwick.dcs.boss.plugins.spi.pages.StudentPluginPageProvider;
+import uk.ac.warwick.dcs.boss.plugins.spi.pages.IStudentPluginPage;
 
 public class StudentPageFactory extends PageFactory {
 
@@ -90,9 +90,9 @@ public class StudentPageFactory extends PageFactory {
 		} else if (pageName.equals(PERFORM_CHANGE_PASSWORD_PAGE)) {
 			return new PerformChangePasswordPage();
 		} else {
-			Iterator<? extends StudentPluginPageProvider> studentPluginPagesIter = Lookup.getDefault().lookupAll(StudentPluginPageProvider.class).iterator();
+			Iterator<? extends IStudentPluginPage> studentPluginPagesIter = Lookup.getDefault().lookupAll(IStudentPluginPage.class).iterator();
 			while (studentPluginPagesIter.hasNext()) {
-				StudentPluginPageProvider provider = studentPluginPagesIter.next();
+				IStudentPluginPage provider = studentPluginPagesIter.next();
 				if (provider.getPageName().equals(pageName))
 					return new PluginPage(provider);
 			}

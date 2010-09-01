@@ -22,7 +22,7 @@ import uk.ac.warwick.dcs.boss.model.dao.DAOFactory;
 import uk.ac.warwick.dcs.boss.model.dao.IDAOSession;
 import uk.ac.warwick.dcs.boss.model.dao.IStudentInterfaceQueriesDAO;
 import uk.ac.warwick.dcs.boss.model.dao.beans.queries.StudentSubmissionsQueryResult;
-import uk.ac.warwick.dcs.boss.plugins.spi.extralinks.StudentSubmissionPluginEntryProvider;
+import uk.ac.warwick.dcs.boss.plugins.spi.extralinks.IStudentSubmissionPluginEntryLink;
 
 public class AssignmentSubmissionsPage extends Page {
 
@@ -99,14 +99,14 @@ public class AssignmentSubmissionsPage extends Page {
 			templateContext.put("assignmentId", assignmentId);
 			
 			// loading additional buttons for plugin actions on a student submission
-			Collection<? extends StudentSubmissionPluginEntryProvider> pluginEntryLinks = Lookup.getDefault().lookupAll(StudentSubmissionPluginEntryProvider.class);
+			Collection<? extends IStudentSubmissionPluginEntryLink> pluginEntryLinks = Lookup.getDefault().lookupAll(IStudentSubmissionPluginEntryLink.class);
 			if (!pluginEntryLinks.isEmpty()) {
 				List<String> pluginLinks = new LinkedList<String>();
 				List<String> pluginLinkSubmissionParaStrs = new LinkedList<String>();
 				List<String> pluginLinkLabels = new LinkedList<String>();
-				for (StudentSubmissionPluginEntryProvider pluginLink : pluginEntryLinks) {
+				for (IStudentSubmissionPluginEntryLink pluginLink : pluginEntryLinks) {
 					pluginLinks.add(pageContext.getPageUrl(StudentPageFactory.SITE_NAME, pluginLink.getPageName()));
-					pluginLinkSubmissionParaStrs.add(pluginLink.getSubmissionParaString());
+					pluginLinkSubmissionParaStrs.add(pluginLink.getSubmissionParaName());
 					pluginLinkLabels.add(pluginLink.getLinkLabel());
 				}
 				templateContext.put("pluginLinks", pluginLinks);

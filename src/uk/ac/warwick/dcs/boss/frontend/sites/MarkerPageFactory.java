@@ -17,7 +17,7 @@ import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.StudentsPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.SubmissionsPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.TestPage;
 import uk.ac.warwick.dcs.boss.plugins.PluginPage;
-import uk.ac.warwick.dcs.boss.plugins.spi.pages.MarkerPluginPageProvider;
+import uk.ac.warwick.dcs.boss.plugins.spi.pages.IMarkerPluginPage;
 
 public class MarkerPageFactory extends PageFactory {
 
@@ -54,9 +54,9 @@ public class MarkerPageFactory extends PageFactory {
 		} else if (pageName.equals(DOWNLOAD_SUBMISSION_PAGE)) { 
 			return new DownloadSubmissionPage();
 		} else {
-			Iterator<? extends MarkerPluginPageProvider> markerPluginPagesIter = Lookup.getDefault().lookupAll(MarkerPluginPageProvider.class).iterator();
+			Iterator<? extends IMarkerPluginPage> markerPluginPagesIter = Lookup.getDefault().lookupAll(IMarkerPluginPage.class).iterator();
 			while (markerPluginPagesIter.hasNext()) {
-				MarkerPluginPageProvider provider = markerPluginPagesIter.next();
+				IMarkerPluginPage provider = markerPluginPagesIter.next();
 				if (provider.getPageName().equals(pageName))
 					return new PluginPage(provider);
 			}

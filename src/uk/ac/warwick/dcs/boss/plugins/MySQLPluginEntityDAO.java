@@ -8,28 +8,28 @@ import java.util.Collection;
 
 import uk.ac.warwick.dcs.boss.model.dao.DAOException;
 import uk.ac.warwick.dcs.boss.model.dao.impl.MySQLEntityDAO;
-import uk.ac.warwick.dcs.boss.plugins.spi.dao.PluginEntity;
-import uk.ac.warwick.dcs.boss.plugins.spi.dao.PluginEntityDAO;
+import uk.ac.warwick.dcs.boss.plugins.spi.dao.IPluginEntity;
+import uk.ac.warwick.dcs.boss.plugins.spi.dao.IPluginDBMapping;
 
-public class MySQLPluginEntityDAO<E extends PluginEntity> extends MySQLEntityDAO<E> {
-	public MySQLPluginEntityDAO(Connection connection, PluginEntityDAO<E> daoProvider) throws DAOException {
+public class MySQLPluginEntityDAO<E extends IPluginEntity> extends MySQLEntityDAO<E> {
+	public MySQLPluginEntityDAO(Connection connection, IPluginDBMapping<E> daoProvider) throws DAOException {
 		super(connection);
 		this.daoProvider = daoProvider;
 	}
 
-	private PluginEntityDAO<E> daoProvider;
+	private IPluginDBMapping<E> daoProvider;
 	
 	/**
 	 * @return the daoProvider
 	 */
-	public PluginEntityDAO<E> getDaoProvider() {
+	public IPluginDBMapping<E> getDaoProvider() {
 		return daoProvider;
 	}
 
 	/**
 	 * @param daoProvider the daoProvider to set
 	 */
-	public void setDaoProvider(PluginEntityDAO<E> daoProvider) {
+	public void setDaoProvider(IPluginDBMapping<E> daoProvider) {
 		this.daoProvider = daoProvider;
 	}
 

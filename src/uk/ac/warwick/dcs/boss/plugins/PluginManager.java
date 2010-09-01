@@ -35,7 +35,7 @@ import uk.ac.warwick.dcs.boss.model.dao.DAOException;
 import uk.ac.warwick.dcs.boss.model.dao.DAOFactory;
 import uk.ac.warwick.dcs.boss.model.dao.IDAOSession;
 import uk.ac.warwick.dcs.boss.model.dao.beans.PluginMetadata;
-import uk.ac.warwick.dcs.boss.plugins.spi.config.PluginConfiguration;
+import uk.ac.warwick.dcs.boss.plugins.spi.config.IPluginConfiguration;
 
 class PluginManager {
 	static final Attributes.Name PLUGIN_ID = new Attributes.Name(
@@ -507,9 +507,9 @@ class PluginManager {
 		URLClassLoader classLoader = new URLClassLoader(urls, Thread
 				.currentThread().getContextClassLoader());
 		Lookup lookup = Lookups.metaInfServices(classLoader);
-		Collection<? extends PluginConfiguration> configs = lookup
-				.lookupAll(PluginConfiguration.class);
-		for (PluginConfiguration config : configs) {
+		Collection<? extends IPluginConfiguration> configs = lookup
+				.lookupAll(IPluginConfiguration.class);
+		for (IPluginConfiguration config : configs) {
 			// make sure it's not the one that already installed. If this is
 			// something which was
 			// installed, the ClassLoader of it will not be the same as the one
@@ -555,9 +555,9 @@ class PluginManager {
 		URLClassLoader classLoader = new URLClassLoader(urls, Thread
 				.currentThread().getContextClassLoader());
 		Lookup lookup = Lookups.metaInfServices(classLoader);
-		Collection<? extends PluginConfiguration> configs = lookup
-				.lookupAll(PluginConfiguration.class);
-		for (PluginConfiguration config : configs) {
+		Collection<? extends IPluginConfiguration> configs = lookup
+				.lookupAll(IPluginConfiguration.class);
+		for (IPluginConfiguration config : configs) {
 			// make sure we get the right one
 			// the line below will get the full path of the jar file of which
 			// config is loaded from

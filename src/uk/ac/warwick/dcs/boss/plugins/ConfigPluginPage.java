@@ -16,7 +16,7 @@ import uk.ac.warwick.dcs.boss.model.dao.DAOException;
 import uk.ac.warwick.dcs.boss.model.dao.DAOFactory;
 import uk.ac.warwick.dcs.boss.model.dao.IDAOSession;
 import uk.ac.warwick.dcs.boss.model.dao.beans.PluginMetadata;
-import uk.ac.warwick.dcs.boss.plugins.spi.config.PluginConfiguration;
+import uk.ac.warwick.dcs.boss.plugins.spi.config.IPluginConfiguration;
 
 public class ConfigPluginPage extends Page {
 
@@ -51,7 +51,7 @@ public class ConfigPluginPage extends Page {
 		
 		String pId = pluginMetadata.getPluginId();
 		try {
-			templateContext.put("prop", PluginConfiguration.getConfiguration(pluginMetadata.getPluginId()));
+			templateContext.put("prop", IPluginConfiguration.getConfiguration(pluginMetadata.getPluginId()));
 			templateContext.put("options", PluginManager.getPluginConfigOption(pluginMetadata.getPluginId()));
 			templateContext.put("pName", pluginMetadata.getName());
 			templateContext.put("pId", pluginMetadata.getPluginId());

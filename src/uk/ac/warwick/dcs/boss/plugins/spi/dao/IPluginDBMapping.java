@@ -8,7 +8,7 @@ import java.util.Collection;
 import uk.ac.warwick.dcs.boss.model.dao.DAOException;
 import uk.ac.warwick.dcs.boss.plugins.dbschema.SQLTableSchema;
 
-public abstract class PluginEntityDAO<E extends PluginEntity> {
+public abstract class IPluginDBMapping<E extends IPluginEntity> {
 	
 	protected Class<E> entityType;
 	public Class<E> getEntityType() {
@@ -16,7 +16,7 @@ public abstract class PluginEntityDAO<E extends PluginEntity> {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public PluginEntityDAO() {
+	public IPluginDBMapping() {
 		this.entityType = ((Class<E>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
 	}
 	

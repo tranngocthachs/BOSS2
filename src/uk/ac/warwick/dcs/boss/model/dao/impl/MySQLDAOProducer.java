@@ -38,8 +38,8 @@ import uk.ac.warwick.dcs.boss.model.dao.IStudentInterfaceQueriesDAO;
 import uk.ac.warwick.dcs.boss.model.dao.ISubmissionDAO;
 import uk.ac.warwick.dcs.boss.model.dao.ITestDAO;
 import uk.ac.warwick.dcs.boss.plugins.MySQLPluginEntityDAO;
-import uk.ac.warwick.dcs.boss.plugins.spi.dao.PluginEntity;
-import uk.ac.warwick.dcs.boss.plugins.spi.dao.PluginEntityDAO;
+import uk.ac.warwick.dcs.boss.plugins.spi.dao.IPluginEntity;
+import uk.ac.warwick.dcs.boss.plugins.spi.dao.IPluginDBMapping;
 
 public class MySQLDAOProducer implements IDAOSession {
 	
@@ -642,12 +642,12 @@ public class MySQLDAOProducer implements IDAOSession {
 //	} 
 	
 	@SuppressWarnings("unchecked")
-	public <T extends PluginEntity> IEntityDAO<T> getAdditionalDAOInstance (Class<T> clazz) throws DAOException {
-		Iterator<? extends PluginEntityDAO> ite = Lookup.getDefault().lookupAll(PluginEntityDAO.class).iterator();
+	public <T extends IPluginEntity> IEntityDAO<T> getAdditionalDAOInstance (Class<T> clazz) throws DAOException {
+		Iterator<? extends IPluginDBMapping> ite = Lookup.getDefault().lookupAll(IPluginDBMapping.class).iterator();
 		while (ite.hasNext()) {
-			PluginEntityDAO pluginEntityDao = ite.next();
+			IPluginDBMapping pluginEntityDao = ite.next();
 			if (pluginEntityDao.getEntityType().equals(clazz)) {
-				MySQLPluginEntityDAO<T> mySQLPluginEntityDao = new MySQLPluginEntityDAO<T>(connection, (PluginEntityDAO<T>)pluginEntityDao);
+				MySQLPluginEntityDAO<T> mySQLPluginEntityDao = new MySQLPluginEntityDAO<T>(connection, (IPluginDBMapping<T>)pluginEntityDao);
 				if (!transactionLock.isHeldByCurrentThread()) {
 					throw new DAOException("no transaction in process");
 				}

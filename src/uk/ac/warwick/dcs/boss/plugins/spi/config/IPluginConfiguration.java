@@ -11,7 +11,7 @@ import uk.ac.warwick.dcs.boss.frontend.PageDispatcherServlet;
 import uk.ac.warwick.dcs.boss.model.ConfigurationOption;
 import uk.ac.warwick.dcs.boss.plugins.PluginNotConfigurableException;
 
-public abstract class PluginConfiguration {
+public abstract class IPluginConfiguration {
 	
 	public abstract Collection<ConfigurationOption> getConfigurationOptions();
 

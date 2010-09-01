@@ -13,9 +13,9 @@ import uk.ac.warwick.dcs.boss.frontend.PageLoadException;
 
 public class PluginPage extends Page {
 
-	private PluginPageProvider provider = null;
+	private IPluginPage provider = null;
 	
-	public PluginPage(PluginPageProvider provider)
+	public PluginPage(IPluginPage provider)
 			throws PageLoadException {
 		super(provider.getPageTemplate(), provider.getAccessLevel());
 		this.provider = provider;

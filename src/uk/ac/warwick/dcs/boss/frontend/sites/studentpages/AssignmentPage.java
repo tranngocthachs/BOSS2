@@ -25,7 +25,7 @@ import uk.ac.warwick.dcs.boss.model.dao.IPersonDAO;
 import uk.ac.warwick.dcs.boss.model.dao.IStudentInterfaceQueriesDAO;
 import uk.ac.warwick.dcs.boss.model.dao.beans.Person;
 import uk.ac.warwick.dcs.boss.model.dao.beans.queries.StudentAssignmentsQueryResult;
-import uk.ac.warwick.dcs.boss.plugins.spi.extralinks.StudentAssignmentPluginEntryProvider;
+import uk.ac.warwick.dcs.boss.plugins.spi.extralinks.IStudentAssignmentPluginEntryLink;
 
 public class AssignmentPage extends Page {
 
@@ -75,14 +75,14 @@ public class AssignmentPage extends Page {
 			f.endTransaction();
 			
 			// loading additional links for plugin entry on a student assignment
-			Collection<? extends StudentAssignmentPluginEntryProvider> pluginEntryLinks = Lookup.getDefault().lookupAll(StudentAssignmentPluginEntryProvider.class);
+			Collection<? extends IStudentAssignmentPluginEntryLink> pluginEntryLinks = Lookup.getDefault().lookupAll(IStudentAssignmentPluginEntryLink.class);
 			if (!pluginEntryLinks.isEmpty()) {
 				List<String> pluginLinks = new LinkedList<String>();
 				List<String> pluginLinkAssParaStrs = new LinkedList<String>();
 				List<String> pluginLinkLabels = new LinkedList<String>();
-				for (StudentAssignmentPluginEntryProvider pluginLink : pluginEntryLinks) {
+				for (IStudentAssignmentPluginEntryLink pluginLink : pluginEntryLinks) {
 					pluginLinks.add(pageContext.getPageUrl(StudentPageFactory.SITE_NAME, pluginLink.getPageName()));
-					pluginLinkAssParaStrs.add(pluginLink.getAssignmentParaString());
+					pluginLinkAssParaStrs.add(pluginLink.getAssignmentParaName());
 					pluginLinkLabels.add(pluginLink.getLinkLabel());
 				}
 				templateContext.put("pluginLinks", pluginLinks);

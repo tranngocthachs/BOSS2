@@ -59,7 +59,7 @@ import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.TestsPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.UploadAssignmentResourcePage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.UploadTestResourcePage;
 import uk.ac.warwick.dcs.boss.plugins.PluginPage;
-import uk.ac.warwick.dcs.boss.plugins.spi.pages.StaffPluginPageProvider;
+import uk.ac.warwick.dcs.boss.plugins.spi.pages.IStaffPluginPage;
 
 public class StaffPageFactory extends PageFactory {
 
@@ -224,9 +224,9 @@ public class StaffPageFactory extends PageFactory {
 		} else if (pageName.equals(PERFORM_MULTI_DOWNLOAD_PAGE)) {
 			return new PerformMultiDownloadPage();
 		} else {
-			Iterator<? extends StaffPluginPageProvider> staffPluginPagesIter = Lookup.getDefault().lookupAll(StaffPluginPageProvider.class).iterator();
+			Iterator<? extends IStaffPluginPage> staffPluginPagesIter = Lookup.getDefault().lookupAll(IStaffPluginPage.class).iterator();
 			while (staffPluginPagesIter.hasNext()) {
-				StaffPluginPageProvider provider = staffPluginPagesIter.next();
+				IStaffPluginPage provider = staffPluginPagesIter.next();
 				if (provider.getPageName().equals(pageName))
 					return new PluginPage(provider);
 			}

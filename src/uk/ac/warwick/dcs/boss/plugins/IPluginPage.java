@@ -10,7 +10,7 @@ import org.apache.velocity.VelocityContext;
 import uk.ac.warwick.dcs.boss.frontend.Page.AccessLevel;
 import uk.ac.warwick.dcs.boss.frontend.PageContext;
 
-public abstract class PluginPageProvider {
+public abstract class IPluginPage {
 
 	public abstract String getPageName();
 	

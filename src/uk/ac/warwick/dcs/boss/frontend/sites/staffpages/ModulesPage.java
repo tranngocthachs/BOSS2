@@ -22,7 +22,7 @@ import uk.ac.warwick.dcs.boss.model.dao.DAOFactory;
 import uk.ac.warwick.dcs.boss.model.dao.IDAOSession;
 import uk.ac.warwick.dcs.boss.model.dao.IStaffInterfaceQueriesDAO;
 import uk.ac.warwick.dcs.boss.model.dao.beans.queries.StaffModulesQueryResult;
-import uk.ac.warwick.dcs.boss.plugins.spi.extralinks.StaffPluginEntryLinkProvider;
+import uk.ac.warwick.dcs.boss.plugins.spi.extralinks.IStaffPluginEntryLink;
 
 public class ModulesPage extends Page {
 	
@@ -87,11 +87,11 @@ public class ModulesPage extends Page {
 			templateContext.put("modules", result);
 
 			// loading plugins' entry pages (if present)
-			Collection<? extends StaffPluginEntryLinkProvider> extraLinkProviders = Lookup.getDefault().lookupAll(StaffPluginEntryLinkProvider.class);
+			Collection<? extends IStaffPluginEntryLink> extraLinkProviders = Lookup.getDefault().lookupAll(IStaffPluginEntryLink.class);
 			if (!extraLinkProviders.isEmpty()) {
 				List<String> labels = new LinkedList<String>();
 				List<String> links = new LinkedList<String>();
-				for (StaffPluginEntryLinkProvider link : extraLinkProviders) {
+				for (IStaffPluginEntryLink link : extraLinkProviders) {
 					labels.add(link.getLinkLabel());
 					links.add(pageContext.getPageUrl(StaffPageFactory.SITE_NAME, link.getPageName()));
 				}

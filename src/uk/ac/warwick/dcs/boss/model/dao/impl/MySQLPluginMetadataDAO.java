@@ -22,7 +22,7 @@ import uk.ac.warwick.dcs.boss.model.dao.DAOException;
 import uk.ac.warwick.dcs.boss.model.dao.IPluginMetadataDAO;
 import uk.ac.warwick.dcs.boss.model.dao.beans.PluginMetadata;
 import uk.ac.warwick.dcs.boss.plugins.dbschema.SQLTableSchema;
-import uk.ac.warwick.dcs.boss.plugins.spi.dao.PluginEntityDAO;
+import uk.ac.warwick.dcs.boss.plugins.spi.dao.IPluginDBMapping;
 
 public class MySQLPluginMetadataDAO extends MySQLEntityDAO<PluginMetadata>
 		implements IPluginMetadataDAO {
@@ -123,8 +123,8 @@ public class MySQLPluginMetadataDAO extends MySQLEntityDAO<PluginMetadata>
 		URL[] urls = {url};
 		URLClassLoader classLoader = new URLClassLoader(urls, Thread.currentThread().getContextClassLoader());
 		Lookup lookup = Lookups.metaInfServices(classLoader);
-		Collection<? extends PluginEntityDAO> pluginDbs = lookup.lookupAll(PluginEntityDAO.class);
-		for (PluginEntityDAO pluginDb : pluginDbs) {
+		Collection<? extends IPluginDBMapping> pluginDbs = lookup.lookupAll(IPluginDBMapping.class);
+		for (IPluginDBMapping pluginDb : pluginDbs) {
 			// make sure it's not the one that already installed. If this is something which was 
 			// installed, the ClassLoader of it will not be the same as the one we have above
 			if (pluginDb.getClass().getClassLoader() == classLoader) {
@@ -154,8 +154,8 @@ public class MySQLPluginMetadataDAO extends MySQLEntityDAO<PluginMetadata>
 		URL[] urls = {url};
 		URLClassLoader classLoader = new URLClassLoader(urls, Thread.currentThread().getContextClassLoader());
 		Lookup lookup = Lookups.metaInfServices(classLoader);
-		Collection<? extends PluginEntityDAO> pluginDbs = lookup.lookupAll(PluginEntityDAO.class);
-		for (PluginEntityDAO pluginDb : pluginDbs) {
+		Collection<? extends IPluginDBMapping> pluginDbs = lookup.lookupAll(IPluginDBMapping.class);
+		for (IPluginDBMapping pluginDb : pluginDbs) {
 			// make sure we get the right one
 			// the line below will get the full path of the jar file of which pluginDb is loaded from
 			// the correct one would be having the suffix <pluginId>.jar

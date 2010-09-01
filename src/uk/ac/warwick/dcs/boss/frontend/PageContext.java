@@ -1,11 +1,15 @@
 package uk.ac.warwick.dcs.boss.frontend;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
+import java.util.Properties;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -411,6 +415,13 @@ public class PageContext {
 	 */
 	public String getConfigurationFilePath() {
 		return this.context.getRealPath("WEB-INF/config.properties");
+	}
+	
+	public File getTestingDir() throws IOException {
+		InputStream is = new FileInputStream(new File(getConfigurationFilePath()));
+		Properties prop = new Properties();
+		prop.load(is);
+		return new File(prop.getProperty("testing.temp_dir"));
 	}
 	
 	public String getContextPath() {
