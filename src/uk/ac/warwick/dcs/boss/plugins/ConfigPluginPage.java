@@ -51,7 +51,14 @@ public class ConfigPluginPage extends Page {
 		
 		String pId = pluginMetadata.getPluginId();
 		try {
+			// prop is the current configuration/properties of the plugin
+			// essentially a hashmap of name-value pairs
 			templateContext.put("prop", IPluginConfiguration.getConfiguration(pluginMetadata.getPluginId()));
+			
+			// options contain list of ConfigurationOption objects
+			// each has name of the option (same with name above), 
+			// default value, and description (things that Java's Properties doesn't provide)
+			// these were supplied by plugin by implementing IPluginConfiguration
 			templateContext.put("options", PluginManager.getPluginConfigOption(pluginMetadata.getPluginId()));
 			templateContext.put("pName", pluginMetadata.getName());
 			templateContext.put("pId", pluginMetadata.getPluginId());

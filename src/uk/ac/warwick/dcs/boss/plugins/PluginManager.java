@@ -3,7 +3,6 @@ package uk.ac.warwick.dcs.boss.plugins;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -452,47 +451,12 @@ class PluginManager {
 			oldPluginJarFile.delete();
 	}
 
-	static Properties getConfiguration(String pluginId) throws IOException,
-			PluginNotConfigurableException {
-		Properties prop = new Properties();
-		File propFile = new File(PageDispatcherServlet.realPath, "WEB-INF"
-				+ File.separator + "plugins" + File.separator + pluginId
-				+ ".properties");
-		if (propFile.exists()) {
-			FileInputStream in = null;
-			try {
-				in = new FileInputStream(propFile);
-				prop.load(in);
-			} finally {
-				if (in != null)
-					in.close();
-			}
-		} else
-			throw new PluginNotConfigurableException("plugin " + pluginId
-					+ " is not configurable");
-		return prop;
-	}
-
-	static void setConfiguration(String pluginId, Properties prop)
-			throws IOException, PluginNotConfigurableException {
-		File propFile = new File(PageDispatcherServlet.realPath, "WEB-INF"
-				+ File.separator + "plugins" + File.separator + pluginId
-				+ ".properties");
-		if (propFile.exists()) {
-			FileOutputStream out = null;
-			try {
-				out = new FileOutputStream(propFile);
-				prop.store(out, null);
-			} finally {
-				if (out != null)
-					out.close();
-			}
-		} else
-			throw new PluginNotConfigurableException("plugin " + pluginId
-					+ " is not configurable");
-	}
-
+	
 	private static boolean initPluginConfig(String pluginId) throws IOException {
+		// have to append the plugin's jar file into CLASSPATH before lookup
+		// since plugin is not installed and activated yet hence its binary will
+		// not be in CLASSPATH
+		
 		boolean retval = false;
 		File pluginFolder = new File(PageDispatcherServlet.realPath, "WEB-INF"
 				+ File.separator + "plugins");
@@ -541,7 +505,16 @@ class PluginManager {
 		return retval;
 	}
 
+	/**
+	 * Get configuration options supplied by plugin (in the form of an 
+	 * implementation of IPluginConfiguration)
+	 * @param pluginId id of the plugin
+	 * @return list of ConfigurationOption
+	 */
 	static Collection<ConfigurationOption> getPluginConfigOption(String pluginId) {
+		// have to append the plugin's jar file into CLASSPATH before lookup
+		// since plugin might be inactive and its binary is not in CLASSPATH
+		
 		File pluginFolder = new File(PageDispatcherServlet.realPath, "WEB-INF"
 				+ File.separator + "plugins");
 		File pluginFile = new File(pluginFolder, pluginId + ".jar");
