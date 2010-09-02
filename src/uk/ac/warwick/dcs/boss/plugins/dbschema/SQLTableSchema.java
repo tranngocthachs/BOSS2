@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import uk.ac.warwick.dcs.boss.model.dao.beans.Entity;
 import uk.ac.warwick.dcs.boss.plugins.dbschema.SQLColumnDefinition.Datatype;
 
 public class SQLTableSchema {
@@ -115,7 +114,7 @@ public class SQLTableSchema {
 		columns.add(new SQLColumnDefinition(colName, Datatype.TEXT, notNull));
 	}
 
-	public <E extends Entity> void setForeignKey(String colName, String referencingTableName) {
+	public void setForeignKey(String colName, String referencingTableName) {
 		foreignKeys.put(colName, referencingTableName);
 	}
 
