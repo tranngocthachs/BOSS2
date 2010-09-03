@@ -114,8 +114,8 @@ public class SQLTableSchema {
 		columns.add(new SQLColumnDefinition(colName, Datatype.TEXT, notNull));
 	}
 
-	public void setForeignKey(String colName, String referencingTableName) {
-		foreignKeys.put(colName, referencingTableName);
+	public void setForeignKey(String colName, String referencedTable) {
+		foreignKeys.put(colName, referencedTable);
 	}
 
 	public String getSQLCreateString() {
