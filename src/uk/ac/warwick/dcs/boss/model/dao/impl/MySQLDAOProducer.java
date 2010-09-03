@@ -17,6 +17,10 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.openide.util.Lookup;
 
+import boss.plugins.MySQLPluginEntityDAO;
+import boss.plugins.spi.dao.IPluginDBMapping;
+import boss.plugins.spi.dao.IPluginEntity;
+
 import uk.ac.warwick.dcs.boss.model.dao.DAOException;
 import uk.ac.warwick.dcs.boss.model.dao.IAdminInterfaceQueriesDAO;
 import uk.ac.warwick.dcs.boss.model.dao.IAssignmentDAO;
@@ -37,9 +41,6 @@ import uk.ac.warwick.dcs.boss.model.dao.IStaffInterfaceQueriesDAO;
 import uk.ac.warwick.dcs.boss.model.dao.IStudentInterfaceQueriesDAO;
 import uk.ac.warwick.dcs.boss.model.dao.ISubmissionDAO;
 import uk.ac.warwick.dcs.boss.model.dao.ITestDAO;
-import uk.ac.warwick.dcs.boss.plugins.MySQLPluginEntityDAO;
-import uk.ac.warwick.dcs.boss.plugins.spi.dao.IPluginEntity;
-import uk.ac.warwick.dcs.boss.plugins.spi.dao.IPluginDBMapping;
 
 public class MySQLDAOProducer implements IDAOSession {
 	

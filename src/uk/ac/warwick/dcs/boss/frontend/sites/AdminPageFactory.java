@@ -4,6 +4,13 @@ import java.util.Iterator;
 
 import org.openide.util.Lookup;
 
+import boss.plugins.ConfigPluginPage;
+import boss.plugins.PerformConfigPluginPage;
+import boss.plugins.PerformEditPluginPage;
+import boss.plugins.PluginPage;
+import boss.plugins.PluginsPage;
+import boss.plugins.spi.pages.IAdminPluginPage;
+
 import uk.ac.warwick.dcs.boss.frontend.Page;
 import uk.ac.warwick.dcs.boss.frontend.PageFactory;
 import uk.ac.warwick.dcs.boss.frontend.PageLoadException;
@@ -24,12 +31,6 @@ import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PerformExecuteUtilityPag
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PerformFindModuleAdministratorPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.PerformRemoveModuleAdministratorPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.adminpages.UtilitiesPage;
-import uk.ac.warwick.dcs.boss.plugins.ConfigPluginPage;
-import uk.ac.warwick.dcs.boss.plugins.PerformConfigPluginPage;
-import uk.ac.warwick.dcs.boss.plugins.PerformEditPluginPage;
-import uk.ac.warwick.dcs.boss.plugins.PluginPage;
-import uk.ac.warwick.dcs.boss.plugins.PluginsPage;
-import uk.ac.warwick.dcs.boss.plugins.spi.pages.IAdminPluginPage;
 
 public class AdminPageFactory extends PageFactory {
 

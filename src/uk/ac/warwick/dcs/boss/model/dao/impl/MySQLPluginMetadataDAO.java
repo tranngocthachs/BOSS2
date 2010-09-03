@@ -17,12 +17,13 @@ import org.apache.log4j.Logger;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 
+import boss.plugins.dbschema.SQLTableSchema;
+import boss.plugins.spi.dao.IPluginDBMapping;
+
 import uk.ac.warwick.dcs.boss.frontend.PageDispatcherServlet;
 import uk.ac.warwick.dcs.boss.model.dao.DAOException;
 import uk.ac.warwick.dcs.boss.model.dao.IPluginMetadataDAO;
 import uk.ac.warwick.dcs.boss.model.dao.beans.PluginMetadata;
-import uk.ac.warwick.dcs.boss.plugins.dbschema.SQLTableSchema;
-import uk.ac.warwick.dcs.boss.plugins.spi.dao.IPluginDBMapping;
 
 public class MySQLPluginMetadataDAO extends MySQLEntityDAO<PluginMetadata>
 		implements IPluginMetadataDAO {

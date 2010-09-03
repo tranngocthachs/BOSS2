@@ -11,6 +11,8 @@ import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.openide.util.Lookup;
 
+import boss.plugins.spi.extralinks.IStudentAssignmentPluginEntryLink;
+
 import uk.ac.warwick.dcs.boss.frontend.Page;
 import uk.ac.warwick.dcs.boss.frontend.PageContext;
 import uk.ac.warwick.dcs.boss.frontend.PageLoadException;
@@ -25,7 +27,6 @@ import uk.ac.warwick.dcs.boss.model.dao.IPersonDAO;
 import uk.ac.warwick.dcs.boss.model.dao.IStudentInterfaceQueriesDAO;
 import uk.ac.warwick.dcs.boss.model.dao.beans.Person;
 import uk.ac.warwick.dcs.boss.model.dao.beans.queries.StudentAssignmentsQueryResult;
-import uk.ac.warwick.dcs.boss.plugins.spi.extralinks.IStudentAssignmentPluginEntryLink;
 
 public class AssignmentPage extends Page {
 

@@ -4,6 +4,9 @@ import java.util.Iterator;
 
 import org.openide.util.Lookup;
 
+import boss.plugins.PluginPage;
+import boss.plugins.spi.pages.IMarkerPluginPage;
+
 import uk.ac.warwick.dcs.boss.frontend.Page;
 import uk.ac.warwick.dcs.boss.frontend.PageFactory;
 import uk.ac.warwick.dcs.boss.frontend.PageLoadException;
@@ -16,8 +19,6 @@ import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.PerformTestPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.StudentsPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.SubmissionsPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.markerpages.TestPage;
-import uk.ac.warwick.dcs.boss.plugins.PluginPage;
-import uk.ac.warwick.dcs.boss.plugins.spi.pages.IMarkerPluginPage;
 
 public class MarkerPageFactory extends PageFactory {
 

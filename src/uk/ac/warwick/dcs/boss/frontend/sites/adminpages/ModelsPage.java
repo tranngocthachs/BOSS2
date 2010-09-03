@@ -11,6 +11,8 @@ import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.openide.util.Lookup;
 
+import boss.plugins.spi.extralinks.IAdminPluginEntryLink;
+
 import uk.ac.warwick.dcs.boss.frontend.Page;
 import uk.ac.warwick.dcs.boss.frontend.PageContext;
 import uk.ac.warwick.dcs.boss.frontend.PageLoadException;
@@ -23,7 +25,6 @@ import uk.ac.warwick.dcs.boss.model.dao.IAdminInterfaceQueriesDAO;
 import uk.ac.warwick.dcs.boss.model.dao.IAdminInterfaceQueriesDAO.AdminModelsQuerySortingType;
 import uk.ac.warwick.dcs.boss.model.dao.IDAOSession;
 import uk.ac.warwick.dcs.boss.model.dao.beans.queries.AdminModelsQueryResult;
-import uk.ac.warwick.dcs.boss.plugins.spi.extralinks.IAdminPluginEntryLink;
 
 public class ModelsPage extends Page {
 	

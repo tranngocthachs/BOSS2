@@ -4,6 +4,9 @@ import java.util.Iterator;
 
 import org.openide.util.Lookup;
 
+import boss.plugins.PluginPage;
+import boss.plugins.spi.pages.IStaffPluginPage;
+
 import uk.ac.warwick.dcs.boss.frontend.Page;
 import uk.ac.warwick.dcs.boss.frontend.PageFactory;
 import uk.ac.warwick.dcs.boss.frontend.PageLoadException;
@@ -58,8 +61,6 @@ import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.TestHashPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.TestsPage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.UploadAssignmentResourcePage;
 import uk.ac.warwick.dcs.boss.frontend.sites.staffpages.UploadTestResourcePage;
-import uk.ac.warwick.dcs.boss.plugins.PluginPage;
-import uk.ac.warwick.dcs.boss.plugins.spi.pages.IStaffPluginPage;
 
 public class StaffPageFactory extends PageFactory {
 
