@@ -55,7 +55,7 @@ public interface IDAOSession {
 	abstract public IAdminInterfaceQueriesDAO getAdminInterfaceQueriesDAOInstance() throws DAOException;
 	
 	abstract public <T extends IPluginEntity> 
-				IEntityDAO<T> getAdditionalDAOInstance (Class<T> clazz) throws DAOException;
+				IEntityDAO<T> getPluginDAOInstance (Class<T> clazz) throws DAOException;
 	abstract public IPluginMetadataDAO getPluginMetadataDAOInstance() throws DAOException;
 	// i18n
 	/**

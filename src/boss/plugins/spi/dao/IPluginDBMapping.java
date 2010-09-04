@@ -11,14 +11,14 @@ import uk.ac.warwick.dcs.boss.model.dao.DAOException;
 
 public abstract class IPluginDBMapping<E extends IPluginEntity> {
 	
-	protected Class<E> entityType;
-	public Class<E> getEntityType() {
+	// no need to parameterise Class because it will be lost due to type erasure anyway
+	protected Class entityType;
+	public Class getEntityType() {
 		return entityType;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public IPluginDBMapping() {
-		this.entityType = ((Class<E>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
+		this.entityType = (Class) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
 	}
 	
 	/**

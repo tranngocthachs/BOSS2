@@ -643,7 +643,7 @@ public class MySQLDAOProducer implements IDAOSession {
 //	} 
 	
 	@SuppressWarnings("unchecked")
-	public <T extends IPluginEntity> IEntityDAO<T> getAdditionalDAOInstance (Class<T> clazz) throws DAOException {
+	public <T extends IPluginEntity> IEntityDAO<T> getPluginDAOInstance (Class<T> clazz) throws DAOException {
 		Iterator<? extends IPluginDBMapping> ite = Lookup.getDefault().lookupAll(IPluginDBMapping.class).iterator();
 		while (ite.hasNext()) {
 			IPluginDBMapping pluginEntityDao = ite.next();
