@@ -17,13 +17,13 @@ import org.apache.log4j.Logger;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 
-import boss.plugins.dbschema.SQLTableSchema;
-import boss.plugins.spi.dao.IPluginDBMapping;
-
 import uk.ac.warwick.dcs.boss.frontend.PageDispatcherServlet;
 import uk.ac.warwick.dcs.boss.model.dao.DAOException;
 import uk.ac.warwick.dcs.boss.model.dao.IPluginMetadataDAO;
 import uk.ac.warwick.dcs.boss.model.dao.beans.PluginMetadata;
+import boss.plugins.InvalidPluginException;
+import boss.plugins.dbschema.SQLTableSchema;
+import boss.plugins.spi.dao.IPluginDBMapping;
 
 public class MySQLPluginMetadataDAO extends MySQLEntityDAO<PluginMetadata>
 		implements IPluginMetadataDAO {
@@ -111,7 +111,7 @@ public class MySQLPluginMetadataDAO extends MySQLEntityDAO<PluginMetadata>
 		return "id DESC";
 	}
 
-	public void createPluginCustomTables(String pluginId) throws DAOException {
+	public void createPluginCustomTables(String pluginId) throws DAOException, InvalidPluginException {
 		File pluginFile = new File(PageDispatcherServlet.realPath, "WEB-INF"
 				+ File.separator + "plugins" + File.separator + pluginId
 				+ ".jar");
@@ -132,12 +132,18 @@ public class MySQLPluginMetadataDAO extends MySQLEntityDAO<PluginMetadata>
 				SQLTableSchema tableSchema = pluginDb.getTableSchema();
 				String createStr = tableSchema.getSQLCreateString();
 				Logger.getLogger("mysql").log(Level.TRACE, "Executing " + createStr);
+				Statement stm = null;
 				try {
-					Statement stm = getConnection().createStatement();
-					stm.executeUpdate(createStr);
+					stm = getConnection().createStatement();
 				} catch (SQLException e) {
 					throw new DAOException("SQL error", e);
 				}
+				try {
+					stm.executeUpdate(createStr);
+				} catch (SQLException e) {
+					throw new InvalidPluginException("Incorrect schema specified in plugin table " + tableSchema.getTableName());
+				}
+				
 			}
 		}
 	}
@@ -163,7 +169,7 @@ public class MySQLPluginMetadataDAO extends MySQLEntityDAO<PluginMetadata>
 			// (either the one currently at WEB-INF/lib/plugin_<plugin>.jar or the one in WEB-INF/plugins/<plugin>.jar)
 			String pluginFilePath = pluginDb.getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
 			if (pluginFilePath.endsWith(pluginId + ".jar")) {
-				String dropStr = "DROP TABLE IF EXISTS " + pluginDb.getTableName();
+				String dropStr = "DROP TABLE IF EXISTS " + pluginDb.getTableSchema().getTableName();
 				Logger.getLogger("mysql").log(Level.TRACE, "Executing " + dropStr);
 				try {
 					Statement stm = getConnection().createStatement();

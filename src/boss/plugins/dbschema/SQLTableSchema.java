@@ -9,7 +9,6 @@ import java.util.Map.Entry;
 
 import boss.plugins.dbschema.SQLColumnDefinition.Datatype;
 
-
 public class SQLTableSchema {
 	private String tableName;
 	private List<SQLColumnDefinition> columns;
@@ -21,6 +20,10 @@ public class SQLTableSchema {
 		foreignKeys = new HashMap<String, String>();
 		// adding id column
 		columns.add(new SQLColumnDefinition("id", Datatype.INT, true, true));
+	}
+
+	public String getTableName() {
+		return tableName;
 	}
 
 	public void addIntColumn(String colName) {
@@ -143,7 +146,7 @@ public class SQLTableSchema {
 		createStrBld.append(" ) ENGINE=InnoDB");
 		return createStrBld.toString();
 	}
-	
+
 	public static void main(String[] args) {
 		SQLTableSchema tblSch = new SQLTableSchema("deadlinerevision");
 		tblSch.addTextColumn("comment", true);
@@ -153,7 +156,7 @@ public class SQLTableSchema {
 		tblSch.setForeignKey("person_id", "person");
 		tblSch.setForeignKey("assignment_id", "assignment");
 		System.out.println(tblSch.getSQLCreateString());
-		
+
 		SQLTableSchema testTbl = new SQLTableSchema("test");
 		testTbl.addBooleanColumn("student_test", true);
 		testTbl.addVarCharColumn("name", 64, true);
@@ -166,6 +169,6 @@ public class SQLTableSchema {
 		testTbl.addIntColumn("resource_id", true);
 		testTbl.setForeignKey("resource_id", "resource");
 		System.out.println(testTbl.getSQLCreateString());
-		
+
 	}
 }

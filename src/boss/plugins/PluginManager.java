@@ -165,6 +165,15 @@ class PluginManager {
 			} catch (DAOException e) {
 				f.abortTransaction();
 				throw e;
+			} catch(InvalidPluginException e) {
+				f.abortTransaction();
+				if (pluginJarFile.exists()) {
+					logger.log(Level.INFO, "Deleting " + pluginId
+							+ " plugin file in WEB-INF/plugins folder");
+					pluginJarFile.delete();
+				}
+				// rethrow exception
+				throw e;
 			}
 
 			// enable the plugin
