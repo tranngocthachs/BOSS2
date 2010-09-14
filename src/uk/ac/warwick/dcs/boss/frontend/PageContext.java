@@ -2,7 +2,6 @@ package uk.ac.warwick.dcs.boss.frontend;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -30,10 +29,10 @@ import uk.ac.warwick.dcs.boss.frontend.sites.SystemPageFactory;
 import uk.ac.warwick.dcs.boss.model.FactoryException;
 import uk.ac.warwick.dcs.boss.model.FactoryRegistrar;
 import uk.ac.warwick.dcs.boss.model.session.ISessionAuthenticator;
-import uk.ac.warwick.dcs.boss.model.session.UserSession;
-import uk.ac.warwick.dcs.boss.model.session.SessionException;
 import uk.ac.warwick.dcs.boss.model.session.SessionAutenticatorFactory;
+import uk.ac.warwick.dcs.boss.model.session.SessionException;
 import uk.ac.warwick.dcs.boss.model.session.UserNotFoundException;
+import uk.ac.warwick.dcs.boss.model.session.UserSession;
 
 /**
  * PageContext contains absolutely everything needed to be known about a particularly page request.
