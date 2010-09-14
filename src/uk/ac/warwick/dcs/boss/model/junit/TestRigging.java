@@ -8,7 +8,6 @@ import java.util.Random;
 
 import uk.ac.warwick.dcs.boss.model.ModelViolationException;
 import uk.ac.warwick.dcs.boss.model.dao.DAOException;
-import uk.ac.warwick.dcs.boss.model.dao.DAOFactory;
 import uk.ac.warwick.dcs.boss.model.dao.IDAOSession;
 import uk.ac.warwick.dcs.boss.model.dao.beans.Assignment;
 import uk.ac.warwick.dcs.boss.model.dao.beans.DeadlineRevision;
@@ -17,7 +16,6 @@ import uk.ac.warwick.dcs.boss.model.dao.beans.Model;
 import uk.ac.warwick.dcs.boss.model.dao.beans.Module;
 import uk.ac.warwick.dcs.boss.model.dao.beans.Person;
 import uk.ac.warwick.dcs.boss.model.dao.beans.Resource;
-import uk.ac.warwick.dcs.boss.model.dao.impl.MySQLDAOProducer;
 
 public class TestRigging {
 	
