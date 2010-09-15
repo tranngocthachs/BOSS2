@@ -13,6 +13,7 @@
         <pathelement location="WebContent/WEB-INF/lib/commons-collections-3.2.1.jar"/>
         <pathelement location="WebContent/WEB-INF/lib/commons-fileupload-1.2.jar"/>
         <pathelement location="WebContent/WEB-INF/lib/commons-lang-2.4.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/commons-io-1.4.jar"/>
         <pathelement location="WebContent/WEB-INF/lib/el-api.jar"/>
         <pathelement location="WebContent/WEB-INF/lib/jasper-el.jar"/>
         <pathelement location="WebContent/WEB-INF/lib/jasper-jdt.jar"/>
@@ -31,7 +32,8 @@
         <pathelement location="WebContent/WEB-INF/lib/tomcat-i18n-fr.jar"/>
         <pathelement location="WebContent/WEB-INF/lib/tomcat-i18n-ja.jar"/>
         <pathelement location="WebContent/WEB-INF/lib/velocity-1.6.4.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/org-openide-util.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/org-openide-util-lookup.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/weblets-api-1.1.jar"/>
         <pathelement location="ImportedClasses"/>
     </path>
     <path id="BOSS2.classpath">
